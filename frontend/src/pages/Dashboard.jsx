@@ -1,69 +1,109 @@
-// import { useState } from "react";
-// import { Alert } from "react-bootstrap";
-// import Button from "react-bootstrap/Button";
-// import FloatingLabel from "react-bootstrap/esm/FloatingLabel";
-// import Form from "react-bootstrap/Form";
-// import instance from "../utils/api";
-// import { URLS } from "../constants";
+import { useState } from "react";
 
-// const Dashboard = () => {
-//   const [result, setResult] = useState("");
-//   const [newsValue, setNewsValue] = useState("");
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState("");
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setLoading(true);
-//     try {
-//       const response = await instance.post(`${URLS.NEWS}/classify`, {
-//         news: newsValue,
-//       });
-//       setResult(response.data.data.prediction);
-//     } catch (e) {
-//       const errMsg = e?.response ? e.response.data.msg : "Something went wrong";
-//       setError(errMsg);
-//     } finally {
-//       setLoading(false);
-//       setTimeout(() => {
-//         setError("");
-//       }, 3000);
-//     }
-//     // setNewsValue("");
-//   };
-//   return (
-//     <>
-//       <h1>NewsClassification</h1>
-//       <Form onSubmit={handleSubmit}>
-//         <Form.Group className="mb-3">
-//           <FloatingLabel controlId="floatingTextarea2" label="Enter News">
-//             <Form.Control
-//               as="textarea"
-//               placeholder="Leave a News here"
-//               style={{ height: "100px" }}
-//               value={newsValue}
-//               onChange={(e) => setNewsValue(e.target.value)}
-//             />
-//           </FloatingLabel>
-//         </Form.Group>
-//         {error ? <Alert variant="danger">{error}</Alert> : null}
-//         <Button
-//           variant="primary"
-//           type="submit"
-//           disabled={loading ? true : false}
-//         >
-//           Submit
-//         </Button>
-//       </Form>
-//       {result}
-//       {/* <div>{result ? { result } : null}</div> */}
-//     </>
-//   );
-// };
-
-// export default Dashboard;
+import SendSVG from "../assets/svg/SendSVG";
+import instance from "../utils/api";
+import { URLS } from "../constants";
 
 const Dashboard = () => {
-  return <div>This is dashboard</div>;
+  const [conversation, setConversation] = useState([]);
+  const [newsValue, setNewsValue] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    try {
+      // if(){}
+      setLoading(true);
+
+      //    Add the user's input to the conversation
+      const userMessage = {
+        sender: "user",
+        message: newsValue,
+        type: "success",
+      };
+      setConversation((prev) => [...prev, userMessage]);
+
+      //   Make API Call
+      const response = await instance.post(`${URLS.NEWS}/classify`, {
+        news: newsValue,
+      });
+
+      //   Add the response to the conversation
+      const modelMessage = {
+        sender: "SVM Model",
+        message: response.data.data.prediction,
+        type: "success",
+      };
+      setConversation((prev) => [...prev, modelMessage]);
+    } catch (e) {
+      const errMsg = e?.response ? e.response.data.msg : "Something went wrong";
+      const errorMessage = {
+        sender: "SVM Model",
+        message: errMsg,
+        type: "error",
+      };
+      setConversation((prev) => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
+      setNewsValue("");
+    }
+  };
+
+  return (
+    <div className="p-4 h-[100%]">
+      <div className="mb-24">
+        {conversation.map((message, index) => (
+          <div key={index}>
+            {/* Message of User */}
+            <div
+              className={`chat ${
+                message.sender === "user" ? "chat-end" : "chat-start"
+              } `}
+            >
+              <div className="chat-image avatar">
+                <div className="w-10 rounded-full">
+                  <img
+                    alt="Tailwind CSS chat bubble component"
+                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                  />
+                </div>
+              </div>
+              <div className="chat-header">
+                {message.sender}
+                <time className="text-xs opacity-50">12:46</time>
+              </div>
+              <div
+                className={`chat-bubble ${
+                  message.type === "error" ? "chat-bubble-error" : ""
+                }`}
+              >
+                {message.message}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* TextArea */}
+      <div className="flex flex-col fixed bottom-2 left-0 right-0 p-4">
+        <div className="flex w-full gap-2">
+          <textarea
+            value={newsValue}
+            onChange={(e) => setNewsValue(e.target.value)}
+            placeholder="Enter News here"
+            className="textarea flex-1 w-full textarea-bordered resize-none focus:ring-2 "
+          ></textarea>
+          <kbd
+            className="kbd kbd-lg flex-shrink-0"
+            style={{ width: "80px", height: "80px" }}
+            onClick={handleSubmit}
+            aria-disabled={loading}
+          >
+            <SendSVG />
+          </kbd>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Dashboard;
