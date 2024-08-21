@@ -7,8 +7,14 @@ const NavBar = () => {
   const handleLogout = (e) => {
     e.preventDefault();
     removeToken();
-    navigate("/login");
+    navigate("/");
   };
+
+  const handleLoginClick = () => {
+    const btn = document.getElementById("LoginButton");
+    btn ? btn.click() : null;
+  };
+
   return (
     <div className="navbar bg-base-100 fixed">
       <div className="flex-1">
@@ -35,7 +41,7 @@ const NavBar = () => {
             {isLoggedin() ? (
               <Link onClick={handleLogout}>Logout</Link>
             ) : (
-              <Link to={"/login"}>Login</Link>
+              <Link onClick={handleLoginClick}>Login</Link>
             )}
           </ul>
         </div>

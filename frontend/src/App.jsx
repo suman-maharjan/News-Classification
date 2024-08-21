@@ -1,6 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./layouts/Layout";
-import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import { ProtectedRoute, PublicRoute } from "./components/ProtectedRoute";
@@ -11,12 +10,11 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
             <Route
-              path="/login"
+              index
               element={
                 <PublicRoute>
-                  <Login />
+                  <Home />
                 </PublicRoute>
               }
             />
@@ -28,7 +26,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* <Route path="login" element={<Error />} /> */}
           </Route>
         </Routes>
       </BrowserRouter>
