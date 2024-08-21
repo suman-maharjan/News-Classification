@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import SendSVG from "../assets/svg/SendSVG";
 import instance from "../utils/api";
@@ -9,9 +9,22 @@ const Dashboard = () => {
   const [newsValue, setNewsValue] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const fetchConversation = async () => {
+      const response = await instance.get(`${URLS.CONVERSATION}/user`);
+      const messages = response.data.data.messages;
+      if (messages) {
+        setConversation(messages);
+      }
+    };
+    fetchConversation();
+  }, []);
+
   const handleSubmit = async () => {
     try {
-      // if(){}
+      if (!newsValue) {
+        throw new Error("Please enter a message");
+      }
       setLoading(true);
 
       //    Add the user's input to the conversation
@@ -34,8 +47,17 @@ const Dashboard = () => {
         type: "success",
       };
       setConversation((prev) => [...prev, modelMessage]);
+
+      //   Save the conversation to the database
+      await instance.post(`${URLS.CONVERSATION}/save`, {
+        messages: [userMessage, modelMessage],
+      });
     } catch (e) {
-      const errMsg = e?.response ? e.response.data.msg : "Something went wrong";
+      console.log(e);
+      let errMsg = e?.response ? e.response.data.msg : "Something went wrong";
+      if (e.message === "Please enter a message") {
+        errMsg = e.message;
+      }
       const errorMessage = {
         sender: "SVM Model",
         message: errMsg,
