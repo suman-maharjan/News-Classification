@@ -46,12 +46,10 @@ const LoginForm = () => {
       }
       const { data } = await instance.post(`${URLS.AUTH}/login`, signIn);
 
-      console.log(data);
       const { token } = data.data;
       setToken(token);
       navigate("/dashboard");
     } catch (e) {
-      console.log(e);
       const errMsg = e?.response ? e.response.data.msg : "Something went wrong";
       setError(errMsg);
     } finally {
