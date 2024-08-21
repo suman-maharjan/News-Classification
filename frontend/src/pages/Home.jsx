@@ -4,7 +4,7 @@ import RegisterForm from "../components/RegisterForm";
 const Home = () => {
   return (
     <div
-      className="hero min-h-screen"
+      className="hero h-screen"
       style={{
         backgroundImage: "url(/heroImage.png)",
       }}
