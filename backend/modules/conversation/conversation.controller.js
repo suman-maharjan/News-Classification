@@ -1,42 +1,67 @@
-const Conversation = require("./conversation.model");
+const conversationModel = require("./conversation.model");
+const { verifyToken } = require("../../utils/jwt");
+const userModel = require("../user/user.model");
 
-const createConversation = async (payload) => {
-  const { userId, ...data } = payload;
-  const conversation = new Conversation.create({ userId, ...data });
-  res.json(conversation);
-};
+const create = async (req, payload) => {
+  const { messages } = payload;
+  const bearerToken = req?.headers?.authorization;
 
-const getConversationByUser = async (payload) => {
-  const conversation = await Conversation.find({ userId: payload.userId });
-  res.json(conversation);
-};
+  const token = bearerToken.split("Bearer ")[1];
+  const tokenData = verifyToken(token);
+  const { data } = tokenData;
+  const { email } = data;
 
-const updateConversation = async (payload) => {
-  const { userId, ...data } = payload;
-  const conversation = await Conversation.findOneAndUpdate(
-    { userId },
-    { ...data },
-    { new: true }
-  );
-  if (!conversation) {
-    throw new Error("Conversation not found");
+  // get id using email
+  const user = await userModel.findOne({ email: email });
+  const userId = user._id;
+
+  // Check the ConversationId with the userId exists or not
+  const conversation = await conversationModel.findOne({ userId });
+
+  if (!messages) {
+    throw new Error("Messages are required");
   }
-  res.json(conversation);
-};
 
-const deleteConversation = async (payload) => {
-  const conversation = await Conversation.findOneAndDelete({
-    userId: payload.userId,
-  });
-  if (!conversation) {
-    throw new Error("Conversation not found");
+  let savedConversation;
+  if (conversation) {
+    savedConversation = await conversationModel
+      .findByIdAndUpdate(
+        conversation._id,
+        { $push: { messages: { $each: messages } } },
+        { new: true }
+      )
+      .lean(); // Convert to plain JS Object
+  } else {
+    // If Conversation Id doesnot exist, create the conversation
+    const newConversation = new conversationModel({
+      userId: userId,
+      messages: messages,
+    });
+    savedConversation = await newConversation.save();
+    savedConversation = savedConversation.toObject();
   }
-  res.json(conversation);
+  delete savedConversation.userId;
+
+  return savedConversation;
 };
 
-export {
-  createConversation,
-  getConversationByUser,
-  updateConversation,
-  deleteConversation,
+const getConversation = async (req) => {
+  const bearerToken = req?.headers?.authorization;
+
+  const token = bearerToken.split("Bearer ")[1];
+  const tokenData = verifyToken(token);
+  const { data } = tokenData;
+  const { email } = data;
+
+  // get id using email
+  const user = await userModel.findOne({ email: email });
+  const userId = user._id;
+
+  // Check the ConversationId with the userId exists or not
+  const conversation = await conversationModel
+    .findOne({ userId })
+    .select("-userId");
+  return conversation;
 };
+
+module.exports = { create, getConversation };
