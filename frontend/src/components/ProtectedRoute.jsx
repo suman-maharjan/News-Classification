@@ -7,7 +7,7 @@ export const PublicRoute = ({ children }) => {
 };
 
 export const ProtectedRoute = ({ children }) => {
-  return <>{isLoggedin() ? children : <Navigate replace to="/login" />}</>;
+  return <>{isLoggedin() ? children : <Navigate replace to="/" />}</>;
 };
 
 ProtectedRoute.propTypes = {
