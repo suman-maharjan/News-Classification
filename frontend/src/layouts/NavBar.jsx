@@ -1,11 +1,8 @@
-import Container from "react-bootstrap/Container";
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
 import { Link, useNavigate } from "react-router-dom";
 import { isLoggedin } from "../utils/login";
 import { removeToken } from "../utils/sessions";
 
-function NavBar() {
+const NavBar = () => {
   const navigate = useNavigate();
   const handleLogout = (e) => {
     e.preventDefault();
@@ -13,42 +10,38 @@ function NavBar() {
     navigate("/login");
   };
   return (
-    <>
-      <Navbar fixed="top" expand="lg" className="bg-body-tertiary">
-        <Container fluid>
-          <Navbar.Brand>
-            <Link to={"/"} className="text-dark text-decoration-none">
-              News Classifier
-            </Link>
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="navbarScroll" />
-          <Navbar.Collapse id="navbarScroll">
-            <Nav
-              className="me-auto my-2 my-lg-0"
-              style={{ maxHeight: "100px" }}
-              navbarScroll
-            >
-              {isLoggedin() ? (
-                <Link
-                  onClick={handleLogout}
-                  className="nav-link text-dark text-decoration-none"
-                >
-                  Logout
-                </Link>
-              ) : (
-                <Link
-                  to={"/login"}
-                  className="nav-link text-dark text-decoration-none"
-                >
-                  Login
-                </Link>
-              )}
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
-    </>
+    <div className="navbar bg-base-100 fixed">
+      <div className="flex-1">
+        <a className="btn btn-ghost text-xl">News Classification</a>
+      </div>
+      <div className="flex-none">
+        <div className="dropdown dropdown-end">
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn btn-ghost btn-circle avatar"
+          >
+            <div className="w-10 rounded-full">
+              <img
+                alt="Tailwind CSS Navbar component"
+                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+              />
+            </div>
+          </div>
+          <ul
+            tabIndex={0}
+            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+          >
+            {isLoggedin() ? (
+              <Link onClick={handleLogout}>Logout</Link>
+            ) : (
+              <Link to={"/login"}>Login</Link>
+            )}
+          </ul>
+        </div>
+      </div>
+    </div>
   );
-}
+};
 
 export default NavBar;
