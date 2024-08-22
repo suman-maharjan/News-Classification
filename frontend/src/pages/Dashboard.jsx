@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-
 import SendSVG from "../assets/svg/SendSVG";
 import instance from "../utils/api";
 import { URLS } from "../constants";
@@ -8,60 +7,63 @@ const Dashboard = () => {
   const [conversation, setConversation] = useState([]);
   const [newsValue, setNewsValue] = useState("");
   const [loading, setLoading] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
   const endOfConversationRef = useRef(null);
+  const scrollRef = useRef(null);
 
-  useEffect(() => {
-    let isMounted = true; // flag to track if the component is mounted
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
-    const fetchConversation = async () => {
-      try {
-        setLoading(true);
-        const response = await instance.get(`${URLS.CONVERSATION}/user`);
-        const messages = response.data.data.messages;
-        if (messages && isMounted) {
-          setConversation(messages);
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setHasFetched(true); // Mark as fetched
-        setLoading(false);
+  const fetchMoreMessages = async () => {
+    if (loading || !hasMore) return;
+    let limit = 4;
+    try {
+      setLoading(true);
+      const response = await instance.get(`${URLS.CONVERSATION}/user`, {
+        params: { page, limit },
+      });
+
+      const newMessages = response.data.data.messages;
+
+      const { currentPage, totalPages } = response.data.data;
+
+      if (currentPage === totalPages) {
+        setHasMore(false);
       }
-    };
-    fetchConversation();
-    return () => {
-      isMounted = false; // Cleanup function to set the flag to false on unmount
-    };
+      newMessages.reverse();
+      setConversation((prev) => [...newMessages, ...prev]);
+      setPage((prev) => prev + 1);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial fetch of conversation
+  useEffect(() => {
+    fetchMoreMessages();
   }, []);
 
-  useEffect(() => {
-    if (conversation.length > 0) {
-      endOfConversationRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [conversation]);
-
+  // Handle submit
   const handleSubmit = async () => {
+    if (!newsValue) return;
+
+    setLoading(true);
+
+    // Add user message to conversation
+    const userMessage = {
+      sender: "user",
+      message: newsValue,
+      type: "success",
+    };
+    setConversation((prev) => [...prev, userMessage]);
+
     try {
-      if (!newsValue) {
-        throw new Error("Please enter a message");
-      }
-      setLoading(true);
-
-      //    Add the user's input to the conversation
-      const userMessage = {
-        sender: "user",
-        message: newsValue,
-        type: "success",
-      };
-      setConversation((prev) => [...prev, userMessage]);
-
-      //   Make API Call
+      // Make API call for prediction
       const response = await instance.post(`${URLS.NEWS}/classify`, {
         news: newsValue,
       });
 
-      //   Add the response to the conversation
+      // Add model's response to conversation
       const modelMessage = {
         sender: "SVM Model",
         message: response.data.data.prediction,
@@ -69,19 +71,19 @@ const Dashboard = () => {
       };
       setConversation((prev) => [...prev, modelMessage]);
 
-      //   Save the conversation to the database
+      // Save conversation
       await instance.post(`${URLS.CONVERSATION}/save`, {
-        messages: [userMessage, modelMessage],
+        messages: [userMessage],
+      });
+
+      await instance.post(`${URLS.CONVERSATION}/save`, {
+        messages: [modelMessage],
       });
     } catch (e) {
-      console.log(e);
-      let errMsg = e?.response ? e.response.data.msg : "Something went wrong";
-      if (e.message === "Please enter a message") {
-        errMsg = e.message;
-      }
+      console.error(e);
       const errorMessage = {
         sender: "SVM Model",
-        message: errMsg,
+        message: "Something went wrong",
         type: "error",
       };
       setConversation((prev) => [...prev, errorMessage]);
@@ -89,65 +91,74 @@ const Dashboard = () => {
       setLoading(false);
       setNewsValue("");
     }
+    endOfConversationRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handlePreviousMessage = () => {
+    fetchMoreMessages();
   };
 
   return (
     <div className="p-4 h-[100%]">
-      <div className="pb-28">
-        {loading ? (
+      <div className="pb-28 h-[75vh] overflow-y-scroll" ref={scrollRef}>
+        {loading && conversation.length === 0 ? (
           <div className="text-center text-2xl font-bold">Loading...</div>
         ) : (
           <>
-            {hasFetched && conversation.length === 0 ? (
+            {conversation.length === 0 ? (
               <div className="text-center text-2xl font-bold">
                 Start a conversation
               </div>
             ) : (
-              conversation.map((message, index) => (
-                <div key={index}>
-                  {/* Message of User or ai model*/}
-                  <div
-                    className={`chat ${
-                      message.sender === "user" ? "chat-end" : "chat-start"
-                    } `}
-                  >
-                    {message.sender !== "user" && (
-                      <>
-                        <div className="chat-image avatar">
-                          <div className="w-10 rounded-full">
-                            <img
-                              alt="Tailwind CSS chat bubble component"
-                              src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                            />
-                          </div>
-                        </div>
-                        <div className="chat-header">{message.sender}</div>
-                      </>
-                    )}
+              <>
+                {hasMore && (
+                  <p onClick={handlePreviousMessage}>Show Old message</p>
+                )}
+
+                {conversation.map((message, index) => (
+                  <div key={index}>
                     <div
-                      className={`chat-bubble ${
-                        message.type === "error" ? "chat-bubble-error" : ""
-                      }`}
+                      className={`chat ${
+                        message.sender === "user" ? "chat-end" : "chat-start"
+                      } `}
                     >
-                      {message.message}
+                      {message.sender !== "user" && (
+                        <>
+                          <div className="chat-image avatar">
+                            <div className="w-10 rounded-full">
+                              <img
+                                alt="Tailwind CSS chat bubble component"
+                                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                              />
+                            </div>
+                          </div>
+                          <div className="chat-header">{message.sender}</div>
+                        </>
+                      )}
+                      <div
+                        className={`chat-bubble ${
+                          message.type === "error" ? "chat-bubble-error" : ""
+                        }`}
+                      >
+                        {message.message}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </>
             )}
           </>
         )}
+        <div ref={endOfConversationRef} />
       </div>
-      <div ref={endOfConversationRef} />
 
-      {/* TextArea */}
       <div className="flex flex-col fixed bottom-2 left-0 right-0 p-4">
         <div className="flex w-full gap-2">
           <textarea
             value={newsValue}
             onChange={(e) => setNewsValue(e.target.value)}
             placeholder="Enter News here"
-            className="textarea flex-1 w-full textarea-bordered resize-none focus:ring-2 "
+            className="textarea flex-1 w-full textarea-bordered resize-none focus:ring-2"
           ></textarea>
           <kbd
             className="kbd kbd-lg flex-shrink-0"

@@ -6,7 +6,7 @@ const create = async (req, payload) => {
   const { messages } = payload;
   const bearerToken = req?.headers?.authorization;
 
-  const token = bearerToken.split("Bearer ")[1];
+  const token = await bearerToken.split("Bearer ")[1];
   const tokenData = verifyToken(token);
   const { data } = tokenData;
   const { email } = data;
@@ -57,11 +57,35 @@ const getConversation = async (req) => {
   const user = await userModel.findOne({ email: email });
   const userId = user._id;
 
-  // Check the ConversationId with the userId exists or not
+  // Get pagination parameters from request query
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  // Find the conversation with the userId
   const conversation = await conversationModel
     .findOne({ userId })
-    .select("-userId");
-  return conversation;
+    .select("-userId")
+    .select("messages");
+
+  if (!conversation) {
+    return { messages: [], totalMessage: 0 };
+  }
+
+  // Total number of messages in the conversation
+  const totalMessages = conversation.messages.length;
+
+  // Slice the message array based on skip and limit for pagination
+  const paginatedMessage = conversation.messages
+    .sort((a, b) => b.timestamp - a.timestamp)
+    .slice(skip, skip + limit);
+
+  return {
+    messages: paginatedMessage,
+    totalMessages,
+    totalPages: Math.ceil(totalMessages / limit),
+    currentPage: page,
+  };
 };
 
 module.exports = { create, getConversation };
