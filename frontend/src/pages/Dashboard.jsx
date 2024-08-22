@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import SendSVG from "../assets/svg/SendSVG";
 import instance from "../utils/api";
@@ -8,6 +8,7 @@ const Dashboard = () => {
   const [conversation, setConversation] = useState([]);
   const [newsValue, setNewsValue] = useState("");
   const [loading, setLoading] = useState(false);
+  const endOfConversationRef = useRef(null);
 
   useEffect(() => {
     const fetchConversation = async () => {
@@ -19,6 +20,12 @@ const Dashboard = () => {
     };
     fetchConversation();
   }, []);
+
+  useEffect(() => {
+    if (conversation.length > 0) {
+      endOfConversationRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [conversation]);
 
   const handleSubmit = async () => {
     try {
@@ -73,26 +80,33 @@ const Dashboard = () => {
   return (
     <div className="p-4 h-[100%]">
       <div className="pb-28">
+        {conversation.length === 0 && (
+          <div className="text-center text-2xl font-bold">
+            Start a conversation
+          </div>
+        )}
+
         {conversation.map((message, index) => (
           <div key={index}>
-            {/* Message of User */}
+            {/* Message of User or ai model*/}
             <div
               className={`chat ${
                 message.sender === "user" ? "chat-end" : "chat-start"
               } `}
             >
-              <div className="chat-image avatar">
-                <div className="w-10 rounded-full">
-                  <img
-                    alt="Tailwind CSS chat bubble component"
-                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                  />
-                </div>
-              </div>
-              <div className="chat-header">
-                {message.sender}
-                <time className="text-xs opacity-50">12:46</time>
-              </div>
+              {message.sender !== "user" && (
+                <>
+                  <div className="chat-image avatar">
+                    <div className="w-10 rounded-full">
+                      <img
+                        alt="Tailwind CSS chat bubble component"
+                        src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                      />
+                    </div>
+                  </div>
+                  <div className="chat-header">{message.sender}</div>
+                </>
+              )}
               <div
                 className={`chat-bubble ${
                   message.type === "error" ? "chat-bubble-error" : ""
@@ -104,6 +118,7 @@ const Dashboard = () => {
           </div>
         ))}
       </div>
+      <div ref={endOfConversationRef} />
 
       {/* TextArea */}
       <div className="flex flex-col fixed bottom-2 left-0 right-0 p-4">
