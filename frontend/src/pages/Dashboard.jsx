@@ -22,10 +22,10 @@ const Dashboard = () => {
         if (messages && isMounted) {
           setConversation(messages);
         }
-        setHasFetched(true); // Mark as fetched
       } catch (error) {
         console.log(error);
       } finally {
+        setHasFetched(true); // Mark as fetched
         setLoading(false);
       }
     };
