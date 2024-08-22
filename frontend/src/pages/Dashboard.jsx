@@ -8,17 +8,31 @@ const Dashboard = () => {
   const [conversation, setConversation] = useState([]);
   const [newsValue, setNewsValue] = useState("");
   const [loading, setLoading] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
   const endOfConversationRef = useRef(null);
 
   useEffect(() => {
+    let isMounted = true; // flag to track if the component is mounted
+
     const fetchConversation = async () => {
-      const response = await instance.get(`${URLS.CONVERSATION}/user`);
-      const messages = response.data.data.messages;
-      if (messages) {
-        setConversation(messages);
+      try {
+        setLoading(true);
+        const response = await instance.get(`${URLS.CONVERSATION}/user`);
+        const messages = response.data.data.messages;
+        if (messages && isMounted) {
+          setConversation(messages);
+        }
+        setHasFetched(true); // Mark as fetched
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchConversation();
+    return () => {
+      isMounted = false; // Cleanup function to set the flag to false on unmount
+    };
   }, []);
 
   useEffect(() => {
@@ -80,43 +94,49 @@ const Dashboard = () => {
   return (
     <div className="p-4 h-[100%]">
       <div className="pb-28">
-        {conversation.length === 0 && (
-          <div className="text-center text-2xl font-bold">
-            Start a conversation
-          </div>
-        )}
-
-        {conversation.map((message, index) => (
-          <div key={index}>
-            {/* Message of User or ai model*/}
-            <div
-              className={`chat ${
-                message.sender === "user" ? "chat-end" : "chat-start"
-              } `}
-            >
-              {message.sender !== "user" && (
-                <>
-                  <div className="chat-image avatar">
-                    <div className="w-10 rounded-full">
-                      <img
-                        alt="Tailwind CSS chat bubble component"
-                        src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                      />
+        {loading ? (
+          <div className="text-center text-2xl font-bold">Loading...</div>
+        ) : (
+          <>
+            {hasFetched && conversation.length === 0 ? (
+              <div className="text-center text-2xl font-bold">
+                Start a conversation
+              </div>
+            ) : (
+              conversation.map((message, index) => (
+                <div key={index}>
+                  {/* Message of User or ai model*/}
+                  <div
+                    className={`chat ${
+                      message.sender === "user" ? "chat-end" : "chat-start"
+                    } `}
+                  >
+                    {message.sender !== "user" && (
+                      <>
+                        <div className="chat-image avatar">
+                          <div className="w-10 rounded-full">
+                            <img
+                              alt="Tailwind CSS chat bubble component"
+                              src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                            />
+                          </div>
+                        </div>
+                        <div className="chat-header">{message.sender}</div>
+                      </>
+                    )}
+                    <div
+                      className={`chat-bubble ${
+                        message.type === "error" ? "chat-bubble-error" : ""
+                      }`}
+                    >
+                      {message.message}
                     </div>
                   </div>
-                  <div className="chat-header">{message.sender}</div>
-                </>
-              )}
-              <div
-                className={`chat-bubble ${
-                  message.type === "error" ? "chat-bubble-error" : ""
-                }`}
-              >
-                {message.message}
-              </div>
-            </div>
-          </div>
-        ))}
+                </div>
+              ))
+            )}
+          </>
+        )}
       </div>
       <div ref={endOfConversationRef} />
 
