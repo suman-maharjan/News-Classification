@@ -4,9 +4,11 @@ import RegisterForm from "../components/RegisterForm";
 const Home = () => {
   return (
     <div
-      className="hero h-screen"
+      className="h-full hero"
       style={{
         backgroundImage: "url(/heroImage.png)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
       <div className="hero-overlay bg-opacity-60"></div>

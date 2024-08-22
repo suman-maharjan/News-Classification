@@ -72,7 +72,7 @@ const Dashboard = () => {
 
   return (
     <div className="p-4 h-[100%]">
-      <div className="mb-24">
+      <div className="pb-28">
         {conversation.map((message, index) => (
           <div key={index}>
             {/* Message of User */}
