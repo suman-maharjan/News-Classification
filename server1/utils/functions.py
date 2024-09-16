@@ -61,7 +61,8 @@ def predict_news_probability(news):
 
     probabilities = svmModel.predict_proba(news)[0]
 
-    category_probabilities = {
-        Category[i]: probabilities[i] for i in range(len(Category))
-    }
-    return category_probabilities
+    # Create a single string with all categories and their probabilities as percentages
+    category_probabilities_str = ", ".join(
+        [f"{Category[i]}: {probabilities[i] * 100:.2f}%" for i in range(len(Category))]
+    )
+    return category_probabilities_str

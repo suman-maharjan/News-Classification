@@ -5,10 +5,11 @@ import { URLS } from "../constants";
 
 const Dashboard = () => {
   const [conversation, setConversation] = useState([]);
-  const [newsValue, setNewsValue] = useState("");
+  const [newsValue, setNewsValue] = useState({ news: "", type: "Default" });
   const [loading, setLoading] = useState(false);
   const endOfConversationRef = useRef(null);
   const scrollRef = useRef(null);
+  const newsTextAreaRef = useRef(null);
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -45,14 +46,14 @@ const Dashboard = () => {
 
   // Handle submit
   const handleSubmit = async () => {
-    if (!newsValue) return;
+    if (!newsValue.news) return;
 
     setLoading(true);
 
     // Add user message to conversation
     const userMessage = {
       sender: "user",
-      message: newsValue,
+      message: newsValue.news,
       type: "success",
     };
     setConversation((prev) => [...prev, userMessage]);
@@ -60,7 +61,8 @@ const Dashboard = () => {
     try {
       // Make API call for prediction
       const response = await instance.post(`${URLS.NEWS}/classify`, {
-        news: newsValue,
+        news: newsValue.news,
+        type: newsValue.type,
       });
 
       // Add model's response to conversation
@@ -89,13 +91,21 @@ const Dashboard = () => {
       setConversation((prev) => [...prev, errorMessage]);
     } finally {
       setLoading(false);
-      setNewsValue("");
+      setNewsValue({ ...newsValue, news: "" });
     }
     endOfConversationRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handlePreviousMessage = () => {
     fetchMoreMessages();
+  };
+
+  const handleNewsValue = (e) => {
+    setNewsValue({ ...newsValue, [e.target.name]: e.target.value });
+  };
+  const handleNewsType = (type) => {
+    setNewsValue({ ...newsValue, type });
+    newsTextAreaRef.current.focus();
   };
 
   return (
@@ -153,12 +163,39 @@ const Dashboard = () => {
       </div>
 
       <div className="flex flex-col fixed bottom-2 left-0 right-0 p-4">
+        <div>
+          Model Type :{" "}
+          <div className="dropdown">
+            <div tabIndex={0} role="button" className="btn m-1">
+              {newsValue.type}
+            </div>
+            <ul
+              tabIndex={0}
+              className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+            >
+              <li
+                onClick={() => handleNewsType("Default")}
+                className="p-4 cursor-pointer"
+              >
+                Default
+              </li>
+              <li
+                className="p-4 cursor-pointer"
+                onClick={() => handleNewsType("Probability")}
+              >
+                Probability
+              </li>
+            </ul>
+          </div>
+        </div>
         <div className="flex w-full gap-2">
           <textarea
-            value={newsValue}
-            onChange={(e) => setNewsValue(e.target.value)}
+            value={newsValue.news}
+            onChange={handleNewsValue}
             placeholder="Enter News here"
             className="textarea flex-1 w-full textarea-bordered resize-none focus:ring-2"
+            name="news"
+            ref={newsTextAreaRef}
           ></textarea>
           <kbd
             className="kbd kbd-lg flex-shrink-0"
