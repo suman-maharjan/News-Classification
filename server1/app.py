@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, jsonify
-from utils.functions import predict_news
+from utils.functions import predict_news, predict_news_probability
 
 app = Flask(__name__)
 
@@ -14,6 +14,14 @@ def classify():
     data = request.get_json()
     news = data.get("news", "")
     prediction = predict_news(news)
+    return jsonify({"prediction": prediction})
+
+
+@app.route("/classify-probability", methods=["POST"])
+def classifyProbability():
+    data = request.get_json()
+    news = data.get("news", "")
+    prediction = predict_news_probability(news)
     return jsonify({"prediction": prediction})
 
 

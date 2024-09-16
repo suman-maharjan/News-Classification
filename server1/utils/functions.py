@@ -45,9 +45,23 @@ def preprocess_text(text):
 
 
 def predict_news(news):
-    Category = ["business", "entertainment", "politics", "sport", "tech"]
+    Category = ["Business", "Entertainment", "Politics", "Sport", "Tech"]
 
     news = preprocess_text(news)
     news = tdifModel.transform([news]).toarray()
     prediction = svmModel.predict(news)
     return Category[prediction[0]]
+
+
+def predict_news_probability(news):
+    Category = ["Business", "Entertainment", "Politics", "Sport", "Tech"]
+
+    news = preprocess_text(news)
+    news = tdifModel.transform([news]).toarray()
+
+    probabilities = svmModel.predict_proba(news)[0]
+
+    category_probabilities = {
+        Category[i]: probabilities[i] for i in range(len(Category))
+    }
+    return category_probabilities
