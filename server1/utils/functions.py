@@ -8,6 +8,9 @@ import joblib
 svmModel = joblib.load("model/svm.pkl")
 tdifModel = joblib.load("model/tfidf.pkl")
 
+# vectorizer = joblib("model/vectorizer.pkl")
+custom_model = joblib.load("model/custom_model.pkl")
+
 
 def preprocess_text(text):
     text = str(text)
@@ -66,3 +69,14 @@ def predict_news_probability(news):
         [f"{Category[i]}: {probabilities[i] * 100:.2f}%" for i in range(len(Category))]
     )
     return category_probabilities_str
+
+
+# def predict_custom(news):
+#     Category = ["Business", "Entertainment", "Politics", "Sport", "Tech"]
+
+#     news = preprocess_text(news)
+#     # news = vectorizer.transform([news]).toarray()
+#     prediction = custom_model.predict(news)
+#     print(prediction)
+#     # return Category[prediction[0]]
+#     return "hello"
