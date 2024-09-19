@@ -3,9 +3,13 @@ const userModel = require("../user/user.model");
 const { generateToken } = require("../../utils/jwt");
 
 const create = async (payload) => {
-  const { email, password, roles } = payload;
+  const { email, password } = payload;
   const emailExist = await userModel.findOne({ email });
-  if (emailExist) return new Error("Email already exist");
+  if (emailExist) {
+    const error = new Error("Email already exist");
+    error.status = 404;
+    throw error;
+  }
   payload.password = await bcrypt.hash(password, +process.env.SALT_ROUNDS);
   const user = await userModel.create(payload);
 

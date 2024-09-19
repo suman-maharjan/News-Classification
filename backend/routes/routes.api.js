@@ -16,7 +16,7 @@ router.use("/conversation", conversationRouter);
 
 router.all("*", (req, res, next) => {
   try {
-    res.status(404).json({ data: "", msg: "failed" });
+    res.status(404).json({ data: "", msg: "Routes not found" });
   } catch (e) {
     next(e);
   }

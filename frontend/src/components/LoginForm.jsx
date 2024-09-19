@@ -26,6 +26,7 @@ const LoginForm = () => {
 
       const { token } = data.data;
       setToken(token);
+      setSignIn({ email: "", password: "" });
       navigate("/dashboard");
     } catch (e) {
       const errMsg = e?.response ? e.response.data.msg : "Something went wrong";
@@ -36,7 +37,6 @@ const LoginForm = () => {
       setTimeout(() => {
         setError("");
       }, 3000);
-      setSignIn({ email: "", password: "" });
     }
   };
   return (

@@ -7,6 +7,7 @@ import instance from "../utils/api";
 import { URLS } from "../constants";
 import { setToken } from "../utils/sessions";
 import ErrorComponent from "./ErrorComponent";
+import { validateRegister } from "../utils/login";
 
 const RegisterForm = () => {
   const navigate = useNavigate();
@@ -24,29 +25,36 @@ const RegisterForm = () => {
     });
   };
 
+  const handleError = (e) => {
+    const errMsg = e?.response
+      ? e.response.data.msg
+      : e?.message ?? "Something went wrong";
+    setError(errMsg);
+  };
+
+  // Clear Error Logic
+  const clearError = () => {
+    setTimeout(() => {
+      setError("");
+    }, 5000);
+  };
+
   const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
     try {
-      setLoading(true);
-      e.preventDefault();
-      if (!register?.email || !register?.password || !register?.name) {
-        setError("Name, Email and password is required");
-        setLoading(false);
-        return;
-      }
+      validateRegister({ ...register, type: "Register" });
+
       const { data } = await instance.post(`${URLS.AUTH}/register`, register);
 
       const { token } = data.data;
       setToken(token);
       navigate("/dashboard");
     } catch (e) {
-      const errMsg = e?.response ? e.response.data.msg : "Something went wrong";
-      setError(errMsg);
-      console.log(error);
+      handleError(e);
     } finally {
       setLoading(false);
-      setTimeout(() => {
-        setError("");
-      }, 3000);
+      clearError();
     }
   };
 

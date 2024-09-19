@@ -19,13 +19,12 @@ const Home = () => {
             {" "}
             Discover a world of possibilities with our platform.
           </p>
-          <button className="btn btn-secondary">Trial</button> &ensp;
           <label
             htmlFor="my_modal_7"
             id="LoginButton"
             className="btn btn-primary"
           >
-            Login
+            Login / Register
           </label>
           <input type="checkbox" id="my_modal_7" className="modal-toggle" />
           <div className="modal" role="dialog">
