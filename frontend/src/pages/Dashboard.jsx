@@ -17,7 +17,7 @@ const Dashboard = () => {
 
   const fetchMoreMessages = async () => {
     if (loading || !hasMore) return;
-    let limit = 4;
+    let limit = 2;
     try {
       setLoading(true);
       const response = await instance.get(`${URLS.CONVERSATION}/user`, {
@@ -122,7 +122,12 @@ const Dashboard = () => {
             ) : (
               <>
                 {hasMore && (
-                  <p onClick={handlePreviousMessage}>Show Old message</p>
+                  <p
+                    className="hover:cursor-pointer"
+                    onClick={handlePreviousMessage}
+                  >
+                    Show Old message
+                  </p>
                 )}
 
                 {conversation.map((message, index) => (
