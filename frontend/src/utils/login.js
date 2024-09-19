@@ -11,3 +11,34 @@ export const isLoggedin = () => {
   if (now > expDate) return false;
   return true;
 };
+
+export const ValidationEnum = {
+  LOGIN: "Login",
+  REGISTER: "Register",
+};
+export const validateRegister = ({
+  name,
+  email,
+  password,
+  type = ValidationEnum.LOGIN,
+}) => {
+  if (type == ValidationEnum.REGISTER) {
+    if (!name || !isNaN(name.charAt(0))) {
+      throw new Error("Name is required");
+    }
+  }
+  if (!email || !password) {
+    throw new Error("Name, Email and password is required");
+  }
+  if (!isValidEmail(email) || !isNaN(email.charAt(0))) {
+    throw new Error("Invalid Email Format");
+  }
+
+  if (password.length < 6) {
+    throw new Error("Password must be atleast 6 characters");
+  }
+};
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple regex for basic email format validation
+  return emailRegex.test(email);
+};

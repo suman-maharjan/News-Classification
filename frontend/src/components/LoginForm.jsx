@@ -6,6 +6,7 @@ import instance from "../utils/api";
 import { URLS } from "../constants";
 import { setToken } from "../utils/sessions";
 import ErrorComponent from "./ErrorComponent";
+import { validateRegister, ValidationEnum } from "../utils/login";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -13,15 +14,26 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false);
   const [signIn, setSignIn] = useState({ email: "", password: "" });
 
+  const handleError = (e) => {
+    const errMsg = e?.response
+      ? e.response.data.msg
+      : e?.message ?? "Something went wrong";
+    setError(errMsg);
+  };
+
+  // Clear Error Logic
+  const clearError = () => {
+    setTimeout(() => {
+      setError("");
+    }, 5000);
+  };
+
   const handleSubmit = async (e) => {
     try {
-      setLoading(true);
       e.preventDefault();
-      if (!signIn?.email || !signIn?.password) {
-        setError("Email and password is required");
-        setLoading(false);
-        return;
-      }
+      setLoading(true);
+
+      validateRegister({ ...signIn, type: ValidationEnum.LOGIN });
       const { data } = await instance.post(`${URLS.AUTH}/login`, signIn);
 
       const { token } = data.data;
@@ -29,14 +41,10 @@ const LoginForm = () => {
       setSignIn({ email: "", password: "" });
       navigate("/dashboard");
     } catch (e) {
-      const errMsg = e?.response ? e.response.data.msg : "Something went wrong";
-      setError(errMsg);
-      console.log(error);
+      handleError(e);
     } finally {
       setLoading(false);
-      setTimeout(() => {
-        setError("");
-      }, 3000);
+      clearError();
     }
   };
   return (
