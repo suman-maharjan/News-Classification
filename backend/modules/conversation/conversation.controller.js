@@ -2,90 +2,88 @@ const conversationModel = require("./conversation.model");
 const { verifyToken } = require("../../utils/jwt");
 const userModel = require("../user/user.model");
 
-const create = async (req, payload) => {
-  const { messages } = payload;
-  const bearerToken = req?.headers?.authorization;
+class ConversationService {
+  async getUserIdFromToken(req) {
+    const bearerToken = req?.headers?.authorization;
+    const token = bearerToken.split("Bearer ")[1];
+    const tokenData = verifyToken(token);
+    const { data } = tokenData;
+    const { email } = data;
 
-  const token = await bearerToken.split("Bearer ")[1];
-  const tokenData = verifyToken(token);
-  const { data } = tokenData;
-  const { email } = data;
-
-  // get id using email
-  const user = await userModel.findOne({ email: email });
-  const userId = user._id;
-
-  // Check the ConversationId with the userId exists or not
-  const conversation = await conversationModel.findOne({ userId });
-
-  if (!messages) {
-    throw new Error("Messages are required");
+    const user = await userModel.findOne({ email });
+    return user._id;
   }
 
-  let savedConversation;
-  if (conversation) {
-    savedConversation = await conversationModel
-      .findByIdAndUpdate(
-        conversation._id,
-        { $push: { messages: { $each: messages } } },
-        { new: true }
-      )
-      .lean(); // Convert to plain JS Object
-  } else {
-    // If Conversation Id doesnot exist, create the conversation
-    const newConversation = new conversationModel({
-      userId: userId,
-      messages: messages,
-    });
-    savedConversation = await newConversation.save();
-    savedConversation = savedConversation.toObject();
+  async create(req, payload) {
+    const { messages } = payload;
+    if (!messages) {
+      throw new Error("Messages are required");
+    }
+
+    const userId = await this.getUserIdFromToken(req);
+
+    // Check if the conversation already exists for the user
+    const conversation = await conversationModel.findOne({ userId });
+
+    let savedConversation;
+    if (conversation) {
+      // If conversation exists, update it by pushing new messages
+      savedConversation = await conversationModel
+        .findByIdAndUpdate(
+          conversation._id,
+          { $push: { messages: { $each: messages } } },
+          { new: true }
+        )
+        .lean(); // Convert to plain JS Object
+    } else {
+      // If conversation doesn't exist, create a new one
+      const newConversation = new conversationModel({
+        userId,
+        messages,
+      });
+      savedConversation = await newConversation.save();
+      savedConversation = savedConversation.toObject();
+    }
+
+    // Remove userId from the response
+    delete savedConversation.userId;
+
+    return savedConversation;
   }
-  delete savedConversation.userId;
+  // Get a paginated conversation
+  async getConversation(req) {
+    const userId = await this.getUserIdFromToken(req);
 
-  return savedConversation;
-};
+    // Get pagination parameters from request query
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-const getConversation = async (req) => {
-  const bearerToken = req?.headers?.authorization;
+    // Find the conversation with the userId
+    const conversation = await conversationModel
+      .findOne({ userId })
+      .select("-userId")
+      .select("messages");
 
-  const token = bearerToken.split("Bearer ")[1];
-  const tokenData = verifyToken(token);
-  const { data } = tokenData;
-  const { email } = data;
+    if (!conversation) {
+      return { messages: [], totalMessages: 0 };
+    }
 
-  // get id using email
-  const user = await userModel.findOne({ email: email });
-  const userId = user._id;
+    // Total number of messages in the conversation
+    const totalMessages = conversation.messages.length;
 
-  // Get pagination parameters from request query
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
+    // Slice the message array based on skip and limit for pagination
+    const paginatedMessages = conversation.messages
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(skip, skip + limit);
 
-  // Find the conversation with the userId
-  const conversation = await conversationModel
-    .findOne({ userId })
-    .select("-userId")
-    .select("messages");
-
-  if (!conversation) {
-    return { messages: [], totalMessage: 0 };
+    return {
+      messages: paginatedMessages,
+      totalMessages,
+      totalPages: Math.ceil(totalMessages / limit),
+      currentPage: page,
+    };
   }
+}
 
-  // Total number of messages in the conversation
-  const totalMessages = conversation.messages.length;
-
-  // Slice the message array based on skip and limit for pagination
-  const paginatedMessage = conversation.messages
-    .sort((a, b) => b.timestamp - a.timestamp)
-    .slice(skip, skip + limit);
-
-  return {
-    messages: paginatedMessage,
-    totalMessages,
-    totalPages: Math.ceil(totalMessages / limit),
-    currentPage: page,
-  };
-};
-
-module.exports = { create, getConversation };
+module.exports = new ConversationService();
