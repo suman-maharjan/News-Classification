@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const userModel = require("../user/user.model");
 const { generateToken } = require("../../utils/jwt");
 
-class AuthService {
+class AuthController {
   async create(payload) {
     const { email, password } = payload;
     const emailExist = await userModel.findOne({ email });
@@ -44,5 +44,5 @@ class AuthService {
   }
 }
 
-const authService = new AuthService();
+const authService = new AuthController();
 module.exports = authService;

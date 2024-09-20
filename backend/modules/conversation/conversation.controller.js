@@ -2,7 +2,7 @@ const conversationModel = require("./conversation.model");
 const { verifyToken } = require("../../utils/jwt");
 const userModel = require("../user/user.model");
 
-class ConversationService {
+class ConversationController {
   async getUserIdFromToken(req) {
     const bearerToken = req?.headers?.authorization;
     const token = bearerToken.split("Bearer ")[1];
@@ -86,4 +86,4 @@ class ConversationService {
   }
 }
 
-module.exports = new ConversationService();
+module.exports = new ConversationController();
