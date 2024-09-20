@@ -1,26 +1,16 @@
 const conversationModel = require("./conversation.model");
 const { verifyToken } = require("../../utils/jwt");
 const userModel = require("../user/user.model");
+const authService = require("../auth/auth.controller");
 
 class ConversationController {
-  async getUserIdFromToken(req) {
-    const bearerToken = req?.headers?.authorization;
-    const token = bearerToken.split("Bearer ")[1];
-    const tokenData = verifyToken(token);
-    const { data } = tokenData;
-    const { email } = data;
-
-    const user = await userModel.findOne({ email });
-    return user._id;
-  }
-
   async create(req, payload) {
     const { messages } = payload;
     if (!messages) {
       throw new Error("Messages are required");
     }
 
-    const userId = await this.getUserIdFromToken(req);
+    const userId = await authService.getUserIdFromToken(req);
 
     // Check if the conversation already exists for the user
     const conversation = await conversationModel.findOne({ userId });
@@ -51,8 +41,8 @@ class ConversationController {
     return savedConversation;
   }
   // Get a paginated conversation
-  async getConversation(req) {
-    const userId = await this.getUserIdFromToken(req);
+  async getConversationByToken(req) {
+    const userId = await authService.getUserIdFromToken(req);
 
     // Get pagination parameters from request query
     const page = parseInt(req.query.page) || 1;

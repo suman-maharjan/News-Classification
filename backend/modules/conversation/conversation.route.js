@@ -21,7 +21,7 @@ router.post("/save", secureAPI("user"), async (req, res, next) => {
 
 router.get("/user", async (req, res, next) => {
   try {
-    const conversation = await Controller.getConversation(req);
+    const conversation = await Controller.getConversationByToken(req);
     if (conversation) {
       return res.json({ data: conversation, message: "success" });
     } else {

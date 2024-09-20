@@ -3,6 +3,17 @@ const userModel = require("../user/user.model");
 const { generateToken } = require("../../utils/jwt");
 
 class AuthController {
+  async getUserIdFromToken(req) {
+    const bearerToken = req?.headers?.authorization;
+    const token = bearerToken.split("Bearer ")[1];
+    const tokenData = verifyToken(token);
+    const { data } = tokenData;
+    const { email } = data;
+
+    const user = await userModel.findOne({ email });
+    return user._id;
+  }
+
   async create(payload) {
     const { email, password } = payload;
     const emailExist = await userModel.findOne({ email });
