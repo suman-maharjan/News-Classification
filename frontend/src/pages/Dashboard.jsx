@@ -17,7 +17,7 @@ const Dashboard = () => {
 
   const fetchMoreMessages = async () => {
     if (loading || !hasMore) return;
-    let limit = 2;
+    let limit = 4;
     try {
       setLoading(true);
       const response = await instance.get(`${URLS.CONVERSATION}/user`, {
@@ -59,6 +59,10 @@ const Dashboard = () => {
     setConversation((prev) => [...prev, userMessage]);
 
     try {
+      if (newsValue.news.length < 10) {
+        throw new Error("News should be atleast 10 characters long");
+      }
+
       // Make API call for prediction
       const response = await instance.post(`${URLS.NEWS}/classify`, {
         news: newsValue.news,
@@ -85,7 +89,7 @@ const Dashboard = () => {
       console.error(e);
       const errorMessage = {
         sender: "SVM Model",
-        message: "Something went wrong",
+        message: e.message,
         type: "error",
       };
       setConversation((prev) => [...prev, errorMessage]);
