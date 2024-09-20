@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, jsonify
-from utils.functions import classifier
+from utils.NewsClassifier import classifier
 
 app = Flask(__name__)
 

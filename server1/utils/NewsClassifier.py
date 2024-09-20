@@ -13,7 +13,13 @@ class NewsClassifier:
         self.tdifModel = joblib.load("model/tfidf.pkl")
 
         # Categories for Classification
-        self.categories = ["Business", "Entertainment", "Politics", "Sport", "Tech"]
+        self.categories = [
+            "Business",
+            "Entertainment",
+            "Politics",
+            "Sport",
+            "Technology",
+        ]
 
         # Stop words and lemmatizer initialized once
         self.stop_words = set(stopwords.words("english"))
