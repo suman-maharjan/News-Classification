@@ -5,78 +5,72 @@ from nltk.corpus import wordnet
 
 import joblib
 
-svmModel = joblib.load("model/svm.pkl")
-tdifModel = joblib.load("model/tfidf.pkl")
 
-# vectorizer = joblib("model/vectorizer.pkl")
-custom_model = joblib.load("model/custom_model.pkl")
+class NewsClassifier:
+    def __init__(self):
+        # Load the pre-trained model
+        self.svmModel = joblib.load("model/svm.pkl")
+        self.tdifModel = joblib.load("model/tfidf.pkl")
+
+        # Categories for Classification
+        self.categories = ["Business", "Entertainment", "Politics", "Sport", "Tech"]
+
+        # Stop words and lemmatizer initialized once
+        self.stop_words = set(stopwords.words("english"))
+        self.lemmatizer = WordNetLemmatizer()
+
+    def preprocess_text(self, text):
+        text = str(text).lower()  # Lowercasing
+
+        # Tokenizing text
+        word_tokens = word_tokenize(text)
+
+        # Removing Stop words
+        filtered_list = [w for w in word_tokens if not w in self.stop_words]
+
+        # Remove numbers and special Symbols
+        filtered_list = [w for w in filtered_list if w.isalnum() and not w.isdigit()]
+
+        # Lemmatizing the text
+        lemmatized_list = [
+            self.lemmatizer.lemmatize(w, wordnet.VERB) for w in filtered_list
+        ]
+
+        # Returning the processed text as a string
+        return " ".join(lemmatized_list)
+
+    def predict_news(self, news):
+        # Preprocess the input news
+        news = self.preprocess_text(news)
+
+        # Transform the news using the TF-IDF model
+        news_vector = self.tdifModel.transform([news]).toarray()
+
+        # Predict the category using the SVM model
+        prediction = self.svmModel.predict(news_vector)
+
+        # Return the corresponding category
+        return self.categories[prediction[0]]
+
+    def predict_news_probability(self, news):
+        # Preprocess the input news
+        news = self.preprocess_text(news)
+
+        # Transform the news using the TF-IDF model
+        news_vector = self.tdifModel.transform([news]).toarray()
+
+        # Get the probability estimates for each category
+        probabilities = self.svmModel.predict_proba(news_vector)[0]
+
+        # Create a string with category names and corresponding probabilities
+        category_probabilities_str = ", ".join(
+            [
+                f"{self.categories[i]}: {probabilities[i] * 100:.2f}%"
+                for i in range(len(self.categories))
+            ]
+        )
+
+        return category_probabilities_str
 
 
-def preprocess_text(text):
-    text = str(text)
-    # lowercasing
-    text = text.lower()
-    # Remove Stop Words
-    stop_words = set(stopwords.words("english"))
-    word_tokens = word_tokenize(text)
-    filtered_list = [w for w in word_tokens if not w in stop_words]
-
-    # Remove numbers and special Symbols
-    # words like 100m 2m were not removed so using this
-    num = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-    num_filter = []
-    for i in range(0, len(filtered_list)):
-        for j in range(0, len(num)):
-            if num[j] in filtered_list[i]:
-                num_filter.append(filtered_list[i])
-                break
-
-    for filter in num_filter:
-        filtered_list.remove(filter)
-
-    filtered_list = [w for w in filtered_list if w.isalnum()]
-    filtered_list = [w for w in filtered_list if not w.isdigit()]
-
-    # Lematizing
-    wordnet_lemmatizer = WordNetLemmatizer()
-    lemmatized_list = [
-        wordnet_lemmatizer.lemmatize(w, wordnet.VERB) for w in filtered_list
-    ]
-    lemmatized_string = " ".join(lemmatized_list)
-
-    return lemmatized_string
-
-
-def predict_news(news):
-    Category = ["Business", "Entertainment", "Politics", "Sport", "Tech"]
-
-    news = preprocess_text(news)
-    news = tdifModel.transform([news]).toarray()
-    prediction = svmModel.predict(news)
-    return Category[prediction[0]]
-
-
-def predict_news_probability(news):
-    Category = ["Business", "Entertainment", "Politics", "Sport", "Tech"]
-
-    news = preprocess_text(news)
-    news = tdifModel.transform([news]).toarray()
-
-    probabilities = svmModel.predict_proba(news)[0]
-
-    # Create a single string with all categories and their probabilities as percentages
-    category_probabilities_str = ", ".join(
-        [f"{Category[i]}: {probabilities[i] * 100:.2f}%" for i in range(len(Category))]
-    )
-    return category_probabilities_str
-
-
-# def predict_custom(news):
-#     Category = ["Business", "Entertainment", "Politics", "Sport", "Tech"]
-
-#     news = preprocess_text(news)
-#     # news = vectorizer.transform([news]).toarray()
-#     prediction = custom_model.predict(news)
-#     print(prediction)
-#     # return Category[prediction[0]]
-#     return "hello"
+classifier = NewsClassifier()
