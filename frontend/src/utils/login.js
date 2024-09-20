@@ -26,16 +26,15 @@ export const validateRegister = ({
     if (!name || !isNaN(name.charAt(0))) {
       throw new Error("Name is required");
     }
+    if (password.length < 6) {
+      throw new Error("Password must be atleast 6 characters");
+    }
   }
   if (!email || !password) {
     throw new Error("Name, Email and password is required");
   }
   if (!isValidEmail(email) || !isNaN(email.charAt(0))) {
     throw new Error("Invalid Email Format");
-  }
-
-  if (password.length < 6) {
-    throw new Error("Password must be atleast 6 characters");
   }
 };
 const isValidEmail = (email) => {
