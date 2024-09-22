@@ -1,6 +1,4 @@
 const conversationModel = require("./conversation.model");
-const { verifyToken } = require("../../utils/jwt");
-const userModel = require("../user/user.model");
 const authService = require("../auth/auth.controller");
 
 class ConversationController {

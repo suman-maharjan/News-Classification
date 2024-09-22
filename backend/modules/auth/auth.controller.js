@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const userModel = require("../user/user.model");
-const { generateToken } = require("../../utils/jwt");
+const { generateToken, verifyToken } = require("../../utils/jwt");
 
 class AuthController {
   async getUserIdFromToken(req) {

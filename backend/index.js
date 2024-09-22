@@ -24,5 +24,6 @@ app.listen(PORT, () => {
 
 app.use((err, req, res, next) => {
   const errMsg = err ? err.message : "Something went wrong";
+  console.log(errMsg);
   res.status(err.status || 500).json({ data: "", msg: errMsg });
 });
