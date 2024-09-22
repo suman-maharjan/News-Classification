@@ -1,7 +1,15 @@
+import { useState } from "react";
 import LoginForm from "../components/LoginForm";
 import RegisterForm from "../components/RegisterForm";
+import TabComponent from "../components/TabComponent";
 
 const Home = () => {
+  const tabs = ["Login", "Register"];
+
+  const [activeIndex, setActiveIndex] = useState(tabs[0]);
+  const handleTabChange = (tab) => {
+    setActiveIndex(tab);
+  };
   return (
     <div
       className="h-full hero"
@@ -19,50 +27,15 @@ const Home = () => {
             {" "}
             Discover a world of possibilities with our platform.
           </p>
-          <label
-            htmlFor="my_modal_7"
-            id="LoginButton"
-            className="btn btn-primary"
-          >
-            Login / Register
-          </label>
-          <input type="checkbox" id="my_modal_7" className="modal-toggle" />
-          <div className="modal" role="dialog">
-            <div className="modal-box">
-              <div role="tablist" className="tabs tabs-lifted">
-                <input
-                  type="radio"
-                  name="my_tabs_2"
-                  role="tab"
-                  className="tab"
-                  aria-label="Login"
-                  defaultChecked
-                />
-                <div
-                  role="tabpanel"
-                  className="tab-content bg-base-100 border-base-300 rounded-box p-6"
-                >
-                  <LoginForm />
-                </div>
 
-                <input
-                  type="radio"
-                  name="my_tabs_2"
-                  role="tab"
-                  className="tab"
-                  aria-label="Register"
-                />
-                <div
-                  role="tabpanel"
-                  className="tab-content bg-base-100 border-base-300 rounded-box p-6"
-                >
-                  <RegisterForm />
-                </div>
-              </div>
-            </div>
-            <label className="modal-backdrop" htmlFor="my_modal_7">
-              Close
-            </label>
+          <TabComponent
+            tabs={tabs}
+            activeTab={activeIndex}
+            onTabChange={handleTabChange}
+          />
+
+          <div className="p-4">
+            {activeIndex === "Login" ? <LoginForm /> : <RegisterForm />}
           </div>
         </div>
       </div>
