@@ -8,8 +8,10 @@ import { URLS } from "../constants";
 import { setToken } from "../utils/sessions";
 import ErrorComponent from "./ErrorComponent";
 import { validateRegister } from "../utils/login";
+import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
 
 const RegisterForm = () => {
+  const [password, setPassword] = useState(true);
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -86,13 +88,19 @@ const RegisterForm = () => {
       <label className="input input-bordered flex items-center gap-2">
         <PasswordSVG />
         <input
-          type="password"
+          type={password ? "password" : "text"}
           name="password"
           className="grow"
           placeholder="password"
           onChange={handleInputChange}
           value={register.password}
         />
+        <div
+          className="hover:cursor-pointer"
+          onClick={() => setPassword(!password)}
+        >
+          {password ? <EyeCrossIcon /> : <EyeIcon />}
+        </div>
       </label>
       <label
         htmlFor="my_modal_7"

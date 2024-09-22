@@ -7,8 +7,11 @@ import { URLS } from "../constants";
 import { setToken } from "../utils/sessions";
 import ErrorComponent from "./ErrorComponent";
 import { validateRegister, ValidationEnum } from "../utils/login";
+import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
 
 const LoginForm = () => {
+  const [password, setPassword] = useState(true);
+
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -72,10 +75,16 @@ const LoginForm = () => {
               return { ...prev, password: e.target.value };
             })
           }
-          type="password"
+          type={password ? "password" : "text"}
           className="grow"
           placeholder="Password"
         />
+        <div
+          className="hover:cursor-pointer"
+          onClick={() => setPassword(!password)}
+        >
+          {password ? <EyeCrossIcon /> : <EyeIcon />}
+        </div>
       </label>
       <label
         onClick={handleSubmit}
