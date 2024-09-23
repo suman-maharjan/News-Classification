@@ -43,10 +43,11 @@ const Dashboard = () => {
   useEffect(() => {
     fetchMoreMessages();
     endOfConversationRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [fetchMoreMessages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Handle submit
-  const handleSubmit = async () => {
+  async function handleSubmit() {
     if (!newsValue.news) return;
 
     setLoading(true);
@@ -101,7 +102,7 @@ const Dashboard = () => {
       setNewsValue({ ...newsValue, news: "" });
     }
     endOfConversationRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }
 
   const handlePreviousMessage = () => {
     fetchMoreMessages();
