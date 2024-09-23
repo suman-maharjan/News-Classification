@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import SendSVG from "../assets/svg/SendSVG";
 import instance from "../utils/api";
 import { URLS } from "../constants";
@@ -15,9 +15,9 @@ const Dashboard = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  const fetchMoreMessages = async () => {
+  const fetchMoreMessages = useCallback(async () => {
     if (loading || !hasMore) return;
-    let limit = 4;
+    let limit = 10;
     try {
       setLoading(true);
       const response = await instance.get(`${URLS.CONVERSATION}/user`, {
@@ -37,12 +37,13 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, loading, hasMore]);
 
   // Initial fetch of conversation
   useEffect(() => {
     fetchMoreMessages();
-  }, []);
+    endOfConversationRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [fetchMoreMessages]);
 
   // Handle submit
   const handleSubmit = async () => {
@@ -59,8 +60,10 @@ const Dashboard = () => {
     setConversation((prev) => [...prev, userMessage]);
 
     try {
-      if (newsValue.news.length < 10) {
-        throw new Error("News should be atleast 10 characters long");
+      if (
+        newsValue.news.split(" ").filter((word) => word.length > 0).length < 10
+      ) {
+        throw new Error("News should be atleast 10 words long");
       }
 
       // Make API call for prediction

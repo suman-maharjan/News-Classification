@@ -7,8 +7,10 @@ const TabComponent = ({ tabs, activeTab, onTabChange }) => {
         return (
           <div
             key={index}
-            className={`tab text-white ${
-              activeTab === tab ? "text-gray-600 bg-white  rounded-md" : ""
+            className={`tab  ${
+              activeTab === tab
+                ? "text-gray-600 bg-white  rounded-md"
+                : "text-white"
             }`}
             onClick={() => onTabChange(tab)}
           >
