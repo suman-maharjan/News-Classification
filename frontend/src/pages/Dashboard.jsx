@@ -17,7 +17,7 @@ const Dashboard = () => {
 
   const fetchMoreMessages = useCallback(async () => {
     if (loading || !hasMore) return;
-    let limit = 10;
+    let limit = 4;
     try {
       setLoading(true);
       const response = await instance.get(`${URLS.CONVERSATION}/user`, {
