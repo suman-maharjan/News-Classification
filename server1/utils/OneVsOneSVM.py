@@ -1,5 +1,5 @@
 from sklearn.preprocessing import LabelEncoder
-import MySVM
+from MySVM import SVC
 import numpy as np
 
 
@@ -68,7 +68,7 @@ class OneVsOneSVM:
         Y = le.transform(Y)
 
         data = self.generateClasswiseData(X, Y)
-        svc = MySVM.SVC(self.C)
+        svc = SVC(self.C)
         for i in range(len(data)):
             self.svm_classifiers[i] = {}
             for j in range(i + 1, len(np.unique(Y))):
