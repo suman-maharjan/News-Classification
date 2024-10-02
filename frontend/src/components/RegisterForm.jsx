@@ -5,7 +5,7 @@ import ProfileSVG from "../assets/svg/ProfileSVG";
 import { useState } from "react";
 import instance from "../utils/api";
 import { URLS } from "../constants";
-import { setToken } from "../utils/sessions";
+// import { setToken } from "../utils/sessions";
 import ErrorComponent from "./ErrorComponent";
 import { validateRegister } from "../utils/login";
 import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
@@ -48,10 +48,11 @@ const RegisterForm = () => {
       validateRegister({ ...register, type: "Register" });
 
       const { data } = await instance.post(`${URLS.AUTH}/register`, register);
+      console.log(data);
 
-      const { token } = data.data;
-      setToken(token);
-      navigate("/dashboard");
+      // const { token } = data.data;
+      // setToken(token);
+      navigate(`/verify-email?email=${encodeURIComponent(register.email)}`);
     } catch (e) {
       handleError(e);
     } finally {

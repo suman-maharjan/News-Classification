@@ -3,6 +3,7 @@ import Layout from "./layouts/Layout";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import { ProtectedRoute, PublicRoute } from "./components/ProtectedRoute";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   return (
@@ -15,6 +16,15 @@ function App() {
               element={
                 <PublicRoute>
                   <Home />
+                </PublicRoute>
+              }
+            />
+
+            <Route
+              path="/verify-email"
+              element={
+                <PublicRoute>
+                  <VerifyEmail />
                 </PublicRoute>
               }
             />

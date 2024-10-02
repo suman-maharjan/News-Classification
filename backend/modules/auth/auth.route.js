@@ -46,6 +46,20 @@ router.post("/verify", async (req, res, next) => {
   }
 });
 
+router.post("/verifyable-email", async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) throw new Error("Email is required");
+    const result = await Controller.verifyAbleEmail(email);
+    res.json({
+      data: result,
+      message: "success",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post("/forgot-password-generator", async (req, res, next) => {
   try {
     const { email } = req.body;

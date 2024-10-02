@@ -13,7 +13,9 @@ const NavBar = () => {
   return (
     <div className="navbar bg-base-100 fixed z-10">
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl">News Classification</a>
+        <a href="/" className="btn btn-ghost text-xl">
+          News Classification
+        </a>
       </div>
       {isLoggedin() && (
         <div className="flex-none">

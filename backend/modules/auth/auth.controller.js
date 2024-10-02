@@ -112,6 +112,13 @@ class AuthController {
     }
     if (!user.isActive)
       throw new Error("User is blocked. Please contact Admin");
+
+    if (!user.isEmailVerified) {
+      const error = new Error("Email not verified");
+      error.status = 401;
+      throw error;
+    }
+
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) throw new Error("Email or Password is invalid");
     // JWT TOKEN GENERATION
@@ -168,6 +175,15 @@ class AuthController {
 
     await authModel.deleteOne({ email });
     return true;
+  }
+
+  async verifyAbleEmail(email) {
+    const user = await userModel.findOne({ email });
+    if (!user) return false;
+    if (!user.isEmailVerified) {
+      return true;
+    }
+    return false;
   }
 }
 
