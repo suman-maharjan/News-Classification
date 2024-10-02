@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import instance from "../utils/api";
 import { URLS } from "../constants";
 import TabComponent from "../components/TabComponent";
-import ErrorComponent from "../components/ErrorComponent";
+import ErrorComponent, { AlertType } from "../components/ErrorComponent";
 import PropTypes from "prop-types";
 import { setToken } from "../utils/sessions";
 
@@ -77,6 +77,9 @@ const VerifyEmailComponent = ({ email }) => {
   const [loading, setLoading] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [error, setError] = useState();
+
+  const [alertMessage, setAlertMessage] = useState("");
+
   const navigate = useNavigate();
 
   const handleError = (e) => {
@@ -89,6 +92,7 @@ const VerifyEmailComponent = ({ email }) => {
   const clearError = () => {
     setTimeout(() => {
       setError("");
+      setAlertMessage("");
     }, 5000);
   };
 
@@ -123,6 +127,23 @@ const VerifyEmailComponent = ({ email }) => {
     }
   };
 
+  const handleResendEmail = async () => {
+    if (loading) return;
+    try {
+      setLoading(true);
+      const res = await instance.post(`${URLS.AUTH}/regenerate`, {
+        email,
+      });
+      if (res.status === 200) setAlertMessage("Email sent successfully");
+    } catch (error) {
+      console.error(error);
+      handleError(error);
+    } finally {
+      setLoading(false);
+      clearError();
+    }
+  };
+
   return (
     <div className="flex flex-col gap-2 text-black">
       <label className="input input-bordered flex items-center gap-2">
@@ -145,6 +166,17 @@ const VerifyEmailComponent = ({ email }) => {
       >
         Verify Email
       </label>
+      <label className="label">
+        <a
+          onClick={handleResendEmail}
+          className="label-text-alt link link-hover text-white underline hover:bg-white p-2"
+        >
+          Re-send Email
+        </a>
+      </label>
+      {alertMessage && (
+        <ErrorComponent message={alertMessage} type={AlertType.SUCCESS} />
+      )}
       {error ? <ErrorComponent message={error} /> : null}
     </div>
   );
