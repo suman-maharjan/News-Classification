@@ -16,6 +16,7 @@ const userSchema = new Schema({
   isActive: { type: Boolean, default: true },
   created_at: { type: Date, default: Date.now() },
   updated_at: { type: Date, default: Date.now() },
+  isEmailVerified: { type: Boolean, default: false },
 });
 
 module.exports = model("User", userSchema);
