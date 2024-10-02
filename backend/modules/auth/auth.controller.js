@@ -137,6 +137,10 @@ class AuthController {
     if (!user.isEmailVerified) {
       throw new Error("Email not verified");
     }
+    const authUser = await authModel.findOne({ email });
+    if (authUser) {
+      await authModel.deleteMany({ email });
+    }
 
     const otp = generateOTP();
     const token_expiry = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour expiration

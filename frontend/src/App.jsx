@@ -4,6 +4,8 @@ import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import { ProtectedRoute, PublicRoute } from "./components/ProtectedRoute";
 import VerifyEmail from "./pages/VerifyEmail";
+import FindEmail from "./pages/FindEmail";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   return (
@@ -25,6 +27,24 @@ function App() {
               element={
                 <PublicRoute>
                   <VerifyEmail />
+                </PublicRoute>
+              }
+            />
+
+            <Route
+              path="/find-email"
+              element={
+                <PublicRoute>
+                  <FindEmail />
+                </PublicRoute>
+              }
+            />
+
+            <Route
+              path="/forgot-password"
+              element={
+                <PublicRoute>
+                  <ForgotPassword />
                 </PublicRoute>
               }
             />

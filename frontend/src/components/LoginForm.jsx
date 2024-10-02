@@ -94,6 +94,15 @@ const LoginForm = () => {
       >
         Login
       </label>
+      <label className="label">
+        <a
+          href="/find-email"
+          className="label-text-alt link link-hover text-white underline hover:bg-white p-2"
+        >
+          Forgot password?
+        </a>
+      </label>
+
       {error ? <ErrorComponent message={error} /> : null}
     </div>
   );
