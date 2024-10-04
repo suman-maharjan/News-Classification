@@ -5,13 +5,13 @@ import { URLS } from "../constants";
 import TabComponent from "../components/TabComponent";
 import ErrorComponent, { AlertType } from "../components/ErrorComponent";
 import PropTypes from "prop-types";
-import { setToken } from "../utils/sessions";
 
 const VerifyEmail = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const email = queryParams.get("email");
   const navigate = useNavigate();
+
   useEffect(() => {
     const verifyableEmail = async () => {
       try {
@@ -75,6 +75,7 @@ const VerifyEmail = () => {
 
 const VerifyEmailComponent = ({ email }) => {
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [error, setError] = useState();
 
@@ -110,15 +111,15 @@ const VerifyEmailComponent = ({ email }) => {
         setError("OTP Code must be 6 digits");
         return;
       }
-      const { data } = await instance.post(`${URLS.AUTH}/verify`, {
+      const response = await instance.post(`${URLS.AUTH}/verify`, {
         email,
         token: otpCode,
       });
-
-      const { token } = data.data;
-      setToken(token);
-
-      navigate("/");
+      if (response.data.message === "success") {
+        navigate("/", {
+          state: { message: "Successfully Verified Email" },
+        });
+      }
     } catch (error) {
       handleError(error);
     } finally {
@@ -128,18 +129,21 @@ const VerifyEmailComponent = ({ email }) => {
   };
 
   const handleResendEmail = async () => {
-    if (loading) return;
+    if (loading || resendLoading) return;
     try {
-      setLoading(true);
+      setResendLoading(true);
       const res = await instance.post(`${URLS.AUTH}/regenerate`, {
         email,
       });
-      if (res.status === 200) setAlertMessage("Email sent successfully");
+      if (res.status === 200) {
+        setError("");
+        setAlertMessage("Email sent successfully");
+      }
     } catch (error) {
       console.error(error);
       handleError(error);
     } finally {
-      setLoading(false);
+      setResendLoading(false);
       clearError();
     }
   };
@@ -164,14 +168,14 @@ const VerifyEmailComponent = ({ email }) => {
         className="btn btn-primary"
         aria-disabled={loading}
       >
-        Verify Email
+        {loading ? "Verifying..." : "Verify Email"}
       </label>
       <label className="label">
         <a
           onClick={handleResendEmail}
           className="label-text-alt link link-hover text-white underline hover:bg-white p-2"
         >
-          Re-send Email
+          {resendLoading ? "Sending..." : "Re-send Email"}
         </a>
       </label>
       {alertMessage && (

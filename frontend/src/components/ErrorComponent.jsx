@@ -1,7 +1,7 @@
 import ErrorSVG from "../assets/svg/ErrorSVG";
 import PropTypes from "prop-types";
 import SuccessSVG from "../assets/svg/SuccessSVG";
-const ErrorComponent = ({ message, type }) => {
+const ErrorComponent = ({ message, type = "error" }) => {
   return (
     <div
       role="alert"
@@ -25,8 +25,4 @@ export default ErrorComponent;
 ErrorComponent.propTypes = {
   message: PropTypes.string,
   type: PropTypes.oneOf([AlertType.ERROR, AlertType.SUCCESS]), // Ensuring type is either "error" or "success"
-};
-
-ErrorComponent.defaultProps = {
-  type: AlertType.ERROR, // Setting the default to "error"
 };

@@ -80,7 +80,6 @@ const FindEmailComponent = () => {
       if (data.message === "success") {
         navigate(`/forgot-password?email=${encodeURIComponent(email)}`);
       }
-      console.log(data);
     } catch (error) {
       handleError(error);
     } finally {
@@ -108,7 +107,7 @@ const FindEmailComponent = () => {
         className="btn btn-primary"
         aria-disabled={loading}
       >
-        Send otp Email
+        {loading ? "Sending..." : "Send otp in Email"}
       </label>
 
       {error ? <ErrorComponent message={error} /> : null}

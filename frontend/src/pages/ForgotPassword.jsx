@@ -4,7 +4,6 @@ import instance from "../utils/api";
 import { URLS } from "../constants";
 import TabComponent from "../components/TabComponent";
 import ErrorComponent from "../components/ErrorComponent";
-import { setToken } from "../utils/sessions";
 import PasswordSVG from "../assets/svg/PasswordSVG";
 import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
 
@@ -117,12 +116,11 @@ const ForgotPasswordComponent = () => {
         password: data.password,
       });
 
-      console.log(response);
-
-      const { token } = data.data;
-      setToken(token);
-
-      navigate("/");
+      if (response.data.message === "success") {
+        navigate("/", {
+          state: { message: "Successfully changed the password" },
+        });
+      }
     } catch (error) {
       handleError(error);
     } finally {
@@ -194,7 +192,7 @@ const ForgotPasswordComponent = () => {
         className="btn btn-primary"
         aria-disabled={loading}
       >
-        Verify Email
+        {loading ? "Loading..." : "Reset Password"}
       </label>
       {error ? <ErrorComponent message={error} /> : null}
     </div>

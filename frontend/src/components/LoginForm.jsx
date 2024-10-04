@@ -1,15 +1,33 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import EmailSVG from "../assets/svg/EmailSVG";
 import PasswordSVG from "../assets/svg/PasswordSVG";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import instance from "../utils/api";
 import { URLS } from "../constants";
 import { setToken } from "../utils/sessions";
-import ErrorComponent from "./ErrorComponent";
+import ErrorComponent, { AlertType } from "./ErrorComponent";
 import { validateRegister, ValidationEnum } from "../utils/login";
 import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
 
 const LoginForm = () => {
+  const location = useLocation();
+  const locationMessage = location.state?.message;
+  console.log(locationMessage);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (locationMessage) {
+      setMessage(locationMessage);
+
+      const timerId = setTimeout(() => {
+        setMessage(""); // Clear the message after 5 seconds
+      }, 5000);
+
+      // Clean up the timeout when the component unmounts or when `locationMessage` changes
+      return () => clearTimeout(timerId);
+    }
+  }, [locationMessage]);
+
   const [password, setPassword] = useState(true);
 
   const navigate = useNavigate();
@@ -92,7 +110,7 @@ const LoginForm = () => {
         className="btn btn-primary"
         aria-disabled={loading}
       >
-        Login
+        {loading ? "Loading..." : "Login"}
       </label>
       <label className="label">
         <a
@@ -103,6 +121,7 @@ const LoginForm = () => {
         </a>
       </label>
 
+      {message && <ErrorComponent message={message} type={AlertType.SUCCESS} />}
       {error ? <ErrorComponent message={error} /> : null}
     </div>
   );

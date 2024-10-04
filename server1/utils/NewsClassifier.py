@@ -55,6 +55,8 @@ class NewsClassifier:
         # Predict the category using the SVM model
         prediction = self.svmModel.predict(news_vector)
 
+        print(prediction)
+
         # Return the corresponding category
         return self.categories[prediction[0]]
 

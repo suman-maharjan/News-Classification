@@ -109,7 +109,7 @@ const RegisterForm = () => {
         className="btn btn-primary"
         aria-disabled={loading}
       >
-        Register
+        {loading ? "Registering..." : "Register"}
       </label>
       {error ? <ErrorComponent message={error} /> : null}
     </div>

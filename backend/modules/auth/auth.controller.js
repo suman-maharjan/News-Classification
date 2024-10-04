@@ -67,17 +67,7 @@ class AuthController {
 
     await authModel.deleteOne({ email: emailPayload });
 
-    const newtokenPayload = { email: userValid.email, roles: userValid.roles };
-    const token = generateToken(newtokenPayload);
-
-    return {
-      user: {
-        name: userValid.name,
-        email: userValid.email,
-        roles: userValid.roles,
-      },
-      token,
-    };
+    return true;
   }
 
   async regenerate(emailPayload) {
