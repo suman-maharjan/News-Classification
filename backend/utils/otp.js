@@ -1,8 +1,11 @@
 const { totp } = require("otplib");
 
 const generateOTP = () => {
-  totp.options = { step: +process.env.OTP_DURATION_IN_SECS };
-  return totp.generate(process.env.OTP_SECRET);
+  // generate random 6 digit
+  return Math.floor(100000 + Math.random() * 900000);
+
+  // totp.options = { step: +process.env.OTP_DURATION_IN_SECS };
+  // return totp.generate(process.env.OTP_SECRET);
 };
 
 const verifyOTP = (token) => {

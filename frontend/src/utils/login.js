@@ -25,9 +25,20 @@ export const validateRegister = ({
   type = ValidationEnum.LOGIN,
 }) => {
   if (type == ValidationEnum.REGISTER) {
-    if (!name || !isNaN(name.charAt(0))) {
+    if (!name) {
       throw new Error("Name is required");
     }
+    if (!email) {
+      throw new Error("Email is required");
+    }
+    if (!password) {
+      throw new Error("Password is required");
+    }
+
+    if (!isNaN(name.charAt(0))) {
+      throw new Error("Name must start with a letter");
+    }
+
     if (password.length < 6) {
       throw new Error("Password must be atleast 6 characters");
     }

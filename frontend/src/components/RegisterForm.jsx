@@ -92,7 +92,7 @@ const RegisterForm = () => {
           type={password ? "password" : "text"}
           name="password"
           className="grow"
-          placeholder="password"
+          placeholder="Password"
           onChange={handleInputChange}
           value={register.password}
         />

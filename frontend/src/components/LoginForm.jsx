@@ -12,7 +12,6 @@ import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
 const LoginForm = () => {
   const location = useLocation();
   const locationMessage = location.state?.message;
-  console.log(locationMessage);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
