@@ -1,0 +1,10 @@
+# packages in environment at C:\Users\user\anaconda3\envs\primeai:
+#
+# Name              
+flask==3.0.3           
+flask-babel==4.0.0               
+joblib==1.4.0        
+pandas==2.2.1    
+
+scikit-learn==1.4.2   
+nltk==3.8.1            
