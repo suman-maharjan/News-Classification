@@ -1,4 +1,4 @@
-export const BASE_URL = "http://localhost:3000";
+export const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL;
 
 const API_VERSION = "/api/v1";
 
