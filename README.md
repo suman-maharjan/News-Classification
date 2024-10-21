@@ -112,4 +112,4 @@ This project aims to classify news articles into various categories using a mach
 
 ## License
 
-This project is licensed under the MIT License
+Licensed under the MIT License. Check the [LICENSE](./LICENSE) file for details.
