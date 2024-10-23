@@ -8,6 +8,7 @@ import cors from "cors";
 
 import dotenv from "dotenv";
 import { indexRouter } from "./routes/index";
+import { HTTPErrorType } from "./types/HTTPErrorType";
 
 dotenv.config();
 
@@ -28,8 +29,15 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-app.use((err: any, req: Request, res: Response, next: Express.NextFunction) => {
-  const errMsg = err ? err.message : "Something went wrong";
-  console.log(errMsg);
-  res.status(err.status || 500).json({ data: "", msg: errMsg });
-});
+app.use(
+  (
+    err: HTTPErrorType,
+    req: Request,
+    res: Response,
+    next: Express.NextFunction
+  ) => {
+    const errMsg = err ? err.message : "Something went wrong";
+    console.log(errMsg);
+    res.status(err.status || 500).json({ data: "", msg: errMsg });
+  }
+);

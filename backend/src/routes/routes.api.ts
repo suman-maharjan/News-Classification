@@ -1,7 +1,7 @@
 import Express, { Request, Response } from "express";
-import authRouter from "../modules/auth/auth.route";
 import newsRouter from "../modules/news/news.route";
 import conversationRouter from "../modules/conversation/conversation.route";
+import { authRouter } from "../modules";
 
 const router = Express.Router();
 
