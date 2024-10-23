@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node .",
-    "dev": "nodemon .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./dist/index.js",
+    "postinstall": "npm run tsc",
+    "tsc": "tsc",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "author": "",
   "license": "ISC",
@@ -24,6 +27,8 @@
     "otplib": "^12.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "@types/node": "^22.7.9",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0"
   }
 }
