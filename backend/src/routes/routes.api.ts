@@ -1,7 +1,7 @@
-const router = require("express").Router();
-const authRouter = require("../modules/auth/auth.route");
-const newsRouter = require("../modules/news/news.route");
-const conversationRouter = require("../modules/conversation/conversation.route");
+import Express, { Request, Response } from "express";
+import { authRouter, conversationRouter, newsRouter } from "../modules";
+
+const router = Express.Router();
 
 router.get("/", (req, res, next) => {
   res.json({
@@ -14,7 +14,7 @@ router.use("/auth", authRouter);
 router.use("/news", newsRouter);
 router.use("/conversation", conversationRouter);
 
-router.all("*", (req, res, next) => {
+router.all("*", (req: Request, res: Response, next: Express.NextFunction) => {
   try {
     res.status(404).json({ data: "", msg: "Routes not found" });
   } catch (e) {
@@ -22,4 +22,4 @@ router.all("*", (req, res, next) => {
   }
 });
 
-module.exports = router;
+export const apiRouter = router;

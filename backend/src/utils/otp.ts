@@ -1,4 +1,4 @@
-const { totp } = require("otplib");
+import { totp } from "otplib";
 
 const generateOTP = () => {
   // generate random 6 digit
@@ -13,4 +13,4 @@ const verifyOTP = (token) => {
   return totp.check(token, process.env.OTP_SECRET);
 };
 
-module.exports = { generateOTP, verifyOTP };
+export { generateOTP, verifyOTP };

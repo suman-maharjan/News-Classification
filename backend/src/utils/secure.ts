@@ -1,7 +1,8 @@
-const userModel = require("../modules/user/user.model");
-const { verifyToken } = require("./jwt");
+import { Request, Response, NextFunction } from "express";
+import userModel, { IUser, RoleEnum } from "../modules/user/user.model";
+import { verifyToken } from "./jwt";
 
-const compareRoles = (user_perm, access_perm) => {
+const compareRoles = (user_perm: RoleEnum[], access_perm: RoleEnum[]) => {
   // Ensure user_perm is an array
   if (!Array.isArray(user_perm)) {
     user_perm = [user_perm];
@@ -14,8 +15,8 @@ const compareRoles = (user_perm, access_perm) => {
   return user_perm.some((v) => access_perm.indexOf(v) !== -1);
 };
 
-const secureAPI = (roles) => {
-  return async (req, res, next) => {
+const secureAPI = (roles: RoleEnum[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const bearerToken = req?.headers?.authorization;
       if (!bearerToken) throw new Error("Access Token is required");
@@ -33,8 +34,8 @@ const secureAPI = (roles) => {
       if (!user) throw new Error("User not found");
       const isAllowed = compareRoles(roles, user.roles);
       if (!isAllowed) throw new Error("Access Denied");
-      req.currentUser = user._id;
-      req.currentRole = user.roles;
+      // req.currentUser = user._id;
+      // req.currentRole = user.roles;
       next();
     } catch (error) {
       next(error);
@@ -42,4 +43,4 @@ const secureAPI = (roles) => {
   };
 };
 
-module.exports = secureAPI;
+export default secureAPI;

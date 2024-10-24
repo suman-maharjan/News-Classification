@@ -1,31 +1,29 @@
-const conversationModel = require("./conversation.model");
-const authService = require("../auth/auth.controller");
+import ConversationModel, { IConversation } from "./conversation.model";
+import authService from "../auth/auth.controller";
+import { Request } from "express";
+import { createConversationSchemaType } from "./conversation.schema";
 
 class ConversationController {
-  async create(req, payload) {
+  async create(req: Request, payload: createConversationSchemaType) {
     const { messages } = payload;
-    if (!messages) {
-      throw new Error("Messages are required");
-    }
 
     const userId = await authService.getUserIdFromToken(req);
 
     // Check if the conversation already exists for the user
-    const conversation = await conversationModel.findOne({ userId });
+    const conversation = await ConversationModel.findOne({ userId });
 
     let savedConversation;
+
     if (conversation) {
       // If conversation exists, update it by pushing new messages
-      savedConversation = await conversationModel
-        .findByIdAndUpdate(
-          conversation._id,
-          { $push: { messages: { $each: messages } } },
-          { new: true }
-        )
-        .lean(); // Convert to plain JS Object
+      savedConversation = await ConversationModel.findByIdAndUpdate(
+        conversation._id,
+        { $push: { messages: { $each: messages } } },
+        { new: true }
+      ).lean(); // Convert to plain JS Object
     } else {
       // If conversation doesn't exist, create a new one
-      const newConversation = new conversationModel({
+      const newConversation = new ConversationModel({
         userId,
         messages,
       });
@@ -39,17 +37,16 @@ class ConversationController {
     return savedConversation;
   }
   // Get a paginated conversation
-  async getConversationByToken(req) {
+  async getConversationByToken(req: Request) {
     const userId = await authService.getUserIdFromToken(req);
 
     // Get pagination parameters from request query
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
 
     // Find the conversation with the userId
-    const conversation = await conversationModel
-      .findOne({ userId })
+    const conversation = await ConversationModel.findOne({ userId })
       .select("-userId")
       .select("messages");
 
@@ -62,7 +59,7 @@ class ConversationController {
 
     // Slice the message array based on skip and limit for pagination
     const paginatedMessages = conversation.messages
-      .sort((a, b) => b.timestamp - a.timestamp)
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       .slice(skip, skip + limit);
 
     return {
@@ -74,4 +71,5 @@ class ConversationController {
   }
 }
 
-module.exports = new ConversationController();
+const conversationController = new ConversationController();
+export default conversationController;

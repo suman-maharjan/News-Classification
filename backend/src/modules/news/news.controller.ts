@@ -1,14 +1,17 @@
-const axios = require("axios");
+import axios, { AxiosInstance } from "axios";
+import { NewsClassifySchemaType } from "./newsSchema";
 
 class NewsController {
+  private axiosInstance: AxiosInstance;
+
   constructor() {
     this.axiosInstance = axios.create({
       baseURL: process.env.FLASK_ENDPOINT + ":" + process.env.FLASK_PORT,
-      timeout: process.env.FLASK_TIMEOUT,
+      timeout: parseInt(process.env.FLASK_TIMEOUT),
     });
   }
 
-  async classify(payload) {
+  async classify(payload: NewsClassifySchemaType) {
     const { news, type } = payload;
     if (!news) {
       throw new Error("News is required");
@@ -37,5 +40,4 @@ class NewsController {
     }
   }
 }
-const newsController = new NewsController();
-module.exports = newsController;
+export const newsController = new NewsController();
