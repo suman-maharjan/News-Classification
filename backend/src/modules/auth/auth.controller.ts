@@ -4,7 +4,6 @@ import bcrypt from "bcrypt";
 import UserModel from "../user/user.model";
 import AuthModel from "./auth.model";
 import { generateToken, verifyToken } from "../../utils/jwt";
-import { generateOTP, verifyOTP } from "../../utils/otp";
 import mailer from "../../services/mail";
 import { Request } from "express";
 import {
@@ -14,6 +13,7 @@ import {
   userRegisterSchemaType,
   verifyEmailSchemaType,
 } from "./auth.schema";
+import { generateOTP } from "../../utils/otp";
 
 class AuthController {
   async getUserIdFromToken(req: Request) {

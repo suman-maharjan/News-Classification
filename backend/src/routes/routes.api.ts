@@ -1,7 +1,5 @@
 import Express, { Request, Response } from "express";
-import newsRouter from "../modules/news/news.route";
-import conversationRouter from "../modules/conversation/conversation.route";
-import { authRouter } from "../modules";
+import { authRouter, conversationRouter, newsRouter } from "../modules";
 
 const router = Express.Router();
 
