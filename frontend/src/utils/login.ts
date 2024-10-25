@@ -18,12 +18,19 @@ export const ValidationEnum = {
   LOGIN: "Login",
   REGISTER: "Register",
 };
+
+interface IvalidationUser {
+  name?: string;
+  email: string;
+  password: string;
+  type?: string;
+}
 export const validateRegister = ({
   name,
   email,
   password,
   type = ValidationEnum.LOGIN,
-}) => {
+}: IvalidationUser) => {
   if (type == ValidationEnum.REGISTER) {
     if (!name) {
       throw new Error("Name is required");
@@ -35,7 +42,7 @@ export const validateRegister = ({
       throw new Error("Password is required");
     }
 
-    if (!isNaN(name.charAt(0))) {
+    if (typeof name.charAt(0) == "number") {
       throw new Error("Name must start with a letter");
     }
 
@@ -46,7 +53,7 @@ export const validateRegister = ({
   if (!email || !password) {
     throw new Error("Name, Email and password is required");
   }
-  if (!isValidEmail(email) || !isNaN(email.charAt(0))) {
+  if (!isValidEmail(email) || !isNaN(Number(email.charAt(0)))) {
     throw new Error("Invalid Email Format");
   }
 };
