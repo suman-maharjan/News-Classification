@@ -3,10 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import instance from "../utils/api";
 import { URLS } from "../constants";
 import TabComponent from "../components/TabComponent";
-import ErrorComponent from "../components/ErrorComponent";
 import PasswordSVG from "../assets/svg/PasswordSVG";
 import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
-import { useErrorHandler } from "../hooks/useErrorHandler";
+import { useEventHandler } from "../hooks/useEventHandler";
 
 const Forgot = () => {
   const tabs = ["Forgot Password"];
@@ -69,7 +68,7 @@ const ForgotPasswordComponent = () => {
   });
   const navigate = useNavigate();
 
-  const { handleError, clearError, error } = useErrorHandler();
+  const { handleSuccess, handleError } = useEventHandler();
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -105,15 +104,13 @@ const ForgotPasswordComponent = () => {
       });
 
       if (response.data.message === "success") {
-        navigate("/", {
-          state: { message: "Successfully changed the password" },
-        });
+        handleSuccess("Successfully changed the password");
+        navigate("/");
       }
     } catch (error) {
       handleError(error);
     } finally {
       setLoading(false);
-      clearError();
     }
   };
 
@@ -182,7 +179,6 @@ const ForgotPasswordComponent = () => {
         >
           {loading ? "Loading..." : "Reset Password"}
         </button>
-        {error ? <ErrorComponent message={error} /> : null}
       </div>
     </form>
   );

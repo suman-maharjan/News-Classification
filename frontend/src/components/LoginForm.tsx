@@ -1,14 +1,13 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import EmailSVG from "../assets/svg/EmailSVG";
 import PasswordSVG from "../assets/svg/PasswordSVG";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import instance from "../utils/api";
 import { URLS } from "../constants";
 import { setToken } from "../utils/sessions";
-import ErrorComponent, { AlertTypeEnum } from "./ErrorComponent";
 import { validateRegister, ValidationEnum } from "../utils/login";
 import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
-import { useErrorHandler } from "../hooks/useErrorHandler";
+import { useEventHandler } from "../hooks/useEventHandler";
 
 interface IUserLogin {
   email: string;
@@ -16,30 +15,12 @@ interface IUserLogin {
 }
 
 const LoginForm = () => {
-  const location = useLocation();
-  const locationMessage = location.state?.message;
-  const [message, setMessage] = useState("");
-
-  const { error, handleError, clearError } = useErrorHandler();
-
-  useEffect(() => {
-    if (locationMessage) {
-      setMessage(locationMessage);
-
-      const timerId = setTimeout(() => {
-        setMessage(""); // Clear the message after 5 seconds
-      }, 5000);
-
-      // Clean up the timeout when the component unmounts or when `locationMessage` changes
-      return () => clearTimeout(timerId);
-    }
-  }, [locationMessage]);
-
   const [password, setPassword] = useState(true);
-
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [signIn, setSignIn] = useState<IUserLogin>({ email: "", password: "" });
+
+  const { handleError, handleSuccess } = useEventHandler();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
     try {
@@ -52,12 +33,12 @@ const LoginForm = () => {
       const { token } = data.data;
       setToken(token);
       setSignIn({ email: "", password: "" });
+      handleSuccess("Successfully Logged In");
       navigate("/dashboard");
     } catch (e) {
       handleError(e);
     } finally {
       setLoading(false);
-      clearError();
     }
   };
 
@@ -109,11 +90,6 @@ const LoginForm = () => {
             Forgot password?
           </a>
         </label>
-
-        {message && (
-          <ErrorComponent message={message} type={AlertTypeEnum.SUCCESS} />
-        )}
-        {error ? <ErrorComponent message={error} /> : null}
       </div>
     </form>
   );

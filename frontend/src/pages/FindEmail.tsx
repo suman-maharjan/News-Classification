@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import instance from "../utils/api";
 import { URLS } from "../constants";
 import TabComponent from "../components/TabComponent";
-import ErrorComponent from "../components/ErrorComponent";
-import { useErrorHandler } from "../hooks/useErrorHandler";
+import { useEventHandler } from "../hooks/useEventHandler";
 
 const FindEmail = () => {
   const tabs = ["Find Email"];
@@ -49,7 +48,7 @@ const FindEmailComponent = () => {
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
 
-  const { error, handleError, clearError } = useErrorHandler();
+  const { handleSuccess, handleError } = useEventHandler();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -66,13 +65,13 @@ const FindEmailComponent = () => {
         }
       );
       if (data.message === "success") {
+        handleSuccess("OTP sent to your email");
         navigate(`/forgot-password?email=${encodeURIComponent(email)}`);
       }
     } catch (error) {
       handleError(error);
     } finally {
       setLoading(false);
-      clearError();
     }
   };
 
@@ -90,15 +89,13 @@ const FindEmailComponent = () => {
           />
         </label>
 
-        <label
-          htmlFor="my_modal_7"
+        <button
           className="btn btn-primary"
+          type="submit"
           aria-disabled={loading}
         >
           {loading ? "Sending..." : "Send otp in Email"}
-        </label>
-
-        {error ? <ErrorComponent message={error} /> : null}
+        </button>
       </div>
     </form>
   );

@@ -1,8 +1,9 @@
 import axios from "axios";
-import { useState } from "react";
+import { useToast } from "../context/ToastContext";
+import { AlertTypeEnum } from "../components/ToastComponent";
 
-export const useErrorHandler = () => {
-  const [error, setError] = useState<string | null>(null);
+export const useEventHandler = () => {
+  const { showToast } = useToast();
   const handleError = (error: unknown) => {
     console.log(error);
 
@@ -20,15 +21,13 @@ export const useErrorHandler = () => {
       errorMessage = error.message;
     }
 
-    setError(errorMessage);
+    // This will show the error
+    showToast({ message: errorMessage, type: AlertTypeEnum.ERROR });
   };
 
-  const clearError = (duration?: number): void => {
-    const timeDuration = duration || 5000;
-    setTimeout(() => {
-      setError("");
-    }, timeDuration);
+  const handleSuccess = (successMessage: string) => {
+    showToast({ message: successMessage });
   };
 
-  return { error, handleError, clearError };
+  return { handleError, handleSuccess };
 };

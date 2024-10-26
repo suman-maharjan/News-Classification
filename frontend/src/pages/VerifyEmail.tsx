@@ -3,8 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import instance from "../utils/api";
 import { URLS } from "../constants";
 import TabComponent from "../components/TabComponent";
-import ErrorComponent, { AlertTypeEnum } from "../components/ErrorComponent";
-import { useErrorHandler } from "../hooks/useErrorHandler";
+import { useEventHandler } from "../hooks/useEventHandler";
 
 const VerifyEmail = () => {
   const location = useLocation();
@@ -77,9 +76,7 @@ const VerifyEmailComponent = ({ email }: { email: string }) => {
   const [resendLoading, setResendLoading] = useState(false);
   const [otpCode, setOtpCode] = useState("");
 
-  const [alertMessage, setAlertMessage] = useState("");
-
-  const { handleError, clearError, error } = useErrorHandler();
+  const { handleSuccess, handleError } = useEventHandler();
 
   const navigate = useNavigate();
 
@@ -100,15 +97,13 @@ const VerifyEmailComponent = ({ email }: { email: string }) => {
         token: otpCode,
       });
       if (response.data.message === "success") {
-        navigate("/", {
-          state: { message: "Successfully Verified Email" },
-        });
+        handleSuccess("Successfully Verified Email");
+        navigate("/");
       }
     } catch (error) {
       handleError(error);
     } finally {
       setLoading(false);
-      clearError();
     }
   };
 
@@ -120,15 +115,13 @@ const VerifyEmailComponent = ({ email }: { email: string }) => {
         email,
       });
       if (res.status === 200) {
-        clearError(0);
-        setAlertMessage("Email sent successfully");
+        handleSuccess("Email sent successfully");
       }
     } catch (error) {
       console.error(error);
       handleError(error);
     } finally {
       setResendLoading(false);
-      clearError();
     }
   };
 
@@ -163,10 +156,6 @@ const VerifyEmailComponent = ({ email }: { email: string }) => {
             {resendLoading ? "Sending..." : "Re-send Email"}
           </a>
         </label>
-        {alertMessage && (
-          <ErrorComponent message={alertMessage} type={AlertTypeEnum.SUCCESS} />
-        )}
-        {error ? <ErrorComponent message={error} /> : null}
       </div>
     </form>
   );

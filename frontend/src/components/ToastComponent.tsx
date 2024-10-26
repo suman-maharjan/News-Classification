@@ -1,7 +1,7 @@
 import ErrorSVG from "../assets/svg/ErrorSVG";
 import SuccessSVG from "../assets/svg/SuccessSVG";
 
-const ErrorComponent = ({
+const ToastComponent = ({
   message,
   type = AlertTypeEnum.ERROR,
 }: {
@@ -11,9 +11,11 @@ const ErrorComponent = ({
   return (
     <div
       role="alert"
-      className={`alert  ${
-        type === AlertTypeEnum.ERROR ? "alert-error" : "alert-success"
-      }`}
+      className={`
+        absolute bottom-4 right-4
+        alert  ${type === AlertTypeEnum.ERROR ? "alert-error" : "alert-success"}
+        max-w-xs px-4 py-2 rounded-lg shadow-lg"
+      `}
     >
       {type === AlertTypeEnum.ERROR ? <ErrorSVG /> : <SuccessSVG />}
       <span>{message ?? `Error! Task failed successfully.`}</span>
@@ -26,4 +28,4 @@ export enum AlertTypeEnum {
   SUCCESS = "success",
 }
 
-export default ErrorComponent;
+export default ToastComponent;

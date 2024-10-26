@@ -5,10 +5,9 @@ import ProfileSVG from "../assets/svg/ProfileSVG";
 import { FormEvent, useState } from "react";
 import instance from "../utils/api";
 import { URLS } from "../constants";
-import ErrorComponent from "./ErrorComponent";
 import { validateRegister } from "../utils/login";
 import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
-import { useErrorHandler } from "../hooks/useErrorHandler";
+import { useEventHandler } from "../hooks/useEventHandler";
 
 interface IRegisterUser {
   name: string;
@@ -17,7 +16,6 @@ interface IRegisterUser {
 }
 
 const RegisterForm = () => {
-  const { error, handleError, clearError } = useErrorHandler();
   const [password, setPassword] = useState(true);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -26,6 +24,8 @@ const RegisterForm = () => {
     email: "",
     password: "",
   });
+
+  const { handleSuccess, handleError } = useEventHandler();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRegister((prev) => {
@@ -40,12 +40,12 @@ const RegisterForm = () => {
       validateRegister({ ...register, type: "Register" });
       await instance.post(`${URLS.AUTH}/register`, register);
 
+      handleSuccess("Successfully Registered! Please verify your email");
       navigate(`/verify-email?email=${encodeURIComponent(register.email)}`);
     } catch (e) {
       handleError(e);
     } finally {
       setLoading(false);
-      clearError();
     }
   };
 
@@ -99,7 +99,6 @@ const RegisterForm = () => {
         >
           {loading ? "Registering..." : "Register"}
         </button>
-        {error ? <ErrorComponent message={error} /> : null}
       </div>
     </form>
   );
