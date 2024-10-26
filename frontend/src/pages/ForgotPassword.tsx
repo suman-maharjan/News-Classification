@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import instance from "../utils/api";
 import { URLS } from "../constants";
@@ -6,12 +6,13 @@ import TabComponent from "../components/TabComponent";
 import ErrorComponent from "../components/ErrorComponent";
 import PasswordSVG from "../assets/svg/PasswordSVG";
 import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
+import { useErrorHandler } from "../hooks/useErrorHandler";
 
 const Forgot = () => {
   const tabs = ["Forgot Password"];
 
   const [activeIndex, setActiveIndex] = useState(tabs[0]);
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab: string) => {
     setActiveIndex(tab);
   };
 
@@ -66,33 +67,21 @@ const ForgotPasswordComponent = () => {
     password: "",
     confirmPassword: "",
   });
-  const [error, setError] = useState();
   const navigate = useNavigate();
+
+  const { handleError, clearError, error } = useErrorHandler();
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const email = queryParams.get("email");
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setData((prev) => {
       return { ...prev, [e.target.name]: e.target.value };
     });
   };
 
-  const handleError = (e) => {
-    const errMsg = e?.response
-      ? e.response.data.msg
-      : e?.message ?? "Something went wrong";
-    setError(errMsg);
-  };
-
-  const clearError = () => {
-    setTimeout(() => {
-      setError("");
-    }, 5000);
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -106,8 +95,7 @@ const ForgotPasswordComponent = () => {
       }
 
       if (data.token.length !== 6) {
-        setError("OTP Code must be 6 digits");
-        return;
+        throw new Error("OTP Code must be 6 digits");
       }
 
       const response = await instance.post(`${URLS.AUTH}/forgot-password`, {
@@ -130,72 +118,73 @@ const ForgotPasswordComponent = () => {
   };
 
   return (
-    <div className="flex flex-col gap-2 text-black">
-      <label className="input input-bordered flex items-center gap-2">
-        <input
-          type="number"
-          className="grow"
-          placeholder="6 digit Code"
-          name="token"
-          maxLength={6}
-          onChange={(e) => handleChange(e)}
-          value={data.token}
-        />
-      </label>
+    <form onSubmit={handleSubmit}>
+      <div className="flex flex-col gap-2 text-black">
+        <label className="input input-bordered flex items-center gap-2">
+          <input
+            type="number"
+            className="grow"
+            placeholder="6 digit Code"
+            name="token"
+            maxLength={6}
+            onChange={(e) => handleChange(e)}
+            value={data.token}
+          />
+        </label>
 
-      <label className="input input-bordered flex items-center gap-2">
-        <PasswordSVG />
-        <input
-          type={passwordVisible.password ? "password" : "text"}
-          name="password"
-          className="grow"
-          placeholder="password"
-          onChange={(e) => handleChange(e)}
-          value={data.password}
-        />
-        <div
-          className="hover:cursor-pointer"
-          onClick={() =>
-            handlePasswordVisibility("password", !passwordVisible.password)
-          }
+        <label className="input input-bordered flex items-center gap-2">
+          <PasswordSVG />
+          <input
+            type={passwordVisible.password ? "password" : "text"}
+            name="password"
+            className="grow"
+            placeholder="password"
+            onChange={(e) => handleChange(e)}
+            value={data.password}
+          />
+          <div
+            className="hover:cursor-pointer"
+            onClick={() =>
+              handlePasswordVisibility("password", !passwordVisible.password)
+            }
+          >
+            {passwordVisible.password ? <EyeCrossIcon /> : <EyeIcon />}
+          </div>
+        </label>
+
+        <label className="input input-bordered flex items-center gap-2">
+          <PasswordSVG />
+          <input
+            type={passwordVisible.confirmPassword ? "password" : "text"}
+            name="confirmPassword"
+            className="grow"
+            placeholder="Confirm Password"
+            onChange={(e) => handleChange(e)}
+            value={data.confirmPassword}
+          />
+          <div
+            className="hover:cursor-pointer"
+            onClick={() =>
+              handlePasswordVisibility(
+                "confirmPassword",
+                !passwordVisible.confirmPassword
+              )
+            }
+          >
+            {passwordVisible.confirmPassword ? <EyeCrossIcon /> : <EyeIcon />}
+          </div>
+        </label>
+
+        <button
+          className="btn btn-primary"
+          aria-disabled={loading}
+          type="submit"
         >
-          {passwordVisible.password ? <EyeCrossIcon /> : <EyeIcon />}
-        </div>
-      </label>
-
-      <label className="input input-bordered flex items-center gap-2">
-        <PasswordSVG />
-        <input
-          type={passwordVisible.confirmPassword ? "password" : "text"}
-          name="confirmPassword"
-          className="grow"
-          placeholder="Confirm Password"
-          onChange={(e) => handleChange(e)}
-          value={data.confirmPassword}
-        />
-        <div
-          className="hover:cursor-pointer"
-          onClick={() =>
-            handlePasswordVisibility(
-              "confirmPassword",
-              !passwordVisible.confirmPassword
-            )
-          }
-        >
-          {passwordVisible.confirmPassword ? <EyeCrossIcon /> : <EyeIcon />}
-        </div>
-      </label>
-
-      <label
-        htmlFor="my_modal_7"
-        onClick={handleSubmit}
-        className="btn btn-primary"
-        aria-disabled={loading}
-      >
-        {loading ? "Loading..." : "Reset Password"}
-      </label>
-      {error ? <ErrorComponent message={error} /> : null}
-    </div>
+          {loading ? "Loading..." : "Reset Password"}
+        </button>
+        {error ? <ErrorComponent message={error} /> : null}
+      </div>
+    </form>
   );
 };
 

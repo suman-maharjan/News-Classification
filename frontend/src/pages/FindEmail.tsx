@@ -1,15 +1,16 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import instance from "../utils/api";
 import { URLS } from "../constants";
 import TabComponent from "../components/TabComponent";
 import ErrorComponent from "../components/ErrorComponent";
+import { useErrorHandler } from "../hooks/useErrorHandler";
 
 const FindEmail = () => {
   const tabs = ["Find Email"];
 
-  const [activeIndex, setActiveIndex] = useState(tabs[0]);
-  const handleTabChange = (tab) => {
+  const [activeIndex, setActiveIndex] = useState<string>(tabs[0]);
+  const handleTabChange = (tab: string) => {
     setActiveIndex(tab);
   };
 
@@ -46,30 +47,17 @@ const FindEmail = () => {
 const FindEmailComponent = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
-  const [error, setError] = useState();
   const navigate = useNavigate();
 
-  const handleError = (e) => {
-    const errMsg = e?.response
-      ? e.response.data.msg
-      : e?.message ?? "Something went wrong";
-    setError(errMsg);
-  };
+  const { error, handleError, clearError } = useErrorHandler();
 
-  const clearError = () => {
-    setTimeout(() => {
-      setError("");
-    }, 5000);
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       if (!email) {
-        setError("Email is required");
-        return;
+        throw new Error("Email is required");
       }
       const { data } = await instance.post(
         `${URLS.AUTH}/forgot-password-generator`,
@@ -89,29 +77,30 @@ const FindEmailComponent = () => {
   };
 
   return (
-    <div className="flex flex-col gap-2 text-black">
-      <label className="input input-bordered flex items-center gap-2">
-        <input
-          type="text"
-          className="grow"
-          placeholder="Email"
-          name="email"
-          onChange={(e) => setEmail(e.target.value)}
-          value={email}
-        />
-      </label>
+    <form onSubmit={handleSubmit}>
+      <div className="flex flex-col gap-2 text-black">
+        <label className="input input-bordered flex items-center gap-2">
+          <input
+            type="text"
+            className="grow"
+            placeholder="Email"
+            name="email"
+            onChange={(e) => setEmail(e.target.value)}
+            value={email}
+          />
+        </label>
 
-      <label
-        htmlFor="my_modal_7"
-        onClick={handleSubmit}
-        className="btn btn-primary"
-        aria-disabled={loading}
-      >
-        {loading ? "Sending..." : "Send otp in Email"}
-      </label>
+        <label
+          htmlFor="my_modal_7"
+          className="btn btn-primary"
+          aria-disabled={loading}
+        >
+          {loading ? "Sending..." : "Send otp in Email"}
+        </label>
 
-      {error ? <ErrorComponent message={error} /> : null}
-    </div>
+        {error ? <ErrorComponent message={error} /> : null}
+      </div>
+    </form>
   );
 };
 
