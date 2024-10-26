@@ -1,10 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { isLoggedin } from "../utils/login";
 import { removeToken } from "../utils/sessions";
 
 const NavBar = () => {
   const navigate = useNavigate();
-  const handleLogout = (e) => {
+  const handleLogout = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     removeToken();
     navigate("/");
@@ -36,7 +36,7 @@ const NavBar = () => {
               tabIndex={0}
               className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
             >
-              <Link onClick={handleLogout}>Logout</Link>
+              <a onClick={handleLogout}>Logout</a>
             </ul>
           </div>
         </div>
