@@ -32,15 +32,24 @@ class AuthController {
       const { name, email, password } = payload;
       const emailExist = await UserModel.findOne({ email });
 
-      if (emailExist) {
+      if (emailExist && emailExist.isEmailVerified) {
         const error: HTTPErrorType = new Error("Email already exist");
         error.status = 404;
         throw error;
       }
+
       const hashedPassword = await bcrypt.hash(
         password,
         +process.env.SALT_ROUNDS
       );
+
+      if (emailExist && !emailExist.isEmailVerified) {
+        // Update Name and Password, if email is not verified
+        emailExist.name = name;
+        emailExist.password = hashedPassword;
+        await emailExist.save();
+        return "OTP sent to your email";
+      }
 
       const sanitizedPayload = { email, password: hashedPassword, name };
       const user = await UserModel.create(sanitizedPayload);

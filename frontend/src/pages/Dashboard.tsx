@@ -1,11 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import SendSVG from "../assets/svg/SendSVG";
 import instance from "../utils/api";
 import { URLS } from "../constants";
 
+enum NewsTypeEnum {
+  Default = "Default",
+  Probability = "Probability",
+}
+
 const Dashboard = () => {
   const [conversation, setConversation] = useState([]);
-  const [newsValue, setNewsValue] = useState({ news: "", type: "Default" });
+  const [newsValue, setNewsValue] = useState({
+    news: "",
+    type: NewsTypeEnum.Default,
+  });
   const [loading, setLoading] = useState(false);
   const endOfConversationRef = useRef(null);
   const scrollRef = useRef(null);
@@ -108,7 +116,7 @@ const Dashboard = () => {
     fetchMoreMessages();
   };
 
-  const handleNewsValue = (e) => {
+  const handleNewsValue = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setNewsValue({ ...newsValue, [e.target.name]: e.target.value });
   };
   const handleNewsType = (type) => {
@@ -187,16 +195,16 @@ const Dashboard = () => {
               className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
             >
               <li
-                onClick={() => handleNewsType("Default")}
+                onClick={() => handleNewsType(NewsTypeEnum.Default)}
                 className="p-4 cursor-pointer"
               >
-                Default
+                {NewsTypeEnum.Default}
               </li>
               <li
                 className="p-4 cursor-pointer"
-                onClick={() => handleNewsType("Probability")}
+                onClick={() => handleNewsType(NewsTypeEnum.Probability)}
               >
-                Probability
+                {NewsTypeEnum.Probability}
               </li>
             </ul>
           </div>

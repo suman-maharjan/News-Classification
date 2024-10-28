@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import instance from "../utils/api";
 import { URLS } from "../constants";
 import TabComponent from "../components/TabComponent";
-import ErrorComponent, { AlertType } from "../components/ErrorComponent";
-import PropTypes from "prop-types";
+import { useEventHandler } from "../hooks/useEventHandler";
 
 const VerifyEmail = () => {
   const location = useLocation();
@@ -34,7 +33,7 @@ const VerifyEmail = () => {
   const tabs = ["Verify Email"];
 
   const [activeIndex, setActiveIndex] = useState(tabs[0]);
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab: string) => {
     setActiveIndex(tab);
   };
 
@@ -52,7 +51,6 @@ const VerifyEmail = () => {
         <div className="max-w-md">
           <h1 className="mb-5 text-5xl font-bold">Welcome there</h1>
           <p className="mb-5">
-            {" "}
             Discover a world of possibilities with our platform.
           </p>
 
@@ -73,58 +71,39 @@ const VerifyEmail = () => {
   );
 };
 
-const VerifyEmailComponent = ({ email }) => {
+const VerifyEmailComponent = ({ email }: { email: string }) => {
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [otpCode, setOtpCode] = useState("");
-  const [error, setError] = useState();
 
-  const [alertMessage, setAlertMessage] = useState("");
+  const { handleSuccess, handleError } = useEventHandler();
 
   const navigate = useNavigate();
 
-  const handleError = (e) => {
-    const errMsg = e?.response
-      ? e.response.data.msg
-      : e?.message ?? "Something went wrong";
-    setError(errMsg);
-  };
-
-  const clearError = () => {
-    setTimeout(() => {
-      setError("");
-      setAlertMessage("");
-    }, 5000);
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       if (!otpCode) {
-        setError("OTP Code is required");
-        return;
+        throw new Error("OTP Code is required");
       }
 
       if (otpCode.length !== 6) {
-        setError("OTP Code must be 6 digits");
-        return;
+        throw new Error("OTP Code must be 6 digits");
       }
       const response = await instance.post(`${URLS.AUTH}/verify`, {
         email,
         token: otpCode,
       });
       if (response.data.message === "success") {
-        navigate("/", {
-          state: { message: "Successfully Verified Email" },
-        });
+        handleSuccess("Successfully Verified Email");
+        navigate("/");
       }
     } catch (error) {
       handleError(error);
     } finally {
       setLoading(false);
-      clearError();
     }
   };
 
@@ -136,58 +115,50 @@ const VerifyEmailComponent = ({ email }) => {
         email,
       });
       if (res.status === 200) {
-        setError("");
-        setAlertMessage("Email sent successfully");
+        handleSuccess("Email sent successfully");
       }
     } catch (error) {
       console.error(error);
       handleError(error);
     } finally {
       setResendLoading(false);
-      clearError();
     }
   };
 
   return (
-    <div className="flex flex-col gap-2 text-black">
-      <label className="input input-bordered flex items-center gap-2">
-        <input
-          type="number"
-          className="grow"
-          placeholder="6 digit Code"
-          name="otpCode"
-          maxLength={6}
-          onChange={(e) => setOtpCode(e.target.value)}
-          value={otpCode}
-        />
-      </label>
+    <form onSubmit={handleSubmit}>
+      <div className="flex flex-col gap-2 text-black">
+        <label className="input input-bordered flex items-center gap-2">
+          <input
+            type="number"
+            className="grow"
+            placeholder="6 digit Code"
+            name="otpCode"
+            maxLength={6}
+            onChange={(e) => setOtpCode(e.target.value)}
+            value={otpCode}
+          />
+        </label>
 
-      <label
-        htmlFor="my_modal_7"
-        onClick={handleSubmit}
-        className="btn btn-primary"
-        aria-disabled={loading}
-      >
-        {loading ? "Verifying..." : "Verify Email"}
-      </label>
-      <label className="label">
-        <a
-          onClick={handleResendEmail}
-          className="label-text-alt link link-hover text-white underline hover:bg-white p-2"
+        <button
+          type="submit"
+          onClick={handleSubmit}
+          className="btn btn-primary"
+          aria-disabled={loading}
         >
-          {resendLoading ? "Sending..." : "Re-send Email"}
-        </a>
-      </label>
-      {alertMessage && (
-        <ErrorComponent message={alertMessage} type={AlertType.SUCCESS} />
-      )}
-      {error ? <ErrorComponent message={error} /> : null}
-    </div>
+          {loading ? "Verifying..." : "Verify Email"}
+        </button>
+        <label className="label">
+          <a
+            onClick={handleResendEmail}
+            className="label-text-alt link link-hover text-white underline hover:bg-white p-2"
+          >
+            {resendLoading ? "Sending..." : "Re-send Email"}
+          </a>
+        </label>
+      </div>
+    </form>
   );
-};
-
-VerifyEmailComponent.propTypes = {
-  email: PropTypes.string,
 };
 
 export default VerifyEmail;

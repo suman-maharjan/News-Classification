@@ -1,6 +1,10 @@
-import { PropTypes } from "prop-types";
+interface TabComponentProps {
+  tabs: string[];
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+}
 
-const TabComponent = ({ tabs, activeTab, onTabChange }) => {
+const TabComponent = ({ tabs, activeTab, onTabChange }: TabComponentProps) => {
   return (
     <div className="root flex flex-start p-4 bg-gray-600 justify-center rounded-md">
       {tabs.map((tab, index) => {
@@ -20,12 +24,6 @@ const TabComponent = ({ tabs, activeTab, onTabChange }) => {
       })}
     </div>
   );
-};
-
-TabComponent.propTypes = {
-  tabs: PropTypes.arrayOf(PropTypes.string).isRequired,
-  activeTab: PropTypes.string.isRequired,
-  onTabChange: PropTypes.func.isRequired,
 };
 
 export default TabComponent;
