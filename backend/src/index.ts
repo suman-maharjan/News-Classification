@@ -15,9 +15,14 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 const DB_URL = process.env.DB_URL!;
 
-mongoose.connect(DB_URL).then(() => {
-  console.log("Database is running...");
-});
+mongoose
+  .connect(DB_URL)
+  .then(() => {
+    console.log("Database is running...");
+  })
+  .catch((err) => {
+    console.log("Database not connected...");
+  });
 
 const app = express();
 app.use(cors());
