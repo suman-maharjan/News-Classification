@@ -1,0 +1,38 @@
+services:
+  react-frontend:
+    restart: always
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4173:4173"
+    environment:
+      - VITE_BACKEND_SERVER_URL=${VITE_BACKEND_SERVER_URL}
+
+  node-backend:
+    # restart: always
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - PORT=${PORT}
+      - DB_URL=${DB_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - FLASK_PORT=${FLASK_PORT}
+      - FLASK_ENDPOINT=${FLASK_ENDPOINT}
+      - FLASK_TIMEOUT=${FLASK_TIMEOUT}
+      - SALT_ROUNDS=${SALT_ROUNDS}
+      - OTP_DURATION_IN_SECS=${OTP_DURATION_IN_SECS}
+      - OTP_SECRET=${OTP_SECRET}
+      - GMAIL_USER=${GMAIL_USER}
+      - GMAIL_PASS=${GMAIL_PASS}
+
+  flask-backend:
+    build:
+      context: ./server1
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
