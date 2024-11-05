@@ -1,9 +1,11 @@
 from flask import Flask, request, render_template, jsonify
 from utils.NewsClassifier import classifier
 import logging
+from flask_cors import CORS
 
 
 app = Flask(__name__)
+CORS(app)
 
 logging.basicConfig(level=logging.INFO)
 
