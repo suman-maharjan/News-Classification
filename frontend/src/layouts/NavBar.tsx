@@ -1,48 +1,65 @@
 import { useNavigate } from "react-router-dom";
 import { isLoggedin } from "../utils/login";
 import { removeToken } from "../utils/sessions";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState } from "react";
 
 const NavBar = () => {
-  const navigate = useNavigate();
-  const handleLogout = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    removeToken();
-    navigate("/");
-  };
-
   return (
-    <div className="navbar bg-base-100 fixed z-10">
+    <nav className="navbar bg-base-200 fixed z-10 px-8">
       <div className="flex-1">
-        <a href="/" className="btn btn-ghost text-xl">
+        <a href="/" className="btn text-xl">
           News Classification
         </a>
       </div>
-      {isLoggedin() && (
-        <div className="flex-none">
-          <div className="dropdown dropdown-end">
+
+      {isLoggedin() && <ProfileAction />}
+    </nav>
+  );
+};
+
+const ProfileAction = () => {
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    removeToken();
+    navigate("/");
+  };
+  const handleSettings = () => {};
+  const profileActions = [
+    { label: "Settings", action: handleSettings },
+    { label: "Logout", action: handleLogout },
+  ];
+  return (
+    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+      <PopoverTrigger>
+        <Avatar>
+          <AvatarImage src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+      </PopoverTrigger>
+      <PopoverContent className="bg-base-300 shadow-lg">
+        <div className="flex flex-col gap-2  rounded-lg">
+          {profileActions.map((action, index) => (
             <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-ghost btn-circle avatar"
+              key={index}
+              className="hover:cursor-pointer"
+              onClick={() => {
+                setPopoverOpen(false);
+                action.action();
+              }}
             >
-              <div className="w-10 rounded-full">
-                <img
-                  alt="Tailwind CSS Navbar component"
-                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                />
-              </div>
+              {action.label}
             </div>
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content bg-base-300 rounded-box z-[1] mt-3 w-52 p-2 shadow hover:cursor-pointer"
-            >
-              <a onClick={handleLogout}>Setting</a>
-              <a onClick={handleLogout}>Logout</a>
-            </ul>
-          </div>
+          ))}
         </div>
-      )}
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 };
 
