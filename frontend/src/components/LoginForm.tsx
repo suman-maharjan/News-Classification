@@ -8,6 +8,8 @@ import { setToken } from "../utils/sessions";
 import { validateRegister, ValidationEnum } from "../utils/login";
 import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
 import { useEventHandler } from "../hooks/useEventHandler";
+import { _updateUserPreference } from "@/redux/userPreference/userPreferenceSlice";
+import { useDispatch } from "react-redux";
 
 interface IUserLogin {
   email: string;
@@ -21,6 +23,7 @@ const LoginForm = () => {
 
   const { handleError, handleSuccess } = useEventHandler();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e: FormEvent) => {
     try {
@@ -33,6 +36,7 @@ const LoginForm = () => {
       const { token } = data.data;
       setToken(token);
       setSignIn({ email: "", password: "" });
+      dispatch(_updateUserPreference({ loggedIn: true }));
       handleSuccess("Successfully Logged In");
       navigate("/dashboard");
     } catch (e) {
