@@ -15,6 +15,8 @@ export interface IUser extends Document {
   created_at: Date;
   updated_at: Date;
   isEmailVerified: boolean;
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 const userSchema: Schema<IUser> = new Schema({
@@ -42,6 +44,8 @@ const userSchema: Schema<IUser> = new Schema({
   created_at: { type: Date, default: Date.now() },
   updated_at: { type: Date, default: Date.now() },
   isEmailVerified: { type: Boolean, default: false },
+  accessToken: { type: String },
+  refreshToken: { type: String },
 });
 
 const UserModel =

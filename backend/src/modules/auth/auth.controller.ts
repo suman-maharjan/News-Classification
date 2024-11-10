@@ -1,11 +1,15 @@
 import { HTTPErrorType } from "../../types/HTTPErrorType";
 
 import bcrypt from "bcrypt";
-import UserModel from "../user/user.model";
+import UserModel, { IUser } from "../user/user.model";
 import AuthModel from "./auth.model";
-import { generateToken, verifyToken } from "../../utils/jwt";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyToken,
+} from "../../utils/jwt";
 import mailer from "../../services/mail";
-import { Request } from "express";
+import { Request, Response } from "express";
 import {
   forgotPasswordSchemaType,
   userLoginSchemaType,
@@ -14,6 +18,10 @@ import {
   verifyEmailSchemaType,
 } from "./auth.schema";
 import { generateOTP } from "../../utils/otp";
+import {
+  accessTokenPayload,
+  refreshTokenPayload,
+} from "../../types/tokenTypes";
 
 class AuthController {
   async getUserIdFromToken(req: Request) {
@@ -122,7 +130,7 @@ class AuthController {
     return "OTP sent to your email";
   }
 
-  async login(payload: userLoginSchemaType) {
+  async login(payload: userLoginSchemaType, res: Response) {
     const { email, password } = payload;
     const user = await UserModel.findOne({ email }).select("+password");
 
@@ -142,12 +150,12 @@ class AuthController {
 
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) throw new Error("Email or Password is invalid");
-    // JWT TOKEN GENERATION
-    const tokenPayload = { email: user?.email, roles: user?.roles };
-    const token = generateToken(tokenPayload);
+
+    const { accessToken, refreshToken } =
+      await this.generateAccessAndRefreshToken(user, res);
+
     return {
       user: { name: user?.name, email: user?.email, roles: user?.roles },
-      token,
     };
   }
 
@@ -210,6 +218,45 @@ class AuthController {
       return true;
     }
     return false;
+  }
+
+  async generateAccessAndRefreshToken(user: IUser, res: Response) {
+    try {
+      // JWT ACCESS TOKEN GENERATION
+      const accessTokenPayload: accessTokenPayload = {
+        id: user?._id as string,
+        email: user?.email,
+        username: user?.name,
+        roles: user?.roles,
+      };
+
+      // JWT REFRESH TOKEN GENERATION
+      const refreshTokenPayload: refreshTokenPayload = {
+        id: user?._id as string,
+      };
+
+      const accessToken = generateAccessToken(accessTokenPayload);
+      const refreshToken = generateRefreshToken(refreshTokenPayload);
+
+      user.accessToken = accessToken;
+      user.refreshToken = refreshToken;
+      await user.save();
+
+      res.cookie("refresh_token", refreshToken, {
+        httpOnly: true,
+        // secure: true,
+        // path: "/",
+      });
+      res.cookie("access_token", accessToken, {
+        httpOnly: true,
+        // secure: true,
+        // path: "/",
+      });
+
+      return { accessToken, refreshToken };
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 }
 

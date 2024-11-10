@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Response, Router } from "express";
 
 import authService from "./auth.controller";
 import {
@@ -112,12 +112,12 @@ router.post("/forgot-password", async (req, res, next) => {
   }
 });
 
-router.post("/login", async (req, res, next) => {
+router.post("/login", async (req, res: Response, next) => {
   try {
     const validationResult = userLoginSchema.safeParse(req.body);
     if (!validationResult.success) throw new Error("Invalid Request Body");
 
-    const result = await Controller.login(validationResult.data);
+    const result = await Controller.login(validationResult.data, res);
     res.json({
       data: result,
       message: "success",
