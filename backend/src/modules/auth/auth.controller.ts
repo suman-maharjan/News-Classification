@@ -7,6 +7,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
   verifyAccessToken,
+  verifyRefreshToken,
   verifyToken,
 } from "../../utils/jwt";
 import mailer from "../../services/mail";
@@ -35,7 +36,6 @@ class AuthController {
     // const { email } = data;
     const accessToken = req.cookies.access_token;
     if (!accessToken) throw new Error("Access Token is required");
-    console.log({ accessToken });
     const tokenData = verifyAccessToken(accessToken);
     const user = await UserModel.findOne({ email: tokenData.email });
     return user._id;
@@ -158,7 +158,7 @@ class AuthController {
     }
 
     const { accessToken, refreshToken } =
-      await this.generateAccessAndRefreshToken(user, res);
+      await this.generateAccessAndRefreshToken(user);
 
     const options = {
       httpOnly: true, // Prevent JavaScript access to the cookie
@@ -174,7 +174,7 @@ class AuthController {
     return res
       .status(200)
       .cookie("access_token", accessToken, options)
-      .cookie("refresh_token", accessToken, options)
+      .cookie("refresh_token", refreshToken, options)
       .json({
         data: result,
         message: "success",
@@ -255,31 +255,78 @@ class AuthController {
     });
   }
 
-  async generateAccessAndRefreshToken(user: IUser, res: Response) {
-    try {
-      // JWT ACCESS TOKEN GENERATION
-      const accessTokenPayload: accessTokenPayload = {
-        id: user?._id as string,
-        email: user?.email,
-        username: user?.name,
-        roles: user?.roles,
-      };
+  async generateAccessAndRefreshToken(user: IUser) {
+    // JWT ACCESS TOKEN GENERATION
+    const accessTokenPayload: accessTokenPayload = {
+      id: user?._id as string,
+      email: user?.email,
+      username: user?.name,
+      roles: user?.roles,
+    };
 
-      // JWT REFRESH TOKEN GENERATION
-      const refreshTokenPayload: refreshTokenPayload = {
-        id: user?._id as string,
-      };
+    // JWT REFRESH TOKEN GENERATION
+    const refreshTokenPayload: refreshTokenPayload = {
+      id: user?._id as string,
+    };
 
-      const accessToken = generateAccessToken(accessTokenPayload);
-      const refreshToken = generateRefreshToken(refreshTokenPayload);
+    const accessToken = generateAccessToken(accessTokenPayload);
+    const refreshToken = generateRefreshToken(refreshTokenPayload);
 
-      user.accessToken = accessToken;
-      user.refreshToken = refreshToken;
-      await user.save();
+    user.accessToken = accessToken;
+    user.refreshToken = refreshToken;
+    await user.save();
 
-      return { accessToken, refreshToken };
-    } catch (e) {
-      throw new Error(e);
+    return { accessToken, refreshToken };
+  }
+
+  async checkTokens(req: Request, res: Response) {
+    // Get the Access Token and Refresh Token
+    const access_token = req.cookies.access_token;
+    const refresh_token = req.cookies.refresh_token;
+
+    if (!access_token || !refresh_token) {
+      throw new ApiError(401, "Unauthorized");
+    }
+
+    // Check the Access Token
+    const verifiedAccessToken = verifyAccessToken(access_token);
+
+    if (verifiedAccessToken === "expired") {
+      const verifiedRefreshToken = verifyRefreshToken(refresh_token);
+      if (verifiedRefreshToken === "expired") {
+        return res.redirect("/auth/logout");
+      }
+      if (verifiedRefreshToken) {
+        // Generate the new tokens
+        const userId = verifiedRefreshToken.data.id;
+        const user = await UserModel.findById(userId);
+        if (!user) {
+          throw new ApiError(404, "User not found");
+        }
+        const { accessToken, refreshToken } =
+          await authService.generateAccessAndRefreshToken(user);
+
+        const options = {
+          httpOnly: true, // Prevent JavaScript access to the cookie
+          secure: process.env.NODE_ENV === "production", // Set to true in production with HTTPS
+          expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days expiration
+          sameSite: "none" as const, // Allow cross-origin requests
+        };
+        return res
+          .status(200)
+          .cookie("access_token", accessToken, options)
+          .cookie("refresh_token", refreshToken, options)
+          .json({
+            message: "success",
+            data: [],
+          });
+      } else {
+        throw new ApiError(401, "Unauthorized");
+      }
+    } else if (verifiedAccessToken === "invalid") {
+      res.status(401).json({ message: "Unauthorized" });
+    } else if (verifiedAccessToken.data) {
+      return res.status(200).json({ message: "success", data: [] });
     }
   }
 }

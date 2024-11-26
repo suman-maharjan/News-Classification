@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { accessTokenPayload, refreshTokenPayload } from "../types/tokenTypes";
+import { ApiError } from "./ApiError";
 dotenv.config();
 
 const generateToken = (payload) => {
@@ -25,8 +26,10 @@ const verifyRefreshToken = (token: string) => {
   try {
     return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
   } catch (e) {
-    console.log("refresh token error", e);
-    throw new Error(e);
+    if (e.name === "TokenExpiredError") {
+      return "expired";
+    }
+    throw new ApiError(400, "Invalid Token");
   }
 };
 
@@ -37,7 +40,7 @@ const verifyAccessToken = (token: string) => {
     if (e.name === "TokenExpiredError") {
       return "expired";
     }
-    throw new Error(e);
+    throw new ApiError(400, "Invalid Token");
   }
 };
 

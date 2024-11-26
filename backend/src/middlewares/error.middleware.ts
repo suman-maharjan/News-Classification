@@ -20,8 +20,6 @@ export const errorHandler: ErrorRequestHandler = (
 ): Response => {
   let error: IAPIError = err;
 
-  console.log({ error });
-
   if (error instanceof z.ZodError) {
     const validationErrors = err.errors.map((error) => ({
       message: error.message,

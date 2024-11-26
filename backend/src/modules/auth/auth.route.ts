@@ -11,6 +11,14 @@ import {
 } from "./auth.schema";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { validateZod } from "../../utils/validationHandler";
+import { ApiError } from "../../utils/ApiError";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+} from "../../utils/jwt";
+import UserModel from "../user/user.model";
 const Controller = authService;
 
 const router = Router();
@@ -26,7 +34,7 @@ router.post(
   "/register",
   asyncHandler(async (req, res, next) => {
     const validationResult = validateZod(userRegisterSchema, req.body);
-    await Controller.create(validationResult.data, res);
+    await Controller.create(validationResult, res);
   })
 );
 
@@ -36,7 +44,7 @@ router.post(
     const validationResult = validateZod(verifyEmailSchema, req.body);
 
     if (!validationResult.success) throw new Error("Invalid Request Body");
-    await Controller.verifyEmail(validationResult.data, res);
+    await Controller.verifyEmail(validationResult, res);
   })
 );
 
@@ -44,7 +52,7 @@ router.post(
   "/regenerate",
   asyncHandler(async (req, res) => {
     const validationResult = validateZod(regenerateCodeSchema, req.body);
-    await Controller.regenerate(validationResult.data.email, res);
+    await Controller.regenerate(validationResult.email, res);
   })
 );
 
@@ -68,7 +76,7 @@ router.post(
   "/forgot-password",
   asyncHandler(async (req, res) => {
     const validationResult = validateZod(forgotPasswordSchema, req.body);
-    await Controller.forgotPassword(validationResult.data, res);
+    await Controller.forgotPassword(validationResult, res);
   })
 );
 
@@ -76,37 +84,12 @@ router.post(
   "/login",
   asyncHandler(async (req, res) => {
     const validationResult = validateZod(userLoginSchema, req.body);
-    await Controller.login(validationResult.data, res);
+    await Controller.login(validationResult, res);
   })
 );
 
-// TODO: Implement the /me route
-// router.get("/me", async (req, res, next) => {
-//   const access_token = req.cookies.access_token;
-//   const refresh_token = req.cookies.refresh_token;
-
-//   try {
-//     if (!access_token || !refresh_token) {
-//       throw new Error("Unauthorized");
-//     }
-//     const verifiedAccessToken = verifyAccessToken(access_token);
-
-//     console.log({ verifiedAccessToken });
-//     if (verifiedAccessToken === "expired") {
-//       // regenerate the tokens
-//     }
-//     if (verifiedAccessToken === "invalid") {
-//       res.status(401).json({ message: "Unauthorized" });
-//     }
-
-//     // Check the refresh token
-//     return res.json({ message: "success" });
-//   } catch (error) {
-//     next(error);
-//   }
-
-//   console.log({ access_token });
-// });
+// TODO: Implement the /me route\
+router.get("/me", asyncHandler(Controller.checkTokens));
 
 // router.get("/logout", async (req, res, next) => {
 //   res.clearCookie("access_token");
