@@ -6,6 +6,7 @@ import AuthModel from "./auth.model";
 import {
   generateAccessToken,
   generateRefreshToken,
+  verifyAccessToken,
   verifyToken,
 } from "../../utils/jwt";
 import mailer from "../../services/mail";
@@ -22,61 +23,61 @@ import {
   accessTokenPayload,
   refreshTokenPayload,
 } from "../../types/tokenTypes";
+import { ApiError } from "../../utils/ApiError";
+import { ApiResponse } from "../../utils/ApiResponse";
 
 class AuthController {
   async getUserIdFromToken(req: Request) {
-    const bearerToken = req?.headers?.authorization;
-    const token = bearerToken.split("Bearer ")[1];
-    const tokenData = verifyToken(token);
-    const { data } = tokenData;
-    const { email } = data;
-
-    const user = await UserModel.findOne({ email });
+    // const bearerToken = req?.headers?.authorization;
+    // const token = bearerToken.split("Bearer ")[1];
+    // const tokenData = verifyToken(token);
+    // const { data } = tokenData;
+    // const { email } = data;
+    const accessToken = req.cookies.access_token;
+    if (!accessToken) throw new Error("Access Token is required");
+    console.log({ accessToken });
+    const tokenData = verifyAccessToken(accessToken);
+    const user = await UserModel.findOne({ email: tokenData.email });
     return user._id;
   }
 
-  async create(payload: userRegisterSchemaType) {
-    try {
-      const { name, email, password } = payload;
-      const emailExist = await UserModel.findOne({ email });
+  async create(payload: userRegisterSchemaType, res: Response) {
+    const { name, email, password } = payload;
+    const emailExist = await UserModel.findOne({
+      email,
+    });
 
-      if (emailExist && emailExist.isEmailVerified) {
-        const error: HTTPErrorType = new Error("Email already exist");
-        error.status = 404;
-        throw error;
-      }
-
-      const hashedPassword = await bcrypt.hash(
-        password,
-        +process.env.SALT_ROUNDS
-      );
-
-      if (emailExist && !emailExist.isEmailVerified) {
-        // Update Name and Password, if email is not verified
-        emailExist.name = name;
-        emailExist.password = hashedPassword;
-        await emailExist.save();
-        return "OTP sent to your email";
-      }
-
-      const sanitizedPayload = { email, password: hashedPassword, name };
-      const user = await UserModel.create(sanitizedPayload);
-
-      const otp = generateOTP();
-
-      const expiryDate = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour expiration
-
-      await AuthModel.create({ email, otp, token_expiry: expiryDate });
-
-      const info = await mailer(payload.email, otp);
-      return "OTP sent to your email";
-    } catch (error) {
-      console.log(error);
-      throw new Error(error);
+    if (emailExist && emailExist.isEmailVerified) {
+      throw new ApiError(409, "Email already exist");
     }
+
+    const hashedPassword = await bcrypt.hash(
+      password,
+      +process.env.SALT_ROUNDS
+    );
+
+    if (emailExist && !emailExist.isEmailVerified) {
+      // Update Name and Password, if email is not verified
+      emailExist.name = name;
+      emailExist.password = hashedPassword;
+      await emailExist.save();
+    }
+
+    const sanitizedPayload = { email, password: hashedPassword, name };
+    const user = await UserModel.create(sanitizedPayload);
+
+    const otp = generateOTP();
+
+    const expiryDate = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour expiration
+
+    await AuthModel.create({ email, otp, token_expiry: expiryDate });
+
+    const info = await mailer(payload.email, otp);
+    const result = "OTP sent to your email";
+    return res.status(201).json(new ApiResponse(201, result, "User Created"));
   }
 
-  async verifyEmail(payload: verifyEmailSchemaType) {
+  async verifyEmail(payload: verifyEmailSchemaType, res: Response) {
     // Check Email Exists
     const { email: emailPayload, token: tokenPayload } = payload;
     const authUser = await AuthModel.findOne({
@@ -85,17 +86,16 @@ class AuthController {
     });
 
     if (!authUser) {
-      throw new Error("Token Expired or Invalid Input");
-    }
-
-    if (authUser.otp !== tokenPayload) {
-      throw new Error("Invalid OTP");
+      throw new ApiError(401, "Token Expired or Invalid Input");
+    } else if (authUser.otp !== tokenPayload) {
+      throw new ApiError(401, "Invalid OTP");
     }
 
     const userValid = await UserModel.findOne({ email: emailPayload });
 
-    if (userValid && userValid.isEmailVerified)
-      throw new Error("Email already verified");
+    if (userValid && userValid.isEmailVerified) {
+      throw new ApiError(401, "Email already verified");
+    }
 
     await UserModel.findOneAndUpdate(
       { email: emailPayload },
@@ -105,18 +105,23 @@ class AuthController {
 
     await AuthModel.deleteOne({ email: emailPayload });
 
-    return true;
+    const result = true;
+    return res.status(200).json({
+      data: result,
+      message: "success",
+    });
   }
 
-  async regenerate(emailPayload: string) {
+  async regenerate(emailPayload: string, res: Response) {
     // Check Email Exists
     const user = await AuthModel.findOne({ email: emailPayload });
-    if (!user) throw new Error("Email not found");
-
-    const userValid = await UserModel.findOne({ email: emailPayload });
-
-    if (userValid && userValid.isEmailVerified)
-      throw new Error("Email already verified");
+    if (!user) {
+      throw new ApiError(404, "Email not found");
+    }
+    const userValid = await UserModel.findOne({
+      email: emailPayload,
+      isEmailVerified: false,
+    });
 
     const token_expiry = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour expiration
 
@@ -127,44 +132,61 @@ class AuthController {
       { new: true }
     );
     await mailer(emailPayload, otp);
-    return "OTP sent to your email";
+    const result = "OTP sent to your email";
+    return res.status(200).json({
+      data: result,
+      message: "success",
+    });
   }
 
   async login(payload: userLoginSchemaType, res: Response) {
     const { email, password } = payload;
+
     const user = await UserModel.findOne({ email }).select("+password");
 
     if (!user) {
-      const error: HTTPErrorType = new Error("User not found");
-      error.status = 404;
-      throw error;
-    }
-    if (!user.isActive)
-      throw new Error("User is blocked. Please contact Admin");
-
-    if (!user.isEmailVerified) {
-      const error: HTTPErrorType = new Error("Email not verified");
-      error.status = 401;
-      throw error;
+      throw new ApiError(404, "User not found");
+    } else if (!user.isActive) {
+      throw new ApiError(401, "User is blocked. Please contact Admin");
+    } else if (!user.isEmailVerified) {
+      throw new ApiError(401, "Email not verified");
     }
 
     const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) throw new Error("Email or Password is invalid");
+    if (!isValid) {
+      throw new ApiError(401, "Email or Password is invalid");
+    }
 
     const { accessToken, refreshToken } =
       await this.generateAccessAndRefreshToken(user, res);
 
-    return {
+    const options = {
+      httpOnly: true, // Prevent JavaScript access to the cookie
+      secure: process.env.NODE_ENV === "production", // Set to true in production with HTTPS
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days expiration
+      sameSite: "none" as const, // Allow cross-origin requests
+    };
+
+    const result = {
       user: { name: user?.name, email: user?.email, roles: user?.roles },
     };
+
+    return res
+      .status(200)
+      .cookie("access_token", accessToken, options)
+      .cookie("refresh_token", accessToken, options)
+      .json({
+        data: result,
+        message: "success",
+      });
   }
 
-  async forgotPasswordToken(email: string) {
+  async forgotPasswordToken(email: string, res: Response) {
     const user = await UserModel.findOne({ email, isActive: true });
-    if (!user) throw new Error("User not found");
-
-    if (!user.isEmailVerified) {
-      throw new Error("Email not verified");
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    } else if (!user.isEmailVerified) {
+      throw new ApiError(401, "Email not verified");
     }
     const authUser = await AuthModel.findOne({ email });
     if (authUser) {
@@ -176,10 +198,14 @@ class AuthController {
 
     await AuthModel.create({ email, otp, token_expiry });
     mailer(email, otp);
-    return "OTP sent to your email";
+    const result = "OTP sent to your email";
+    res.json({
+      data: result,
+      message: "success",
+    });
   }
 
-  async forgotPassword(payload: forgotPasswordSchemaType) {
+  async forgotPassword(payload: forgotPasswordSchemaType, res: Response) {
     const { email, token, password } = payload;
     // Check Email Exists
     const authUser = await AuthModel.findOne({
@@ -188,17 +214,19 @@ class AuthController {
     });
 
     if (!authUser) {
-      throw new Error("Token Expired or Invalid Input");
+      throw new ApiError(401, "Token Expired or Invalid Input");
     }
 
     if (authUser.otp !== token) {
-      throw new Error("Invalid OTP");
+      throw new ApiError(401, "Invalid OTP");
     }
     const user = await UserModel.findOne({ email });
-    if (!user) throw new Error("User not found");
-    if (!user.isActive)
-      throw new Error("User is blocked. Please contact Admin");
-    if (!user.isEmailVerified) throw new Error("Email not verified");
+    if (!user) throw new ApiError(404, "User not found");
+    if (!user.isActive) {
+      throw new ApiError(401, "User is blocked. Please contact Admin");
+    } else if (!user.isEmailVerified) {
+      throw new ApiError(401, "Email not verified");
+    }
 
     const hashPassword = await bcrypt.hash(password, +process.env.SALT_ROUNDS);
     await UserModel.findOneAndUpdate(
@@ -208,16 +236,23 @@ class AuthController {
     );
 
     await AuthModel.deleteOne({ email });
-    return true;
+    const result = true;
+    res.json({
+      data: result,
+      message: "success",
+    });
   }
 
-  async verifyAbleEmail(email: string) {
+  async verifyAbleEmail(email: string, res: Response) {
     const user = await UserModel.findOne({ email });
-    if (!user) return false;
-    if (!user.isEmailVerified) {
-      return true;
+    let result = false;
+    if (user && !user.isEmailVerified) {
+      result = true;
     }
-    return false;
+    res.json({
+      data: result,
+      message: "success",
+    });
   }
 
   async generateAccessAndRefreshToken(user: IUser, res: Response) {
@@ -241,17 +276,6 @@ class AuthController {
       user.accessToken = accessToken;
       user.refreshToken = refreshToken;
       await user.save();
-
-      res.cookie("refresh_token", refreshToken, {
-        httpOnly: true,
-        // secure: true,
-        // path: "/",
-      });
-      res.cookie("access_token", accessToken, {
-        httpOnly: true,
-        // secure: true,
-        // path: "/",
-      });
 
       return { accessToken, refreshToken };
     } catch (e) {
