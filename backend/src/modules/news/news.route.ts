@@ -3,6 +3,8 @@ import { Request, Response, NextFunction, Router } from "express";
 import { newsController } from "./news.controller";
 import { RoleEnum } from "../user/user.model";
 import { newsClassifySchema } from "./newsSchema";
+import { asyncHandler } from "../../utils/asyncHandler";
+import { validateZod } from "../../utils/validationHandler";
 
 const Controller = newsController;
 
@@ -18,21 +20,10 @@ router.get("/", (req: Request, res: Response, next: NextFunction) => {
 router.post(
   "/classify",
   secureAPI([RoleEnum.USER]),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const validationResult = newsClassifySchema.safeParse(req.body);
-      if (!validationResult.success) {
-        throw new Error("Error Validating");
-      }
-      const result = await Controller.classify(validationResult.data);
-      res.json({
-        data: result,
-        message: "success",
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+  asyncHandler(async (req: Request, res: Response) => {
+    const validationResult = validateZod(newsClassifySchema, req.body);
+    await Controller.classify(validationResult.data, res);
+  })
 );
 
 export const newsRouter = router;

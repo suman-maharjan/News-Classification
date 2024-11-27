@@ -2,6 +2,8 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { accessTokenPayload, refreshTokenPayload } from "../types/tokenTypes";
 import { ApiError } from "./ApiError";
+import UserModel from "../modules/user/user.model";
+import authService from "../modules/auth/auth.controller";
 dotenv.config();
 
 const generateToken = (payload) => {
@@ -52,7 +54,41 @@ const verifyToken = (token) => {
   }
 };
 
+const getUsersFromTokens = async (
+  accessToken: string,
+  refreshToken: string
+) => {
+  if (!accessToken || !refreshToken) {
+    throw new ApiError(401, "Unauthorized");
+  }
+  let tokenData = verifyAccessToken(accessToken);
+  if (tokenData === "expired") {
+    const refreshTokenData = verifyRefreshToken(refreshToken);
+    if (refreshTokenData === "expired") {
+      throw new ApiError(401, "Unauthorized");
+    }
+    if (refreshTokenData) {
+      const userId = refreshTokenData.data.id;
+      const user = await UserModel.findOne({ _id: userId, isActive: true });
+      if (!user) {
+        throw new ApiError(404, "User not found");
+      }
+
+      const { accessToken, refreshToken } =
+        await authService.generateAccessAndRefreshToken(user);
+
+      return { user, accessToken, refreshToken };
+    }
+  }
+  if (tokenData === "invalid") {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  return { user: tokenData.data, accessToken, refreshToken };
+};
+
 export {
+  getUsersFromTokens,
   generateToken,
   verifyToken,
   generateRefreshToken,

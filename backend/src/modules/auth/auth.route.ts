@@ -11,14 +11,6 @@ import {
 } from "./auth.schema";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { validateZod } from "../../utils/validationHandler";
-import { ApiError } from "../../utils/ApiError";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  verifyAccessToken,
-  verifyRefreshToken,
-} from "../../utils/jwt";
-import UserModel from "../user/user.model";
 const Controller = authService;
 
 const router = Router();
@@ -32,7 +24,7 @@ router.get("/", (req, res, next) => {
 
 router.post(
   "/register",
-  asyncHandler(async (req, res, next) => {
+  asyncHandler(async (req, res) => {
     const validationResult = validateZod(userRegisterSchema, req.body);
     await Controller.create(validationResult, res);
   })
@@ -88,13 +80,12 @@ router.post(
   })
 );
 
-// TODO: Implement the /me route\
 router.get("/me", asyncHandler(Controller.checkTokens));
 
-// router.get("/logout", async (req, res, next) => {
-//   res.clearCookie("access_token");
-//   res.clearCookie("refresh_token");
-//   return res.status(200).json({ message: "success" });
-// });
+router.get("/logout", async (req, res, next) => {
+  res.clearCookie("access_token");
+  res.clearCookie("refresh_token");
+  return res.status(200).json({ message: "success" });
+});
 
 export const authRouter = router;

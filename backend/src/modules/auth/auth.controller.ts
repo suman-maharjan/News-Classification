@@ -1,21 +1,17 @@
-import { HTTPErrorType } from "../../types/HTTPErrorType";
-
 import bcrypt from "bcrypt";
 import UserModel, { IUser } from "../user/user.model";
 import AuthModel from "./auth.model";
 import {
   generateAccessToken,
   generateRefreshToken,
+  getUsersFromTokens,
   verifyAccessToken,
-  verifyRefreshToken,
-  verifyToken,
 } from "../../utils/jwt";
 import mailer from "../../services/mail";
 import { Request, Response } from "express";
 import {
   forgotPasswordSchemaType,
   userLoginSchemaType,
-  userRegisterSchema,
   userRegisterSchemaType,
   verifyEmailSchemaType,
 } from "./auth.schema";
@@ -35,10 +31,11 @@ class AuthController {
     // const { data } = tokenData;
     // const { email } = data;
     const accessToken = req.cookies.access_token;
-    if (!accessToken) throw new Error("Access Token is required");
+    if (!accessToken) {
+      throw new ApiError(401, "Unauthorized");
+    }
     const tokenData = verifyAccessToken(accessToken);
-    const user = await UserModel.findOne({ email: tokenData.email });
-    return user._id;
+    return tokenData.data.id;
   }
 
   async create(payload: userRegisterSchemaType, res: Response) {
@@ -281,53 +278,31 @@ class AuthController {
 
   async checkTokens(req: Request, res: Response) {
     // Get the Access Token and Refresh Token
-    const access_token = req.cookies.access_token;
-    const refresh_token = req.cookies.refresh_token;
+    const { access_token, refresh_token } = req.cookies;
+
+    const { accessToken, refreshToken } = await getUsersFromTokens(
+      access_token,
+      refresh_token
+    );
 
     if (!access_token || !refresh_token) {
       throw new ApiError(401, "Unauthorized");
     }
-
-    // Check the Access Token
-    const verifiedAccessToken = verifyAccessToken(access_token);
-
-    if (verifiedAccessToken === "expired") {
-      const verifiedRefreshToken = verifyRefreshToken(refresh_token);
-      if (verifiedRefreshToken === "expired") {
-        return res.redirect("/auth/logout");
-      }
-      if (verifiedRefreshToken) {
-        // Generate the new tokens
-        const userId = verifiedRefreshToken.data.id;
-        const user = await UserModel.findById(userId);
-        if (!user) {
-          throw new ApiError(404, "User not found");
-        }
-        const { accessToken, refreshToken } =
-          await authService.generateAccessAndRefreshToken(user);
-
-        const options = {
-          httpOnly: true, // Prevent JavaScript access to the cookie
-          secure: process.env.NODE_ENV === "production", // Set to true in production with HTTPS
-          expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days expiration
-          sameSite: "none" as const, // Allow cross-origin requests
-        };
-        return res
-          .status(200)
-          .cookie("access_token", accessToken, options)
-          .cookie("refresh_token", refreshToken, options)
-          .json({
-            message: "success",
-            data: [],
-          });
-      } else {
-        throw new ApiError(401, "Unauthorized");
-      }
-    } else if (verifiedAccessToken === "invalid") {
-      res.status(401).json({ message: "Unauthorized" });
-    } else if (verifiedAccessToken.data) {
-      return res.status(200).json({ message: "success", data: [] });
-    }
+    // resend the cookie
+    const options = {
+      httpOnly: true, // Prevent JavaScript access to the cookie
+      secure: process.env.NODE_ENV === "production", // Set to true in production with HTTPS
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days expiration
+      sameSite: "none" as const, // Allow cross-origin requests
+    };
+    return res
+      .status(200)
+      .cookie("access_token", accessToken, options)
+      .cookie("refresh_token", refreshToken, options)
+      .json({
+        message: "success",
+        data: [],
+      });
   }
 }
 
