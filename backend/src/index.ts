@@ -33,8 +33,6 @@ app.use(
   cors({
     origin: process.env.FRONTEND_URL || "", // Frontend URL
     credentials: true, // Allow credentials (cookies)
-    allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
-    methods: ["GET", "POST", "PUT", "DELETE"], // Allow necessary methods
   })
 );
 

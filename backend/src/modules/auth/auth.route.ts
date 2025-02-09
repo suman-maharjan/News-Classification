@@ -82,7 +82,7 @@ router.post(
 
 router.get("/me", asyncHandler(Controller.checkTokens));
 
-router.get("/logout", async (req, res, next) => {
+router.post("/logout", async (req, res, next) => {
   res.clearCookie("access_token");
   res.clearCookie("refresh_token");
   return res.status(200).json({ message: "success" });

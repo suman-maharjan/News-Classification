@@ -159,7 +159,7 @@ class AuthController {
 
     const options = {
       httpOnly: true, // Prevent JavaScript access to the cookie
-      secure: process.env.NODE_ENV === "production", // Set to true in production with HTTPS
+      secure: true, // Set to true in production with HTTPS
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days expiration
       sameSite: "none" as const, // Allow cross-origin requests
     };
@@ -291,7 +291,7 @@ class AuthController {
     // resend the cookie
     const options = {
       httpOnly: true, // Prevent JavaScript access to the cookie
-      secure: process.env.NODE_ENV === "production", // Set to true in production with HTTPS
+      secure: true, // Set to true in production with HTTPS
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days expiration
       sameSite: "none" as const, // Allow cross-origin requests
     };
