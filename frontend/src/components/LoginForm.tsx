@@ -1,15 +1,14 @@
+import { useAuth } from "@/hooks/useAuth";
+import { _setIsUserLoggedIn } from "@/redux/auth/authSlice";
+import { ILoginUser } from "@/utils/types/authTypes";
+import { FormEvent, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import EmailSVG from "../assets/svg/EmailSVG";
-import PasswordSVG from "../assets/svg/PasswordSVG";
-import { FormEvent, useState } from "react";
-import { setToken } from "../utils/sessions";
-import { validateRegister, ValidationEnum } from "../utils/login";
 import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
+import PasswordSVG from "../assets/svg/PasswordSVG";
 import { useEventHandler } from "../hooks/useEventHandler";
-import { _updateUserPreference } from "@/redux/userPreference/userPreferenceSlice";
-import { useDispatch } from "react-redux";
-import { useAuth } from "@/hooks/useAuth";
-import { ILoginUser } from "@/utils/types/authTypes";
+import { validateRegister, ValidationEnum } from "../utils/login";
 
 const LoginForm = () => {
   const { loginMutate, loginPending } = useAuth();
@@ -29,10 +28,9 @@ const LoginForm = () => {
       validateRegister({ ...signIn, type: ValidationEnum.LOGIN });
 
       loginMutate(signIn, {
-        onSuccess: (response) => {
-          const { token } = response.data;
-          setToken(token);
-          dispatch(_updateUserPreference({ loggedIn: true }));
+        onSuccess: () => {
+          dispatch(_setIsUserLoggedIn({ isUserLoggedIn: true }));
+
           handleSuccess("Successfully Logged In");
           navigate("/dashboard");
         },

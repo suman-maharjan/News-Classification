@@ -2,6 +2,7 @@ import {
   findEmailApi,
   forgotPasswordApi,
   loginUserApi,
+  logoutUserApi,
   regenerateEmail,
   registerUserApi,
   verifyableEmailApi,
@@ -18,6 +19,10 @@ import { useMutation } from "@tanstack/react-query";
 export const useAuth = () => {
   const { mutate: loginMutate, isPending: loginPending } = useMutation({
     mutationFn: async (data: ILoginUser) => await loginUserApi(data),
+  });
+
+  const { mutate: logoutMutate, isPending: logoutPending } = useMutation({
+    mutationFn: async () => await logoutUserApi(),
   });
 
   const { mutate: registerMutate, isPending: registerPending } = useMutation({
@@ -66,6 +71,8 @@ export const useAuth = () => {
   return {
     loginMutate,
     loginPending,
+    logoutMutate,
+    logoutPending,
     registerMutate,
     registerPending,
     verifyUserMutate,

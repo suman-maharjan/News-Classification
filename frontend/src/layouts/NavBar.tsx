@@ -1,16 +1,15 @@
-import { useNavigate } from "react-router-dom";
-import { removeToken } from "../utils/sessions";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useState } from "react";
 import { useAppSelector } from "@/hooks/redux";
-import { RootState } from "@/redux/store";
+import { useAuth } from "@/hooks/useAuth";
+import { useEventHandler } from "@/hooks/useEventHandler";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { _updateUserPreference } from "@/redux/userPreference/userPreferenceSlice";
+import { useNavigate } from "react-router-dom";
 
 const NavBar = () => {
   return (
@@ -29,16 +28,24 @@ const NavBar = () => {
 const ProfileAction = () => {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
-  const { loggedIn } = useAppSelector(
-    (state: RootState) => state.userPreference
-  );
+  const { logoutMutate } = useAuth();
+
   const dispatch = useDispatch();
+  const { isUserLoggedIn } = useAppSelector((state) => state.auth);
+  const { handleError, handleSuccess } = useEventHandler();
 
   const navigate = useNavigate();
   const handleLogout = () => {
-    removeToken();
-    navigate("/");
-    dispatch({ type: "reset" });
+    logoutMutate(null, {
+      onSuccess: () => {
+        dispatch({ type: "reset" });
+        handleSuccess("Successfully Logged Out");
+        navigate("/");
+      },
+      onError: (error) => {
+        handleError(error);
+      },
+    });
   };
   const handleSettings = () => {};
 
@@ -47,7 +54,7 @@ const ProfileAction = () => {
     { label: "Logout", action: handleLogout },
   ];
   return (
-    loggedIn && (
+    isUserLoggedIn && (
       <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
         <PopoverTrigger>
           <Avatar>

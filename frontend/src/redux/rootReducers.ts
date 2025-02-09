@@ -1,17 +1,12 @@
-import { IUserPreference, userPreferenceSlice } from "./reduxIndex";
-import { combineReducers, Reducer, UnknownAction } from "@reduxjs/toolkit";
-
-interface AllStates {
-  userPreference: IUserPreference;
-}
+import { combineReducers, Reducer } from "@reduxjs/toolkit";
+import { authSlice } from "./reduxIndex";
 
 const appReducer = combineReducers({
-  userPreference: userPreferenceSlice,
+  auth: authSlice,
 });
 
-const rootReducer: Reducer<AllStates, UnknownAction> = (state, action) => {
+const rootReducer: Reducer = (state, action) => {
   if (action.type == "reset") {
-    console.log("this executed");
     state = undefined;
   }
   return appReducer(state, action);

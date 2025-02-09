@@ -1,15 +1,36 @@
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { _setIsUserLoggedIn } from "@/redux/auth/authSlice";
+import { meApi } from "@/utils/apis/authApi";
+import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
-import { isLoggedin } from "../utils/login";
-import { useAppSelector } from "@/hooks/redux";
 
 export const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  return <>{isLoggedin() ? <Navigate replace to="/dashboard" /> : children}</>;
+  const { isUserLoggedIn } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      try {
+        await meApi();
+        dispatch(_setIsUserLoggedIn({ isUserLoggedIn: true }));
+      } catch (error) {
+        dispatch(_setIsUserLoggedIn({ isUserLoggedIn: false }));
+      }
+    };
+    checkAuthentication();
+  }, []);
+
+  return (
+    <>{isUserLoggedIn ? <Navigate replace to="/dashboard" /> : children}</>
+  );
 };
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { loggedIn } = useAppSelector((state) => state.userPreference);
+  const { isUserLoggedIn } = useAppSelector((state) => state.auth);
 
-  return (
-    <>{isLoggedin() && loggedIn ? children : <Navigate replace to="/" />}</>
-  );
+  if (isUserLoggedIn === null) {
+    return <div>Loading</div>;
+  }
+
+  return <>{isUserLoggedIn ? children : <Navigate replace to="/" />}</>;
 };

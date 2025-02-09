@@ -1,6 +1,6 @@
-import { IUserPreference } from "./userPreference/IUserPreference";
+import { IAuthState } from "./auth/type";
 
-import userPreferenceSlice from "./userPreference/userPreferenceSlice";
+import authSlice from "./auth/authSlice";
 
-export type { IUserPreference };
-export { userPreferenceSlice };
+export { authSlice };
+export type { IAuthState };

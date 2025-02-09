@@ -7,16 +7,26 @@ import {
 import { URLS } from "@/constants";
 import instance from "../api";
 
-export const loginUserApi = async (loginPayload: ILoginUser) => {
-  const response = await instance.post(`${URLS.AUTH}/login`, loginPayload);
-  return response.data;
-};
-
 export const registerUserApi = async (registerPayload: IRegisterUser) => {
   const response = await instance.post(
     `${URLS.AUTH}/register`,
     registerPayload
   );
+  return response.data;
+};
+
+export const loginUserApi = async (loginPayload: ILoginUser) => {
+  const response = await instance.post(`${URLS.AUTH}/login`, loginPayload);
+  return response.data;
+};
+
+export const meApi = async () => {
+  const response = await instance.get(`${URLS.AUTH}/me`);
+  return response.data;
+};
+
+export const logoutUserApi = async () => {
+  const response = await instance.post(`${URLS.AUTH}/logout`);
   return response.data;
 };
 
