@@ -1,44 +1,45 @@
+import { useAuth } from "@/hooks/useAuth";
+import { _setIsUserLoggedIn } from "@/redux/auth/authSlice";
+import { ILoginUser } from "@/utils/types/authTypes";
+import { FormEvent, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import EmailSVG from "../assets/svg/EmailSVG";
-import PasswordSVG from "../assets/svg/PasswordSVG";
-import { FormEvent, useState } from "react";
-import instance from "../utils/api";
-import { URLS } from "../constants";
-import { setToken } from "../utils/sessions";
-import { validateRegister, ValidationEnum } from "../utils/login";
 import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
+import PasswordSVG from "../assets/svg/PasswordSVG";
 import { useEventHandler } from "../hooks/useEventHandler";
-
-interface IUserLogin {
-  email: string;
-  password: string;
-}
+import { validateRegister, ValidationEnum } from "../utils/login";
 
 const LoginForm = () => {
+  const { loginMutate, loginPending } = useAuth();
+
   const [password, setPassword] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [signIn, setSignIn] = useState<IUserLogin>({ email: "", password: "" });
+  const [signIn, setSignIn] = useState<ILoginUser>({ email: "", password: "" });
 
   const { handleError, handleSuccess } = useEventHandler();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e: FormEvent) => {
     try {
+      if (loginPending) return;
       e.preventDefault();
-      setLoading(true);
 
       validateRegister({ ...signIn, type: ValidationEnum.LOGIN });
-      const { data } = await instance.post(`${URLS.AUTH}/login`, signIn);
 
-      const { token } = data.data;
-      setToken(token);
-      setSignIn({ email: "", password: "" });
-      handleSuccess("Successfully Logged In");
-      navigate("/dashboard");
+      loginMutate(signIn, {
+        onSuccess: () => {
+          dispatch(_setIsUserLoggedIn({ isUserLoggedIn: true }));
+
+          handleSuccess("Successfully Logged In");
+          navigate("/dashboard");
+        },
+        onError: (error) => {
+          handleError(error);
+        },
+      });
     } catch (e) {
       handleError(e);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -79,8 +80,8 @@ const LoginForm = () => {
             {password ? <EyeCrossIcon /> : <EyeIcon />}
           </div>
         </label>
-        <button className="btn btn-primary" aria-disabled={loading}>
-          {loading ? "Loading..." : "Login"}
+        <button className="btn btn-primary" aria-disabled={loginPending}>
+          {loginPending ? "Loading..." : "Login"}
         </button>
         <label className="label">
           <a

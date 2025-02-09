@@ -9,8 +9,8 @@ import {
   userRegisterSchema,
   verifyEmailSchema,
 } from "./auth.schema";
-import { z } from "zod";
-import { HTTPErrorType } from "../../types/HTTPErrorType";
+import { asyncHandler } from "../../utils/asyncHandler";
+import { validateZod } from "../../utils/validationHandler";
 const Controller = authService;
 
 const router = Router();
@@ -22,110 +22,70 @@ router.get("/", (req, res, next) => {
   });
 });
 
-router.post("/register", async (req, res, next) => {
-  try {
-    const validationResult = userRegisterSchema.safeParse(req.body);
-    if (!validationResult.success) throw new Error("Invalid Request Body");
+router.post(
+  "/register",
+  asyncHandler(async (req, res) => {
+    const validationResult = validateZod(userRegisterSchema, req.body);
+    await Controller.create(validationResult, res);
+  })
+);
 
-    const result = await Controller.create(validationResult.data);
-    res.json({
-      data: result,
-      message: "success",
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.post("/regenerate", async (req, res, next) => {
-  try {
-    const validationResult = regenerateCodeSchema.safeParse(req.body);
-    if (!validationResult.success) throw new Error("Email Validation Failed");
-
-    const result = await Controller.regenerate(validationResult.data.email);
-    res.json({
-      data: result,
-      message: "success",
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.post("/verify", async (req, res, next) => {
-  try {
-    const validationResult = verifyEmailSchema.safeParse(req.body);
+router.post(
+  "/verify",
+  asyncHandler(async (req, res) => {
+    const validationResult = validateZod(verifyEmailSchema, req.body);
 
     if (!validationResult.success) throw new Error("Invalid Request Body");
-    const result = await Controller.verifyEmail(validationResult.data);
-    res.json({
-      data: result,
-      message: "success",
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+    await Controller.verifyEmail(validationResult, res);
+  })
+);
 
-router.post("/verifyable-email", async (req, res, next) => {
-  try {
-    const { email } = req.body;
-    if (!email) throw new Error("Email is required");
-    const result = await Controller.verifyAbleEmail(email);
-    res.json({
-      data: result,
-      message: "success",
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+router.post(
+  "/regenerate",
+  asyncHandler(async (req, res) => {
+    const validationResult = validateZod(regenerateCodeSchema, req.body);
+    await Controller.regenerate(validationResult.email, res);
+  })
+);
 
-router.post("/forgot-password-generator", async (req, res, next) => {
-  try {
+router.post(
+  "/verifyable-email",
+  asyncHandler(async (req, res) => {
     const validEmail = emailSchema.parse(req.body.email);
-    const result = await Controller.forgotPasswordToken(validEmail);
-    res.json({
-      data: result,
-      message: "success",
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const error: HTTPErrorType = new Error("Invalid Email");
-      error.status = 400;
-    }
-    next(error);
-  }
-});
+    await Controller.verifyAbleEmail(validEmail, res);
+  })
+);
 
-router.post("/forgot-password", async (req, res, next) => {
-  try {
-    const validationResult = forgotPasswordSchema.safeParse(req.body);
-    if (!validationResult.success) throw new Error("Invalid Request Body");
-    const result = await Controller.forgotPassword(validationResult.data);
-    res.json({
-      data: result,
-      message: "success",
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+router.post(
+  "/forgot-password-generator",
+  asyncHandler(async (req, res, next) => {
+    const validEmail = emailSchema.parse(req.body.email);
+    await Controller.forgotPasswordToken(validEmail, res);
+  })
+);
 
-router.post("/login", async (req, res, next) => {
-  try {
-    const validationResult = userLoginSchema.safeParse(req.body);
-    if (!validationResult.success) throw new Error("Invalid Request Body");
+router.post(
+  "/forgot-password",
+  asyncHandler(async (req, res) => {
+    const validationResult = validateZod(forgotPasswordSchema, req.body);
+    await Controller.forgotPassword(validationResult, res);
+  })
+);
 
-    const result = await Controller.login(validationResult.data);
-    res.json({
-      data: result,
-      message: "success",
-    });
-  } catch (error) {
-    next(error);
-    console.log(error);
-  }
+router.post(
+  "/login",
+  asyncHandler(async (req, res) => {
+    const validationResult = validateZod(userLoginSchema, req.body);
+    await Controller.login(validationResult, res);
+  })
+);
+
+router.get("/me", asyncHandler(Controller.checkTokens));
+
+router.post("/logout", async (req, res, next) => {
+  res.clearCookie("access_token");
+  res.clearCookie("refresh_token");
+  return res.status(200).json({ message: "success" });
 });
 
 export const authRouter = router;

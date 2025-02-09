@@ -1,9 +1,8 @@
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import instance from "../utils/api";
-import { URLS } from "../constants";
 import TabComponent from "../components/TabComponent";
 import { useEventHandler } from "../hooks/useEventHandler";
+import { useAuth } from "@/hooks/useAuth";
 
 const FindEmail = () => {
   const tabs = ["Find Email"];
@@ -44,34 +43,30 @@ const FindEmail = () => {
 };
 
 const FindEmailComponent = () => {
-  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
 
   const { handleSuccess, handleError } = useEventHandler();
+  const { findEmailPending, findEmailMutate } = useAuth();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
+    if (findEmailPending) return;
     try {
       if (!email) {
         throw new Error("Email is required");
       }
-      const { data } = await instance.post(
-        `${URLS.AUTH}/forgot-password-generator`,
-        {
-          email,
-        }
-      );
-      if (data.message === "success") {
-        handleSuccess("OTP sent to your email");
-        navigate(`/forgot-password?email=${encodeURIComponent(email)}`);
-      }
+      findEmailMutate(email, {
+        onSuccess: () => {
+          handleSuccess("OTP sent to your email");
+          navigate(`/forgot-password?email=${encodeURIComponent(email)}`);
+        },
+        onError: (error) => {
+          handleError(error);
+        },
+      });
     } catch (error) {
       handleError(error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -92,9 +87,9 @@ const FindEmailComponent = () => {
         <button
           className="btn btn-primary"
           type="submit"
-          aria-disabled={loading}
+          aria-disabled={findEmailPending}
         >
-          {loading ? "Sending..." : "Send otp in Email"}
+          {findEmailPending ? "Sending..." : "Send otp in Email"}
         </button>
       </div>
     </form>

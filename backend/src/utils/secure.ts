@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import userModel, { IUser, RoleEnum } from "../modules/user/user.model";
-import { verifyToken } from "./jwt";
+import { RoleEnum } from "../modules/user/user.model";
+import { getUsersFromTokens } from "./jwt";
+import { ApiError } from "./ApiError";
+import { asyncHandler } from "./asyncHandler";
 
 const compareRoles = (user_perm: RoleEnum[], access_perm: RoleEnum[]) => {
   // Ensure user_perm is an array
@@ -16,31 +18,17 @@ const compareRoles = (user_perm: RoleEnum[], access_perm: RoleEnum[]) => {
 };
 
 const secureAPI = (roles: RoleEnum[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const bearerToken = req?.headers?.authorization;
-      if (!bearerToken) throw new Error("Access Token is required");
-      const token = bearerToken.split("Bearer ")[1];
-      const tokenData = verifyToken(token);
-      if (!tokenData) throw new Error("Invalid Token");
-      const { data } = tokenData;
-
-      // Find the user, check the user and get is role
-      const user = await userModel.findOne({
-        email: data.email,
-        isActive: true,
-      });
-
-      if (!user) throw new Error("User not found");
+  return asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { access_token, refresh_token } = req.cookies;
+      const { user } = await getUsersFromTokens(access_token, refresh_token);
       const isAllowed = compareRoles(roles, user.roles);
-      if (!isAllowed) throw new Error("Access Denied");
-      // req.currentUser = user._id;
-      // req.currentRole = user.roles;
+      if (!isAllowed) {
+        throw new ApiError(403, "Forbidden");
+      }
       next();
-    } catch (error) {
-      next(error);
     }
-  };
+  );
 };
 
 export default secureAPI;

@@ -1,11 +1,10 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import instance from "../utils/api";
-import { URLS } from "../constants";
 import TabComponent from "../components/TabComponent";
 import PasswordSVG from "../assets/svg/PasswordSVG";
 import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
 import { useEventHandler } from "../hooks/useEventHandler";
+import { useAuth } from "@/hooks/useAuth";
 
 const Forgot = () => {
   const tabs = ["Forgot Password"];
@@ -49,7 +48,6 @@ const Forgot = () => {
 };
 
 const ForgotPasswordComponent = () => {
-  const [loading, setLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState({
     password: true,
     confirmPassword: true,
@@ -74,6 +72,8 @@ const ForgotPasswordComponent = () => {
   const queryParams = new URLSearchParams(location.search);
   const email = queryParams.get("email");
 
+  const { forgotPasswordMutate, forgotPasswordPending } = useAuth();
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setData((prev) => {
       return { ...prev, [e.target.name]: e.target.value };
@@ -81,8 +81,8 @@ const ForgotPasswordComponent = () => {
   };
 
   const handleSubmit = async (e: FormEvent) => {
+    if (forgotPasswordPending) return;
     e.preventDefault();
-    setLoading(true);
 
     try {
       if (!data.token) {
@@ -97,20 +97,22 @@ const ForgotPasswordComponent = () => {
         throw new Error("OTP Code must be 6 digits");
       }
 
-      const response = await instance.post(`${URLS.AUTH}/forgot-password`, {
-        email,
-        token: data.token,
-        password: data.password,
-      });
-
-      if (response.data.message === "success") {
-        handleSuccess("Successfully changed the password");
-        navigate("/");
-      }
+      forgotPasswordMutate(
+        { email, token: data.token, password: data.password },
+        {
+          onSuccess: (response) => {
+            if (response.message === "success") {
+              handleSuccess("Successfully changed the password");
+              navigate("/");
+            }
+          },
+          onError: (error) => {
+            handleError(error);
+          },
+        }
+      );
     } catch (error) {
       handleError(error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -174,10 +176,10 @@ const ForgotPasswordComponent = () => {
 
         <button
           className="btn btn-primary"
-          aria-disabled={loading}
+          aria-disabled={forgotPasswordPending}
           type="submit"
         >
-          {loading ? "Loading..." : "Reset Password"}
+          {forgotPasswordPending ? "Loading..." : "Reset Password"}
         </button>
       </div>
     </form>

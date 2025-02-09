@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { NewsClassifySchemaType } from "./newsSchema";
+import { Response } from "express";
 
 class NewsController {
   private axiosInstance: AxiosInstance;
@@ -11,33 +12,18 @@ class NewsController {
     });
   }
 
-  async classify(payload: NewsClassifySchemaType) {
+  async classify(payload: NewsClassifySchemaType, res: Response) {
     const { news, type } = payload;
-    if (!news) {
-      throw new Error("News is required");
+    let response;
+    if (type && type === "Probability") {
+      response = await this.axiosInstance.post("/classify-probability", {
+        news,
+      });
+    } else {
+      response = await this.axiosInstance.post("/classify", { news });
     }
-    try {
-      let response;
-      if (type && type === "Probability") {
-        response = await this.axiosInstance.post("/classify-probability", {
-          news,
-        });
-      } else {
-        response = await this.axiosInstance.post("/classify", { news });
-      }
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Error in classify method:",
-        error.response?.data || error.message
-      );
-
-      // Handle and rethrow the error with proper details
-      if (error.response && error.response.status === 500) {
-        throw new Error(`Server Error: ${error.response.data}`);
-      }
-      throw new Error(`Request failed: ${error.message}`);
-    }
+    const result = response.data;
+    res.status(200).json({ data: result, message: "success" });
   }
 }
 export const newsController = new NewsController();

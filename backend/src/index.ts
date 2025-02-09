@@ -3,12 +3,15 @@ import Express from "express";
 
 import express from "express";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec as swaggerDocument } from "./utils/swagger";
 
 import cors from "cors";
 
 import dotenv from "dotenv";
 import { indexRouter } from "./routes/index";
-import { HTTPErrorType } from "./types/HTTPErrorType";
+import { errorHandler } from "./middlewares/error.middleware";
 
 dotenv.config();
 
@@ -25,24 +28,24 @@ mongoose
   });
 
 const app = express();
-app.use(cors());
+
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "", // Frontend URL
+    credentials: true, // Allow credentials (cookies)
+  })
+);
+
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/", indexRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-app.use(
-  (
-    err: HTTPErrorType,
-    req: Request,
-    res: Response,
-    next: Express.NextFunction
-  ) => {
-    const errMsg = err ? err.message : "Something went wrong";
-    console.log(errMsg);
-    res.status(err.status || 500).json({ data: "", msg: errMsg });
-  }
-);
+// Error Handling Middleware, It is taking err in params
+app.use(errorHandler);

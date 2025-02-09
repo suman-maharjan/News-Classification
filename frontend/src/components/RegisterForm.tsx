@@ -3,27 +3,21 @@ import EmailSVG from "../assets/svg/EmailSVG";
 import PasswordSVG from "../assets/svg/PasswordSVG";
 import ProfileSVG from "../assets/svg/ProfileSVG";
 import { FormEvent, useState } from "react";
-import instance from "../utils/api";
-import { URLS } from "../constants";
 import { validateRegister } from "../utils/login";
 import EyeIcon, { EyeCrossIcon } from "../assets/svg/EyeIconSVG";
 import { useEventHandler } from "../hooks/useEventHandler";
-
-interface IRegisterUser {
-  name: string;
-  email: string;
-  password: string;
-}
+import { IRegisterUser } from "@/utils/types/authTypes";
+import { useAuth } from "@/hooks/useAuth";
 
 const RegisterForm = () => {
   const [password, setPassword] = useState(true);
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [register, setRegister] = useState<IRegisterUser>({
     name: "",
     email: "",
     password: "",
   });
+  const navigate = useNavigate();
+  const { registerMutate, registerPending } = useAuth();
 
   const { handleSuccess, handleError } = useEventHandler();
 
@@ -34,18 +28,22 @@ const RegisterForm = () => {
   };
 
   const handleSubmit = async (e: FormEvent) => {
+    if (registerPending) return;
     e.preventDefault();
-    setLoading(true);
     try {
       validateRegister({ ...register, type: "Register" });
-      await instance.post(`${URLS.AUTH}/register`, register);
 
-      handleSuccess("Successfully Registered! Please verify your email");
-      navigate(`/verify-email?email=${encodeURIComponent(register.email)}`);
+      registerMutate(register, {
+        onSuccess: () => {
+          handleSuccess("Successfully Registered! Please verify your email");
+          navigate(`/verify-email?email=${encodeURIComponent(register.email)}`);
+        },
+        onError: (error) => {
+          handleError(error);
+        },
+      });
     } catch (e) {
       handleError(e);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -95,9 +93,9 @@ const RegisterForm = () => {
         <button
           type="submit"
           className="btn btn-primary"
-          aria-disabled={loading}
+          aria-disabled={registerPending}
         >
-          {loading ? "Registering..." : "Register"}
+          {registerPending ? "Registering..." : "Register"}
         </button>
       </div>
     </form>

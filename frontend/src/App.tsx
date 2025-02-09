@@ -1,11 +1,11 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
 import { ProtectedRoute, PublicRoute } from "./components/ProtectedRoute";
-import VerifyEmail from "./pages/VerifyEmail";
+import Layout from "./layouts/Layout";
+import Dashboard from "./pages/Dashboard";
 import FindEmail from "./pages/FindEmail";
 import ForgotPassword from "./pages/ForgotPassword";
-import Layout from "./layouts/Layout";
+import Home from "./pages/Home";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   return (

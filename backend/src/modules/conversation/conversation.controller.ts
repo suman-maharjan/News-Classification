@@ -1,10 +1,14 @@
 import ConversationModel, { IConversation } from "./conversation.model";
 import authService from "../auth/auth.controller";
-import { Request } from "express";
+import { Request, Response } from "express";
 import { createConversationSchemaType } from "./conversation.schema";
 
 class ConversationController {
-  async create(req: Request, payload: createConversationSchemaType) {
+  async create(
+    req: Request,
+    payload: createConversationSchemaType,
+    res: Response
+  ) {
     const { messages } = payload;
 
     const userId = await authService.getUserIdFromToken(req);
@@ -34,7 +38,8 @@ class ConversationController {
     // Remove userId from the response
     delete savedConversation.userId;
 
-    return savedConversation;
+    const result = savedConversation;
+    return res.status(200).json({ data: result, message: "success" });
   }
   // Get a paginated conversation
   async getConversationByToken(req: Request) {

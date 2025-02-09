@@ -1,34 +1,26 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import instance from "../utils/api";
-import { URLS } from "../constants";
 import TabComponent from "../components/TabComponent";
 import { useEventHandler } from "../hooks/useEventHandler";
+import { useAuth } from "@/hooks/useAuth";
 
 const VerifyEmail = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const email = queryParams.get("email");
   const navigate = useNavigate();
+  const { verifyableEmailPending, verifyableEmailMutate } = useAuth();
 
   useEffect(() => {
-    const verifyableEmail = async () => {
-      try {
-        const { data } = await instance.post(URLS.AUTH + "/verifyable-email", {
-          email,
-        });
-
-        const verifyableEmail = data.data;
-        if (!verifyableEmail) {
+    if (verifyableEmailPending) return;
+    verifyableEmailMutate(email, {
+      onSuccess: (data) => {
+        if (!data) {
           navigate("/");
         }
-      } catch (error) {
-        console.error(error);
-        navigate("/");
-      }
-    };
-    verifyableEmail();
-  }, []);
+      },
+    });
+  }, [email]);
 
   const tabs = ["Verify Email"];
 
@@ -72,19 +64,23 @@ const VerifyEmail = () => {
 };
 
 const VerifyEmailComponent = ({ email }: { email: string }) => {
-  const [loading, setLoading] = useState(false);
-  const [resendLoading, setResendLoading] = useState(false);
   const [otpCode, setOtpCode] = useState("");
 
   const { handleSuccess, handleError } = useEventHandler();
 
   const navigate = useNavigate();
+  const {
+    verifyUserMutate,
+    verifyUserPending,
+    regenerateEmailMutate,
+    regenerateEmailPending,
+  } = useAuth();
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
     try {
+      if (verifyUserPending) return;
+      e.preventDefault();
+
       if (!otpCode) {
         throw new Error("OTP Code is required");
       }
@@ -92,36 +88,33 @@ const VerifyEmailComponent = ({ email }: { email: string }) => {
       if (otpCode.length !== 6) {
         throw new Error("OTP Code must be 6 digits");
       }
-      const response = await instance.post(`${URLS.AUTH}/verify`, {
-        email,
-        token: otpCode,
-      });
-      if (response.data.message === "success") {
-        handleSuccess("Successfully Verified Email");
-        navigate("/");
-      }
+
+      verifyUserMutate(
+        { email, token: otpCode },
+        {
+          onSuccess: () => {
+            handleSuccess("Successfully Verified Email");
+            navigate("/");
+          },
+          onError: (error) => {
+            handleError(error);
+          },
+        }
+      );
     } catch (error) {
       handleError(error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleResendEmail = async () => {
-    if (loading || resendLoading) return;
+    if (regenerateEmailPending) return;
     try {
-      setResendLoading(true);
-      const res = await instance.post(`${URLS.AUTH}/regenerate`, {
-        email,
+      regenerateEmailMutate(email, {
+        onSuccess: () => handleSuccess("Email sent successfully"),
       });
-      if (res.status === 200) {
-        handleSuccess("Email sent successfully");
-      }
     } catch (error) {
       console.error(error);
       handleError(error);
-    } finally {
-      setResendLoading(false);
     }
   };
 
@@ -144,17 +137,19 @@ const VerifyEmailComponent = ({ email }: { email: string }) => {
           type="submit"
           onClick={handleSubmit}
           className="btn btn-primary"
-          aria-disabled={loading}
+          aria-disabled={verifyUserPending}
         >
-          {loading ? "Verifying..." : "Verify Email"}
+          {verifyUserPending ? "Verifying..." : "Verify Email"}
         </button>
         <label className="label">
-          <a
+          <button
+            type="button"
             onClick={handleResendEmail}
-            className="label-text-alt link link-hover text-white underline hover:bg-white p-2"
+            className="label-text-alt  text-white underline hover:cursor-pointer hover:bg-white hover:text-black p-2"
+            disabled={regenerateEmailPending}
           >
-            {resendLoading ? "Sending..." : "Re-send Email"}
-          </a>
+            {regenerateEmailPending ? "Sending..." : "Re-send Email"}
+          </button>
         </label>
       </div>
     </form>
