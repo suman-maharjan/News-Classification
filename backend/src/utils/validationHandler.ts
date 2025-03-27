@@ -1,4 +1,4 @@
-import { ZodError } from "zod";
+import { Schema } from "zod";
 import { ApiError } from "../utils/ApiError"; // Assuming your custom error is here
 
 /**
@@ -9,7 +9,7 @@ import { ApiError } from "../utils/ApiError"; // Assuming your custom error is h
  * @param data - The data to validate.
  * @throws ApiError - If validation fails, throws a custom ApiError.
  */
-export function validateZod(schema: any, data: any) {
+export function validateZod(schema: Schema, data: any) {
   const validationResult = schema.safeParse(data);
 
   if (!validationResult.success) {

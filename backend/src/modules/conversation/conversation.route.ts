@@ -1,11 +1,10 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, Router } from "express";
+import { asyncHandler } from "../../utils/asyncHandler";
 import secureAPI from "../../utils/secure";
+import { validateZod } from "../../utils/validationHandler";
 import { RoleEnum } from "../user/user.model";
 import conversationController from "./conversation.controller";
-import { Router } from "express";
 import { createConversationSchema } from "./conversation.schema";
-import { asyncHandler } from "../../utils/asyncHandler";
-import { validateZod } from "../../utils/validationHandler";
 const Controller = conversationController;
 
 const router = Router();
@@ -20,7 +19,7 @@ router.post(
   "/save",
   secureAPI([RoleEnum.USER]),
   asyncHandler(async (req: Request, res: Response) => {
-    const validationResult = validateZod(req.body, createConversationSchema);
+    const validationResult = validateZod(createConversationSchema, req.body);
     await Controller.create(req, validationResult, res);
   })
 );

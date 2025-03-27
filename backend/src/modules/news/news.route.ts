@@ -1,10 +1,10 @@
-import secureAPI from "../../utils/secure";
-import { Request, Response, NextFunction, Router } from "express";
-import { newsController } from "./news.controller";
-import { RoleEnum } from "../user/user.model";
-import { newsClassifySchema } from "./newsSchema";
+import { NextFunction, Request, Response, Router } from "express";
 import { asyncHandler } from "../../utils/asyncHandler";
+import secureAPI from "../../utils/secure";
 import { validateZod } from "../../utils/validationHandler";
+import { RoleEnum } from "../user/user.model";
+import { newsController } from "./news.controller";
+import { newsClassifySchema } from "./newsSchema";
 
 const Controller = newsController;
 
@@ -22,7 +22,7 @@ router.post(
   secureAPI([RoleEnum.USER]),
   asyncHandler(async (req: Request, res: Response) => {
     const validationResult = validateZod(newsClassifySchema, req.body);
-    await Controller.classify(validationResult.data, res);
+    await Controller.classify(validationResult, res);
   })
 );
 
