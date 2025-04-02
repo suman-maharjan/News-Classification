@@ -1,17 +1,17 @@
-import { Request, Response } from "express";
-import Express from "express";
-
+import cookieParser from "cookie-parser";
 import express from "express";
 import mongoose from "mongoose";
-import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec as swaggerDocument } from "./utils/swagger";
 
 import cors from "cors";
 
 import dotenv from "dotenv";
-import { indexRouter } from "./routes/index";
 import { errorHandler } from "./middlewares/error.middleware";
+import { indexRouter } from "./routes/index";
+
+import http from "http";
+import { initializeSocket } from "./sockets/socket.gateway";
 
 dotenv.config();
 
@@ -29,6 +29,8 @@ mongoose
 
 const app = express();
 
+const server = http.createServer(app);
+
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "", // Frontend URL
@@ -43,7 +45,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/", indexRouter);
 
-app.listen(PORT, () => {
+initializeSocket(server);
+
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
