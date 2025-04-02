@@ -1,28 +1,15 @@
-import axios, { AxiosInstance } from "axios";
-import { NewsClassifySchemaType } from "./newsSchema";
-import { Response } from "express";
+import { Request, Response } from "express";
+import { validateZod } from "../../utils/validationHandler";
+import newsService from "./news.service";
+import { newsClassifySchema } from "./newsSchema";
 
 class NewsController {
-  private axiosInstance: AxiosInstance;
+  async classifyNews(req: Request, res: Response) {
+    // validate request body
+    const validationResult = validateZod(newsClassifySchema, req.body);
+    // call service to classify news
+    const result = await newsService.classify(validationResult);
 
-  constructor() {
-    this.axiosInstance = axios.create({
-      baseURL: process.env.FLASK_ENDPOINT + ":" + process.env.FLASK_PORT,
-      timeout: parseInt(process.env.FLASK_TIMEOUT),
-    });
-  }
-
-  async classify(payload: NewsClassifySchemaType, res: Response) {
-    const { news, type } = payload;
-    let response;
-    if (type && type === "Probability") {
-      response = await this.axiosInstance.post("/classify-probability", {
-        news,
-      });
-    } else {
-      response = await this.axiosInstance.post("/classify", { news });
-    }
-    const result = response.data;
     res.status(200).json({ data: result, message: "success" });
   }
 }
