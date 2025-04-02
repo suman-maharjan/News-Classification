@@ -2,6 +2,7 @@ import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import SendSVG from "../assets/svg/SendSVG";
 import instance from "../utils/api";
 import { URLS } from "../constants";
+import socket from "@/socket/socket";
 
 enum NewsTypeEnum {
   Default = "Default",
@@ -75,28 +76,34 @@ const Dashboard = () => {
         throw new Error("News should be atleast 10 words long");
       }
 
-      // Make API call for prediction
-      const response = await instance.post(`${URLS.NEWS}/classify`, {
+      // Emit socket event
+      socket.emit("news:send", {
         news: newsValue.news,
         type: newsValue.type,
       });
 
+      // Make API call for prediction
+      // const response = await instance.post(`${URLS.NEWS}/classify`, {
+      //   news: newsValue.news,
+      //   type: newsValue.type,
+      // });
+
       // Add model's response to conversation
-      const modelMessage = {
-        sender: "SVM Model",
-        message: response.data.data.prediction,
-        type: "success",
-      };
-      setConversation((prev) => [...prev, modelMessage]);
+      // const modelMessage = {
+      //   sender: "SVM Model",
+      //   message: response.data.data.prediction,
+      //   type: "success",
+      // };
+      // setConversation((prev) => [...prev, modelMessage]);
 
       // Save conversation
-      await instance.post(`${URLS.CONVERSATION}/save`, {
-        messages: [userMessage],
-      });
+      // await instance.post(`${URLS.CONVERSATION}/save`, {
+      //   messages: [userMessage],
+      // });
 
-      await instance.post(`${URLS.CONVERSATION}/save`, {
-        messages: [modelMessage],
-      });
+      // await instance.post(`${URLS.CONVERSATION}/save`, {
+      //   messages: [modelMessage],
+      // });
     } catch (e) {
       console.error(e);
       const errorMessage = {
@@ -123,6 +130,31 @@ const Dashboard = () => {
     setNewsValue({ ...newsValue, type });
     newsTextAreaRef.current.focus();
   };
+
+  useEffect(() => {
+    socket.on("news:result", (result) => {
+      if (result.message === "error") {
+        const errorMessage = {
+          sender: "SVM Model",
+          message: result.error,
+          type: "error",
+        };
+        setConversation((prev) => [...prev, errorMessage]);
+        return;
+      }
+
+      const modelMessage = {
+        sender: "SVM Model",
+        message: result.data.prediction,
+        type: "success",
+      };
+      setConversation((prev) => [...prev, modelMessage]);
+    });
+
+    return () => {
+      socket.off("news:result");
+    };
+  }, []);
 
   return (
     <div className="p-4 h-[100%]">
