@@ -9,7 +9,7 @@ class ConversationService {
 
     let savedConversation;
     if (previousConversation) {
-      await ConversationModel.findOneAndUpdate(
+      savedConversation = await ConversationModel.findOneAndUpdate(
         previousConversation._id,
         {
           $push: { messages: { $each: messages } },
