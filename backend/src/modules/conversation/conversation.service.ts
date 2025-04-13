@@ -3,33 +3,37 @@ import { createConversationSchemaType } from "./conversation.schema";
 
 class ConversationService {
   async save(payload: createConversationSchemaType, userId: string) {
-    const messages = payload.messages;
-    // Check if the conversation already exists for the user
-    const previousConversation = await ConversationModel.findOne({ userId });
+    try {
+      const messages = payload.messages;
+      // Check if the conversation already exists for the user
+      const previousConversation = await ConversationModel.findOne({ userId });
 
-    let savedConversation;
-    if (previousConversation) {
-      await ConversationModel.findOneAndUpdate(
-        previousConversation._id,
-        {
-          $push: { messages: { $each: messages } },
-        },
-        { new: true }
-      ).lean();
-    } else {
-      const newConversation = new ConversationModel({
-        userId,
-        messages,
-      });
+      let savedConversation;
+      if (previousConversation) {
+        savedConversation = await ConversationModel.findOneAndUpdate(
+          previousConversation._id,
+          {
+            $push: { messages: { $each: messages } },
+          },
+          { new: true }
+        ).lean();
+      } else {
+        const newConversation = new ConversationModel({
+          userId,
+          messages,
+        });
 
-      newConversation.save();
-      savedConversation = newConversation.toObject();
+        newConversation.save();
+        savedConversation = newConversation.toObject();
+      }
+
+      // Remove userId from the response
+      delete savedConversation.userId;
+
+      return savedConversation;
+    } catch (err) {
+      console.log(err.message);
     }
-
-    // Remove userId from the response
-    delete savedConversation.userId;
-
-    return savedConversation;
   }
 
   async getConversationById(userId: string, page: number, limit: number) {
