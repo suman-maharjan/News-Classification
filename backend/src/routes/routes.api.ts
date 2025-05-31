@@ -3,15 +3,6 @@ import { authRouter, conversationRouter, newsRouter } from "../modules";
 import { ApiError } from "../utils/ApiError";
 
 const router = Express.Router();
-/**
- * @swagger
- * /:
- *   get:
- *     description: Returns API status
- *     responses:
- *       200:
- *         description: API is working
- */
 
 router.get("/", (req, res, next) => {
   res.json({
