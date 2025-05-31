@@ -1,7 +1,5 @@
 import cookieParser from "cookie-parser";
 import express from "express";
-import swaggerUi from "swagger-ui-express";
-import { swaggerSpec as swaggerDocument } from "./utils/swagger";
 
 import cors from "cors";
 import { errorHandler } from "./middlewares/error.middleware";
@@ -25,9 +23,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-
-// API Docs
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
 app.use("/", indexRouter);
