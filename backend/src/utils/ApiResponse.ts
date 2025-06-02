@@ -1,10 +1,12 @@
-class ApiResponse {
+import { Response } from "express";
+
+class ApiResponse<T> {
   public statusCode: number;
   public message: string;
-  public data: any;
+  public data: T;
   public success: boolean;
 
-  constructor(statusCode: number, data: any, message: string = "Success") {
+  constructor(statusCode: number, data: T, message: string = "Success") {
     this.statusCode = statusCode;
     this.data = data;
     this.message = message;
@@ -12,4 +14,15 @@ class ApiResponse {
   }
 }
 
-export { ApiResponse };
+const sendApiResponse = <T>(
+  res: Response,
+  statusCode: number,
+  result: T,
+  message: string = "success"
+) => {
+  return res.status(statusCode).json({
+    data: result,
+    message,
+  });
+};
+export { ApiResponse, sendApiResponse };
