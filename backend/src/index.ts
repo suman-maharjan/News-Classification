@@ -6,6 +6,9 @@ import { errorHandler } from "./middlewares/error.middleware";
 import { indexRouter } from "./routes/index";
 
 import http from "http";
+import "reflect-metadata";
+
+import { initPostgresDB } from "./config/datasource";
 import initMongoDatabase from "./config/mongoDb";
 import { initRedis } from "./config/redis";
 import { FRONTEND_URL, PORT } from "./constants/envConstants";
@@ -36,6 +39,8 @@ const startServer = async () => {
     await initMongoDatabase();
     // Redis Initialization
     await initRedis();
+    // Postgres Initializaton
+    await initPostgresDB();
 
     const server = http.createServer(app);
 
