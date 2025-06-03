@@ -62,7 +62,7 @@ const ProfileAction = () => {
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
         </PopoverTrigger>
-        <PopoverContent className="bg-base-300 shadow-lg">
+        <PopoverContent className="bg-base-300 shadow-lg text-white">
           <div className="flex flex-col gap-2  rounded-lg">
             {profileActions.map((action, index) => (
               <div
