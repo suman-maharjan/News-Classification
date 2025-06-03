@@ -3,10 +3,12 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { RoleEnum } from "../../enum/RoleEnum";
+import { TextAnalysis } from "../analysis/analysis.entity";
 
 @Entity()
 export class User {
@@ -48,4 +50,7 @@ export class User {
 
   @Column({ nullable: true })
   refreshToken?: string;
+
+  @OneToMany(() => TextAnalysis, (text) => text.user)
+  texts: TextAnalysis[];
 }

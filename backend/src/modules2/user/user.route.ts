@@ -14,7 +14,7 @@ router.get("/", (req, res, next) => {
 router.post("/register", asyncHandler(userController.registerUser));
 router.post("/login", asyncHandler(userController.loginUser));
 router.post("/logout", asyncHandler(userController.logoutUser));
-router.post("/me", asyncHandler(userController.logoutUser));
+router.get("/me", asyncHandler(userController.me));
 router.post("/verify-email", asyncHandler(userController.verifyEmail));
 router.post("/resend-otp", asyncHandler(userController.resendOtp));
 

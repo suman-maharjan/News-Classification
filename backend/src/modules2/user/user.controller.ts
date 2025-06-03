@@ -18,6 +18,7 @@ class UserController {
   }
 
   async loginUser(req: Request, res: Response) {
+    console.log("user is loggin");
     const validationResult = validateZod(loginUserSchema, req.body);
     const result = await userService.login(validationResult);
     return sendApiResponse(res, 200, result, "Login Successful");
@@ -30,6 +31,7 @@ class UserController {
   }
 
   async me(req: Request, res: Response) {
+    console.log("me is working");
     const validationResult = validateZod(accessTokenSchema, req.headers);
     const result = await userService.me(validationResult);
     return sendApiResponse(res, 200, result, "Logout Successful");

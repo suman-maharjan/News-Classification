@@ -8,6 +8,7 @@ import {
 } from "../constants/envConstants";
 import { OtpToken } from "../modules2/otp/otpToken.entity";
 import { User } from "../modules2/user/user.entity";
+import { TextAnalysis } from "../modules2/analysis/analysis.entity";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -18,7 +19,7 @@ export const AppDataSource = new DataSource({
   database: POSTGRES_DATABASE_NAME,
   synchronize: true,
   logging: false,
-  entities: [User, OtpToken],
+  entities: [User, OtpToken, TextAnalysis],
   subscribers: [],
   migrations: [],
 });
