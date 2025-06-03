@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { accessTokenPayload, refreshTokenPayload } from "../types/tokenTypes";
 import { ApiError } from "./ApiError";
 import UserModel from "../modules/user/user.model";
-import authService from "../modules/auth/auth.controller";
+import authService from "../modules/auth/auth.service";
 dotenv.config();
 
 const generateToken = (payload) => {
