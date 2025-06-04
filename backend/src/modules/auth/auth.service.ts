@@ -55,7 +55,7 @@ class AuthService {
     }
 
     const sanitizedPayload = { email, password: hashedPassword, name };
-    const user = await UserModel.create(sanitizedPayload);
+    await UserModel.create(sanitizedPayload);
 
     const otp = generateOTP();
 
@@ -63,7 +63,7 @@ class AuthService {
 
     await AuthModel.create({ email, otp, token_expiry: expiryDate });
 
-    const info = await mailer(payload.email, otp);
+    await mailer(payload.email, otp);
     const result = "OTP sent to your email";
     return result;
   }
@@ -105,7 +105,7 @@ class AuthService {
     if (!user) {
       throw new ApiError(404, "Email not found");
     }
-    const userValid = await UserModel.findOne({
+    await UserModel.findOne({
       email: emailPayload,
       isEmailVerified: false,
     });
