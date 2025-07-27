@@ -125,7 +125,7 @@ This project aims to classify news articles into various categories using a mach
 
    ```bash
    cd server1
-   celery -A proj worker --pool=solo -l info
+   celery -A celery_app worker --pool=solo -l info
    ```
 
 #### Backend 2 Setup (Node Js)
