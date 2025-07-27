@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { validateZod } from "../../utils/validationHandler";
-import authService from "../auth/auth.controller";
+import authService from "../auth/auth.service";
 import { createConversationSchema } from "./conversation.schema";
 import conversationService from "./conversation.service";
 

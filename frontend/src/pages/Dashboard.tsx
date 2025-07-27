@@ -81,29 +81,6 @@ const Dashboard = () => {
         news: newsValue.news,
         type: newsValue.type,
       });
-
-      // Make API call for prediction
-      // const response = await instance.post(`${URLS.NEWS}/classify`, {
-      //   news: newsValue.news,
-      //   type: newsValue.type,
-      // });
-
-      // Add model's response to conversation
-      // const modelMessage = {
-      //   sender: "SVM Model",
-      //   message: response.data.data.prediction,
-      //   type: "success",
-      // };
-      // setConversation((prev) => [...prev, modelMessage]);
-
-      // Save conversation
-      // await instance.post(`${URLS.CONVERSATION}/save`, {
-      //   messages: [userMessage],
-      // });
-
-      // await instance.post(`${URLS.CONVERSATION}/save`, {
-      //   messages: [modelMessage],
-      // });
     } catch (e) {
       console.error(e);
       const errorMessage = {
@@ -241,12 +218,12 @@ const Dashboard = () => {
             </ul>
           </div>
         </div>
-        <div className="flex w-full gap-2">
+        <div className="flex w-full gap-2 text-white">
           <textarea
             value={newsValue.news}
             onChange={handleNewsValue}
             placeholder="Enter News here"
-            className="textarea flex-1 w-full textarea-bordered resize-none focus:ring-2"
+            className="textarea flex-1 w-full textarea-bordered resize-none focus:ring-2 "
             name="news"
             ref={newsTextAreaRef}
           ></textarea>

@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { serialize, parse } from "cookie";
+import { parse } from "cookie";
 import authService from "../modules/auth/auth.service";
 
 export function authenticateSocket(socket: Socket, next: (err?: any) => void) {

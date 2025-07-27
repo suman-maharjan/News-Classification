@@ -6,7 +6,6 @@ import { createConversationSchemaType } from "../conversation/conversation.schem
 import newsService from "./news.service";
 import { newsClassifySchema } from "./newsSchema";
 import { conversationQueue } from "../../queue/conversation.queue";
-import { eventEmitter } from "../../services/eventEmitter";
 
 class NewsGateway {
   public registerHandler(io: Server, socket: Socket) {

@@ -45,7 +45,7 @@ const LoginForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="flex flex-col gap-2 text-black">
+      <div className="flex flex-col gap-2 text-white">
         <label className="input input-bordered flex items-center gap-2">
           <EmailSVG />
           <input

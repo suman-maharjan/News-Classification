@@ -1,13 +1,14 @@
 import cookieParser from "cookie-parser";
 import express from "express";
-import swaggerUi from "swagger-ui-express";
-import { swaggerSpec as swaggerDocument } from "./utils/swagger";
 
 import cors from "cors";
 import { errorHandler } from "./middlewares/error.middleware";
 import { indexRouter } from "./routes/index";
 
 import http from "http";
+import "reflect-metadata";
+
+import { initPostgresDB } from "./config/datasource";
 import initMongoDatabase from "./config/mongoDb";
 import { initRedis } from "./config/redis";
 import { FRONTEND_URL, PORT } from "./constants/envConstants";
@@ -26,9 +27,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-// API Docs
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
 // Routes
 app.use("/", indexRouter);
 
@@ -41,6 +39,8 @@ const startServer = async () => {
     await initMongoDatabase();
     // Redis Initialization
     await initRedis();
+    // Postgres Initializaton
+    await initPostgresDB();
 
     const server = http.createServer(app);
 

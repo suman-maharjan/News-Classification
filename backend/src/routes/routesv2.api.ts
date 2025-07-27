@@ -1,5 +1,5 @@
 import Express, { Request, Response } from "express";
-import { authRouter, conversationRouter, newsRouter } from "../modules";
+import { userRouter } from "../modules2/user/user.route";
 import { ApiError } from "../utils/ApiError";
 
 const router = Express.Router();
@@ -7,16 +7,14 @@ const router = Express.Router();
 router.get("/", (req, res, next) => {
   res.json({
     data: "",
-    message: "API is working",
+    message: "V2 API is working",
   });
 });
 
-router.use("/auth", authRouter);
-router.use("/news", newsRouter);
-router.use("/conversation", conversationRouter);
+router.use("/user", userRouter);
 
 router.all("*", (req: Request, res: Response, next: Express.NextFunction) => {
   throw new ApiError(404, "Routes not found");
 });
 
-export const apiRouter = router;
+export const apiRouterV2 = router;
