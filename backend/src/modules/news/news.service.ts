@@ -1,5 +1,9 @@
 import axios, { AxiosInstance } from "axios";
 import celeryClient from "../../config/celery";
+import {
+  CELERY_TASK_CLASSIFY,
+  CELERY_TASK_PROBABILITY,
+} from "../../constants/envConstants";
 import { NewsClassifySchemaType } from "./newsSchema";
 
 class NewsService {
@@ -42,8 +46,8 @@ class NewsService {
 
   async classifyUsingWorker(payload: NewsClassifySchemaType) {
     const { news, type } = payload;
-    const classifyTask = celeryClient.createTask("proj.tasks.classify");
-    const probabilityTask = celeryClient.createTask("proj.tasks.probability");
+    const classifyTask = celeryClient.createTask(CELERY_TASK_CLASSIFY);
+    const probabilityTask = celeryClient.createTask(CELERY_TASK_PROBABILITY);
 
     let result;
 

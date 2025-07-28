@@ -1,6 +1,5 @@
 from .celery import app
 from utils.NewsClassifier import classifier
-from flask import jsonify
 
 
 @app.task
