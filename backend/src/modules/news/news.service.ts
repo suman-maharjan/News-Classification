@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import celeryClient from "../../config/celery";
 import {
   CELERY_TASK_CLASSIFY,
+  CELERY_TASK_CLASSIFY_NAIVE_BAYES,
   CELERY_TASK_PROBABILITY,
 } from "../../constants/envConstants";
 import { NewsClassifySchemaType } from "./newsSchema";
@@ -46,24 +47,23 @@ class NewsService {
 
   async classifyUsingWorker(payload: NewsClassifySchemaType) {
     const { news, type } = payload;
-    const classifyTask = celeryClient.createTask(CELERY_TASK_CLASSIFY);
-    const probabilityTask = celeryClient.createTask(CELERY_TASK_PROBABILITY);
 
-    let result;
+    const taskMap: Record<string, any> = {
+      SVM_Model: celeryClient.createTask(CELERY_TASK_CLASSIFY),
+      SVM_Probability: celeryClient.createTask(CELERY_TASK_PROBABILITY),
+      Naive_Bayes: celeryClient.createTask(CELERY_TASK_CLASSIFY_NAIVE_BAYES),
+    };
 
-    if (type && type === "Probability") {
-      const asyncResult = probabilityTask.applyAsync({
-        args: [news],
-        kwargs: {},
-      });
-      result = await asyncResult.get();
-      asyncResult.delete();
-    } else {
-      const asyncResult = classifyTask.applyAsync({ args: [news], kwargs: {} });
-      result = await asyncResult.get();
-      asyncResult.delete();
+    const task = taskMap[type];
+
+    if (!task) {
+      throw new Error(`Unsupported classification type: ${type}`);
     }
-    return result;
+    const asyncResult = task.applyAsync({ args: [news], kwargs: {} });
+    const result = await asyncResult.get();
+    asyncResult.delete();
+    const resposne = { ...result, algorithm: type };
+    return resposne;
   }
 }
 

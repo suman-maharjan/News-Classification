@@ -25,7 +25,8 @@ class NewsGateway {
         this.saveConversation(
           validateData.news,
           result.prediction,
-          socket.user
+          socket.user,
+          validateData.type
         );
       } catch (error) {
         socket.emit("news:send_error", {
@@ -39,12 +40,13 @@ class NewsGateway {
   private async saveConversation(
     userMessage: string,
     modelPrediction: string,
-    userData: accessTokenPayload
+    userData: accessTokenPayload,
+    algorithType: string
   ) {
     const conversation: createConversationSchemaType = {
       messages: [
         {
-          sender: "SVM Model",
+          sender: algorithType,
           message: modelPrediction,
           type: MessageTypeEnum.SUCCESS,
         },
@@ -58,11 +60,6 @@ class NewsGateway {
       { conversation: conversation, user: userData },
       { removeOnComplete: true }
     );
-
-    // eventEmitter.emit("conversation:save", {
-    //   conversation: conversation,
-    //   user: userData,
-    // });
   }
 }
 export default new NewsGateway();

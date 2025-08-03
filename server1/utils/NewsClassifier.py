@@ -12,6 +12,9 @@ class NewsClassifier:
         self.svmModel = joblib.load("model/svm.pkl")
         self.tdifModel = joblib.load("model/tfidf.pkl")
 
+        self.naiveBayes = joblib.load("model/naive_bayes.pkl")
+        self.nb_vectorizer = joblib.load("model/nb_vectorizer.pkl")
+
         # Categories for Classification
         self.categories = [
             "Business",
@@ -79,6 +82,11 @@ class NewsClassifier:
         )
 
         return category_probabilities_str
+
+    def predict_news_nb(self, news):
+        news_vector = self.nb_vectorizer.transform([news])
+        prediction = self.naiveBayes.predict(news_vector)
+        return prediction[0]
 
 
 classifier = NewsClassifier()

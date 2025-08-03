@@ -12,3 +12,9 @@ def classify(news):
 def probability(news):
     result = classifier.predict_news_probability(news)
     return {"prediction": result}
+
+
+@app.task
+def classify_nb(news):
+    result = classifier.predict_news_nb(news)
+    return {"prediction": result}
