@@ -1,4 +1,5 @@
 import socket from "@/socket/socket";
+import { TNewsResult } from "@/types/socketTypes";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import SendSVG from "../assets/svg/SendSVG";
 import { URLS } from "../constants";
@@ -42,9 +43,11 @@ const Dashboard = () => {
     algorithm: classificationAlgorithms[0],
   });
   const [loading, setLoading] = useState(false);
-  const endOfConversationRef = useRef(null);
+  const endOfConversationRef = useRef<HTMLDivElement>(null);
 
-  const newsTextAreaRef = useRef(null);
+  const scrollToBottom = () => {
+    endOfConversationRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -73,11 +76,6 @@ const Dashboard = () => {
       setLoading(false);
     }
   }, [page, loading, hasMore]);
-
-  // Initial fetch of conversation
-  useEffect(() => {
-    fetchMoreMessages();
-  }, []);
 
   // Handle submit
   async function handleSubmit() {
@@ -127,20 +125,29 @@ const Dashboard = () => {
   };
   const handleNewsType = (algorithm) => {
     setNewsValue({ ...newsValue, algorithm });
-
-    newsTextAreaRef.current.focus();
   };
 
+  // Initial fetch of conversation
   useEffect(() => {
-    socket.on("news:result", (result) => {
+    fetchMoreMessages();
+  }, []);
+
+  useEffect(() => {
+    const handleResult = (result: TNewsResult) => {
       const message: TMessage = {
-        sender: result.data.algorithm || "Unknown",
+        sender:
+          result.message === "success"
+            ? result.data.algorithm
+            : newsValue.algorithm.id,
         message:
           result.message === "error" ? result?.error : result.data.prediction,
         type: result.message,
       };
       setConversation((prev) => [...prev, message]);
-    });
+      scrollToBottom();
+    };
+
+    socket.on("news:result", handleResult);
 
     return () => {
       socket.off("news:result");
@@ -174,9 +181,9 @@ const Dashboard = () => {
                 ))}
               </>
             )}
+            <div ref={endOfConversationRef} />
           </>
         )}
-        <div ref={endOfConversationRef} />
       </div>
 
       <div className="flex flex-col fixed bottom-2 left-0 right-0 p-4">
@@ -211,7 +218,6 @@ const Dashboard = () => {
             placeholder="Enter News here"
             className="textarea flex-1 w-full textarea-bordered resize-none focus:ring-2 "
             name="news"
-            ref={newsTextAreaRef}
           ></textarea>
           <kbd
             className="kbd kbd-lg flex-shrink-0"

@@ -1,8 +1,15 @@
 import { BASE_URL } from "@/constants";
-import { io } from "socket.io-client";
+import {
+  TClientToServerEvents,
+  TServerToClientEvents,
+} from "@/types/socketTypes";
+import { io, Socket } from "socket.io-client";
 
-const socket = io(BASE_URL + "/classify", {
-  withCredentials: true,
-});
+const socket: Socket<TServerToClientEvents, TClientToServerEvents> = io(
+  BASE_URL + "/classify",
+  {
+    withCredentials: true,
+  }
+);
 
 export default socket;
