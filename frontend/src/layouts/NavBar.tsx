@@ -47,10 +47,10 @@ const ProfileAction = () => {
       },
     });
   };
-  const handleSettings = () => {};
+  // const handleSettings = () => {};
 
   const profileActions = [
-    { label: "Settings", action: handleSettings },
+    // { label: "Settings", action: handleSettings },
     { label: "Logout", action: handleLogout },
   ];
   return (
