@@ -17,6 +17,5 @@ export function initializeSocket(server: any) {
     newsGateway.registerHandler(io, socket);
   });
 
-  conversationGateway.registerHandler();
   return io;
 }

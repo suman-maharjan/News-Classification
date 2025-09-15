@@ -1,11 +1,11 @@
 import { Server, Socket } from "socket.io";
+import { conversationQueue } from "../../queue/conversation.queue";
 import { accessTokenPayload } from "../../types/tokenTypes";
 import { validateZod } from "../../utils/validationHandler";
-import { MessageTypeEnum } from "../conversation/conversation.model";
 import { createConversationSchemaType } from "../conversation/conversation.schema";
+import { MessageTypeEnum } from "../conversation/message.model";
 import newsService from "./news.service";
 import { newsClassifySchema } from "./newsSchema";
-import { conversationQueue } from "../../queue/conversation.queue";
 
 class NewsGateway {
   public registerHandler(io: Server, socket: Socket) {
@@ -41,25 +41,19 @@ class NewsGateway {
     userMessage: string,
     modelPrediction: string,
     userData: accessTokenPayload,
-    algorithType: string
+    algorithmType: string
   ) {
     const conversation: createConversationSchemaType = {
-      messages: [
-        {
-          sender: algorithType,
-          message: modelPrediction,
-          type: MessageTypeEnum.SUCCESS,
-        },
-        { sender: "user", message: userMessage, type: MessageTypeEnum.SUCCESS },
-      ],
+      userId: userData.id,
+      input: userMessage,
+      algorithm: algorithmType,
+      response: modelPrediction,
+      type: MessageTypeEnum.SUCCESS,
     };
 
-    conversationQueue.add({ conversation, user: userData });
-    await conversationQueue.add(
-      "save",
-      { conversation: conversation, user: userData },
-      { removeOnComplete: true }
-    );
+    await conversationQueue.add("save", conversation, {
+      removeOnComplete: true,
+    });
   }
 }
 export default new NewsGateway();

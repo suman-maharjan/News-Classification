@@ -5,13 +5,6 @@ import { createConversationSchema } from "./conversation.schema";
 import conversationService from "./conversation.service";
 
 class ConversationController {
-  async create(req: Request, res: Response) {
-    const validationResult = validateZod(createConversationSchema, req.body);
-    const userId = await authService.getUserIdFromToken(req);
-    const result = conversationService.save(validationResult, userId);
-    return res.status(200).json({ data: result, message: "success" });
-  }
-
   async getConversationByToken(req: Request, res: Response) {
     const userId = await authService.getUserIdFromToken(req);
 

@@ -1,60 +1,62 @@
 import ConversationModel from "./conversation.model";
 import { createConversationSchemaType } from "./conversation.schema";
+import MessageModel from "./message.model";
 
 class ConversationService {
-  async save(payload: createConversationSchemaType, userId: string) {
+  async save(payload: createConversationSchemaType) {
     try {
-      const messages = payload.messages;
-      // Check if the conversation already exists for the user
-      const previousConversation = await ConversationModel.findOne({ userId });
+      const userId = payload.userId;
+      let conversation = await ConversationModel.findOne({ userId });
 
-      let savedConversation;
-      if (previousConversation) {
-        savedConversation = await ConversationModel.findOneAndUpdate(
-          previousConversation._id,
-          {
-            $push: { messages: { $each: messages } },
-          },
-          { new: true }
-        ).lean();
-      } else {
-        const newConversation = new ConversationModel({
-          userId,
-          messages,
-        });
-
-        newConversation.save();
-        savedConversation = newConversation.toObject();
+      if (!conversation) {
+        conversation = await ConversationModel.create({ userId });
       }
 
-      // Remove userId from the response
-      delete savedConversation.userId;
+      // Add conversationId to each message
+      const conversationId = conversation._id;
 
-      return savedConversation;
+      const messageObject = {
+        conversationId,
+        input: payload.input,
+        response: payload.response,
+        type: payload.type,
+        algorithm: payload.algorithm,
+        timestamp: new Date(),
+      };
+
+      await MessageModel.create(messageObject);
+
+      return messageObject;
     } catch (err) {
       console.log(err.message);
     }
   }
 
   async getConversationById(userId: string, page: number, limit: number) {
-    const skip = (page - 1) * limit;
-
     const conversation = await ConversationModel.findOne({ userId });
+
+    console.log({ conversation });
 
     if (!conversation) {
       return { messages: [], totalMessages: 0 };
     }
 
-    // Total number of messages in the conversation
-    const totalMessages = conversation.messages.length;
+    const conversationId = conversation._id;
+    console.log({ conversationId });
 
-    // Slice the message array based on skip and limit for pagination
-    const paginatedMessages = conversation.messages
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-      .slice(skip, skip + limit);
+    const skip = (Math.max(1, page) - 1) * limit;
+
+    const [messages, totalMessages] = await Promise.all([
+      MessageModel.find({ conversationId })
+        .sort({ timestamp: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      MessageModel.countDocuments({ conversationId }),
+    ]);
 
     return {
-      messages: paginatedMessages,
+      messages,
       totalMessages,
       totalPages: Math.ceil(totalMessages / limit),
       currentPage: page,

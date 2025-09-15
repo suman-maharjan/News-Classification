@@ -62,7 +62,7 @@ class NewsService {
     const asyncResult = task.applyAsync({ args: [news], kwargs: {} });
     const result = await asyncResult.get();
     asyncResult.delete();
-    const resposne = { ...result, algorithm: type };
+    const resposne = { ...result, algorithm: type, input: news };
     return resposne;
   }
 }
