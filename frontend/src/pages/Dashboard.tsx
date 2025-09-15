@@ -44,6 +44,43 @@ const Dashboard = () => {
   });
   const [loading, setLoading] = useState(false);
   const endOfConversationRef = useRef<HTMLDivElement>(null);
+  const hasFetchedRef = useRef(false);
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
+
+  useEffect(() => {
+    const handleConnect = () => {
+      console.log("Socket connected:", socket.id);
+      setIsSocketConnected(true);
+    };
+
+    const handleDisconnect = () => {
+      console.log("Socket disconnected");
+      setIsSocketConnected(false);
+    };
+
+    const handleConnectError = (err: any) => {
+      console.error("Socket connection error:", err);
+    };
+
+    // Attach listeners
+    socket.once("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("connect_error", handleConnectError);
+
+    // If already connected (e.g., after reload), handle it
+    if (socket.connected) {
+      handleConnect();
+    } else {
+      socket.connect();
+    }
+
+    // Cleanup
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("connect_error", handleConnectError);
+    };
+  }, []);
 
   const scrollToBottom = () => {
     endOfConversationRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -79,7 +116,10 @@ const Dashboard = () => {
 
   // Handle submit
   async function handleSubmit() {
-    if (!newsValue.news) return;
+    if (!newsValue.news || !isSocketConnected) {
+      console.warn("Socket not connected or message empty");
+      return;
+    }
     setLoading(true);
 
     // Add user message to conversation
@@ -129,6 +169,9 @@ const Dashboard = () => {
 
   // Initial fetch of conversation
   useEffect(() => {
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+
     fetchMoreMessages();
   }, []);
 
