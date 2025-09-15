@@ -11,7 +11,7 @@ export const useEventHandler = () => {
 
     if (axios.isAxiosError(error)) {
       if (error.response) {
-        errorMessage = error.response.data.msg || "An error occurred";
+        errorMessage = error.response.data.message || "An error occurred";
       } else if (error.request) {
         errorMessage = "Network Error. Please Check your internet connection";
       } else {
