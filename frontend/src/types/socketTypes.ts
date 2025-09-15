@@ -1,6 +1,7 @@
 type TNewsResultSuccess = {
   message: "success";
   data: {
+    input: string;
     algorithm: string;
     prediction: string;
   };
