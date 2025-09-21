@@ -1,16 +1,30 @@
-# Start your image with a node base image
-FROM node:18-alpine
+# Install Dependencies
+FROM node:20-alpine AS deps
+RUN apk add --no-cache libc6-compat
 
 # Create and set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+COPY package.json package-lock.json* ./
+RUN \
+    if [ -f package-lock.json ]; then npm ci;\
+    else echo "Lockfile not found." && exit 1;\
+    fi
+
+# Rebuild Souce Code
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN npm install
 RUN npm run build
 
-EXPOSE 4173
+# Production image, copy all files and run
+FROM node:20-alpine AS runner
+WORKDIR /app
+RUN npm install -g serve
 
-CMD ["npm", "run", "preview"]
+COPY --from=builder /app/dist ./dist
+
+CMD ["serve", "-s", "dist", "-l", "4173"]
 
