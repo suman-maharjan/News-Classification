@@ -6,33 +6,42 @@ services:
       dockerfile: Dockerfile
     ports:
       - "4173:4173"
-    environment:
-      - VITE_BACKEND_SERVER_URL=${VITE_BACKEND_SERVER_URL}
+    env_file:
+      - ./frontend/.env
 
   node-backend:
-    # restart: always
+    restart: always
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    command: node dist/index.js
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    networks:
+      - shared-networks
+
+  node-worker:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    ports:
-      - "${PORT:-3000}:3000"
-    environment:
-      - PORT=${PORT}
-      - DB_URL=${DB_URL}
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_EXPIRATION=${JWT_EXPIRATION}
-      - FLASK_PORT=${FLASK_PORT}
-      - FLASK_ENDPOINT=${FLASK_ENDPOINT}
-      - FLASK_TIMEOUT=${FLASK_TIMEOUT}
-      - SALT_ROUNDS=${SALT_ROUNDS}
-      - OTP_DURATION_IN_SECS=${OTP_DURATION_IN_SECS}
-      - OTP_SECRET=${OTP_SECRET}
-      - GMAIL_USER=${GMAIL_USER}
-      - GMAIL_PASS=${GMAIL_PASS}
+    command: node dist/workers/index.js
+    env_file:
+      - ./backend/.env
+    networks:
+      - shared-networks
 
-  flask-backend:
-    build:
+  celery-worker:
+    build: 
       context: ./server1
       dockerfile: Dockerfile
-    ports:
-      - "5000:5000"
+    env_file:
+      - ./server1/.env
+    networks:
+      - shared-networks
+
+networks:
+  shared-networks:
+    external: true
+
