@@ -2,7 +2,7 @@
 import { Server } from "socket.io";
 import newsGateway from "../modules/news/news.gateway";
 import authenticateSocket from "./socket.middleware";
-import conversationGateway from "../modules/conversation/conversation.gateway";
+// import conversationGateway from "../modules/conversation/conversation.gateway";
 
 export function initializeSocket(server: any) {
   const io = new Server(server, {

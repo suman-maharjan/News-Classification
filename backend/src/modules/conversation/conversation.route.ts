@@ -13,11 +13,11 @@ router.get("/", (req: Request, res: Response) => {
   });
 });
 
-router.post(
-  "/save",
-  secureAPI([RoleEnum.USER]),
-  asyncHandler(Controller.create)
-);
+// router.post(
+//   "/save",
+//   secureAPI([RoleEnum.USER]),
+//   asyncHandler(Controller.create)
+// );
 
 router.get(
   "/user",
