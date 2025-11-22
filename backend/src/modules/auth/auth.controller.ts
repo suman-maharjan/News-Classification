@@ -101,13 +101,15 @@ class AuthController {
       sameSite: "none" as const, // Allow cross-origin requests
     };
 
+    const user = authService.getUserFromToken(accessToken, refreshToken);
+
     return res
       .status(200)
       .cookie("access_token", accessToken, options)
       .cookie("refresh_token", refreshToken, options)
       .json({
         message: "success",
-        data: [],
+        data: user,
       });
   }
 
