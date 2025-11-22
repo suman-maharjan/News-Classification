@@ -20,11 +20,12 @@ export interface NewsSchemaType extends Document {
   title: string;
   author: string;
   image: string;
-  descripton: string;
+  description: string;
+  category: string;
   content: INewsContent[];
   publishedAt: Date;
   type: ENewsType;
-  from: string;
+  place: string;
 }
 
 const newsContentSchema = new Schema(
@@ -46,14 +47,15 @@ const newsSchema: Schema<NewsSchemaType> = new Schema({
   title: String,
   author: String,
   image: String,
-  descripton: String,
+  description: { type: String },
+  category: { tyep: String },
   content: { type: [newsContentSchema], required: true },
   type: {
     type: String,
     enum: Object.values(ENewsType),
     required: [true, "News Type is required"],
   },
-  from: String,
+  place: { type: String },
   publishedAt: { type: Date, default: Date.now() },
 });
 

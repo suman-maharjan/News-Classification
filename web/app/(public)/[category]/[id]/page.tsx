@@ -1,15 +1,17 @@
+"use client";
 import PageSection from "@/components/section/PageSection";
-import { NewsData } from "@/data/NewsData";
+import { useGetNewsById } from "@/services/newsService";
+import { useParams } from "next/navigation";
 import NewsDetail from "./(_components)/NewsDetail";
 
 type TParams = {
   id: string;
 };
 
-const NewsDetailPage = async ({ params }: { params: Promise<TParams> }) => {
-  const { id } = await params;
+const NewsDetailPage = () => {
+  const params: TParams = useParams();
 
-  const news = NewsData.find((news) => news.id.toString() === id);
+  const { data: news } = useGetNewsById(params.id);
 
   if (!news) {
     return <p>No News Found</p>;

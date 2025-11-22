@@ -20,7 +20,7 @@ const AdminNewsPage = () => {
           Add News
         </Button>
       </div>
-      <NewsTable data={data.data} />
+      <NewsTable data={data} />
     </PageSection>
   );
 };

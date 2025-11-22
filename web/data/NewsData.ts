@@ -2,7 +2,7 @@ import { EContentType, ENewsType, INews } from "@/types/news.types";
 
 export const NewsData: INews[] = [
   {
-    id: "1",
+    _id: "1",
     title: "Olympics in 2021 unrealistic unless COVID-19 vaccine found",
     author: "Professor Devi Sridhar / SNS Web",
     description:
@@ -28,7 +28,7 @@ export const NewsData: INews[] = [
     place: "Tokyo, Japan",
   },
   {
-    id: "2",
+    _id: "2",
     title: "Tech Giants Announce Breakthrough in AI",
     author: "John Smith / TechDaily",
     description:
@@ -54,7 +54,7 @@ export const NewsData: INews[] = [
     place: "San Francisco, USA",
   },
   {
-    id: "3",
+    _id: "3",
     title: "Global Markets Rally After Positive Economic Forecast",
     author: "Jane Doe / FinanceWorld",
     description:
@@ -80,7 +80,7 @@ export const NewsData: INews[] = [
     place: "London, UK",
   },
   {
-    id: "4",
+    _id: "4",
     title: "New High-Speed Rail Line Opens to the Public",
     author: "Emily Carter / RailNews",
     description:
@@ -106,7 +106,7 @@ export const NewsData: INews[] = [
     place: "Tokyo, Japan",
   },
   {
-    id: "5",
+    _id: "5",
     title: "Breakthrough in Cancer Treatment Shows Promise",
     author: "Dr. Alex Johnson / MedicalNews",
     image:
@@ -132,7 +132,7 @@ export const NewsData: INews[] = [
     place: "Berlin, Germany",
   },
   {
-    id: "6",
+    _id: "6",
     title: "Art Exhibition Showcases Young Talent",
     author: "Sophia Lee / ArtsDaily",
     image:

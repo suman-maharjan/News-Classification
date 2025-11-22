@@ -3,5 +3,6 @@ export const key = {
 
   news: {
     getAll: () => ["getAllNews"],
+    getById: (id: string) => ["News_id", id],
   },
 };

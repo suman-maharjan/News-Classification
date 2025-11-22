@@ -7,6 +7,7 @@ import {
 } from "../../constants/envConstants";
 import { NewsClassifySchemaType, NewsCreateSchemaType } from "./newsSchema";
 import NewsModel from "./news.model";
+import { ApiError } from "../../utils/ApiError";
 
 class NewsService {
   private axiosInstance: AxiosInstance;
@@ -24,6 +25,29 @@ class NewsService {
 
   async all() {
     const result = await NewsModel.find();
+    return result;
+  }
+
+  async getById(id: string) {
+    const result = await NewsModel.findOne({ _id: id });
+    return result;
+  }
+
+  async editById(id: string, payload: NewsCreateSchemaType) {
+    const news = await NewsModel.findOne({ _id: id });
+    if (!news) {
+      throw new ApiError(404, "News not Found");
+    }
+    const result = await NewsModel.findOneAndUpdate(
+      { _id: id },
+      { $set: payload },
+      { new: true }
+    );
+    return result;
+  }
+
+  async deleteById(id: string) {
+    const result = await NewsModel.findOneAndDelete({ _id: id });
     return result;
   }
 

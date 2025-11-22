@@ -12,6 +12,8 @@ export const createNewsFormSchema = z.object({
     .min(2, "Category is required")
     .max(50, "Category too long"),
 
+  author: z.string().min(2, "Author is required").max(50, "Author too long"),
+
   description: z.string().min(20, "Description must be at least 20 characters"),
 
   content: z
@@ -33,7 +35,7 @@ export const createNewsFormSchema = z.object({
     )
     .min(1, "Add at least one content block"),
 
-  image: z.string().url("Main image must be a valid URL"),
+  image: z.url("Main image must be a valid URL"),
 
   type: z.enum(ENewsType),
 

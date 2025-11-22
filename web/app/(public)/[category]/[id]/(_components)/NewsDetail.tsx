@@ -25,7 +25,7 @@ const NewsDetail = ({
     <div className="max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-4">{title}</h1>
       <p className="text-gray-500 mb-2">
-        {publishedAt} | {place} | {author}
+        {new Date(publishedAt).toLocaleDateString()} | {place} | {author}
       </p>
       {image && (
         <img src={image} className="w-full 2-full object-cover rounded mb-4" />

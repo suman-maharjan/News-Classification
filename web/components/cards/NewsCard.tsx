@@ -45,7 +45,7 @@ export const NewsCard = ({
         <p
           className={`text-sm text-gray-600 mt-1 ${
             type == ENewsType.BREAKING ? "" : "hidden"
-          } lg:block`}
+          } md:block`}
         >
           {description}
         </p>

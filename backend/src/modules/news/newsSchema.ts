@@ -24,6 +24,11 @@ export const newsCreateSchema = z.object({
     .min(5, "Title must be at least 5 characters")
     .max(150, "Title cannot exceed 150 characters"),
 
+  author: z
+    .string()
+    .min(2, "Category is required")
+    .max(50, "Category too long"),
+
   category: z
     .string()
     .min(2, "Category is required")

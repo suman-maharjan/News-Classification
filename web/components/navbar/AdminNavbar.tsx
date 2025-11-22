@@ -10,8 +10,6 @@ const AdminNavbar = () => {
   const router = useRouter();
   const logout = useLogout();
 
-  console.log({ isAuthenticated });
-
   const handleLogout = () => {
     logout.mutate(undefined, {
       onSuccess: () => {
@@ -28,7 +26,7 @@ const AdminNavbar = () => {
           className="text-xl font-bold cursor-pointer w-full text-center"
           onClick={() => {
             if (isAuthenticated) {
-              router.push("/admin/dashbaord");
+              router.push("/admin/dashboard");
             } else {
               router.push("/admin");
             }

@@ -15,6 +15,21 @@ class NewsController {
     res.status(200).json({ data: result, message: "success" });
   }
 
+  async getById(req: Request, res: Response) {
+    const result = await newsService.getById(req.params.id);
+    res.status(200).json({ data: result, message: "success" });
+  }
+
+  async editById(req: Request, res: Response) {
+    const result = await newsService.editById(req.params.id, req.body);
+    res.status(200).json({ data: result, message: "success" });
+  }
+
+  async deleteById(req: Request, res: Response) {
+    const result = await newsService.deleteById(req.params.id);
+    res.status(200).json({ data: result, message: "success" });
+  }
+
   async classifyNews(req: Request, res: Response) {
     // validate request body
     const validationResult = validateZod(newsClassifySchema, req.body);

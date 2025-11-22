@@ -17,12 +17,24 @@ router.get("/", (req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-router.get("/all", asyncHandler(newsController.getAllNews));
-
 router.post(
   "/create",
   secureAPI([RoleEnum.USER]),
   asyncHandler(newsController.createNews)
+);
+router.get("/all", asyncHandler(newsController.getAllNews));
+router.get("/:id", asyncHandler(newsController.getById));
+
+router.post(
+  "/edit/:id",
+  secureAPI([RoleEnum.USER]),
+  asyncHandler(newsController.editById)
+);
+
+router.post(
+  "/delete/:id",
+  secureAPI([RoleEnum.USER]),
+  asyncHandler(newsController.deleteById)
 );
 
 router.post(
