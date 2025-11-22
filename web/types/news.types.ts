@@ -19,7 +19,7 @@ export enum ENewsType {
 }
 
 export interface INews {
-  id: string;
+  _id: string;
   title: string;
   author?: string;
   source?: {
@@ -27,10 +27,9 @@ export interface INews {
     url: string;
   };
   description: string;
-  summary: string;
   content: INewsContent[]; // updated to handle multiple types
   image?: string; // main/cover image
   publishedAt: string;
   type: ENewsType;
-  location?: string;
+  place?: string;
 }

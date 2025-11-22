@@ -7,11 +7,6 @@ export const createNewsFormSchema = z.object({
     .min(5, "Title must be at least 5 characters")
     .max(150, "Title cannot exceed 150 characters"),
 
-  summary: z
-    .string()
-    .min(10, "Summary must be at least 10 characters")
-    .max(300, "Summary cannot exceed 300 characters"),
-
   category: z
     .string()
     .min(2, "Category is required")
@@ -42,7 +37,7 @@ export const createNewsFormSchema = z.object({
 
   type: z.enum(ENewsType),
 
-  location: z.string().min(2, "Location must be at least 2 characters"),
+  place: z.string().min(2, "Location must be at least 2 characters"),
 });
 
 export type TCreateNewsForm = z.infer<typeof createNewsFormSchema>;

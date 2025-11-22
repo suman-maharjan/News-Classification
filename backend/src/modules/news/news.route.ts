@@ -17,6 +17,14 @@ router.get("/", (req: Request, res: Response, next: NextFunction) => {
   });
 });
 
+router.get("/all", asyncHandler(newsController.getAllNews));
+
+router.post(
+  "/create",
+  secureAPI([RoleEnum.USER]),
+  asyncHandler(newsController.createNews)
+);
+
 router.post(
   "/classify",
   secureAPI([RoleEnum.USER]),

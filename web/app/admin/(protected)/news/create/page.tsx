@@ -5,20 +5,21 @@ import SelectField from "@/components/form/SelectField";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { createNewsFormSchema, TCreateNewsForm } from "@/lib/form/newsForm";
+import { useCreateNews } from "@/services/newsService";
 import { EContentType, ENewsType } from "@/types/news.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 
 export default function CreateNewsAdmin() {
+  const createNews = useCreateNews();
   const form = useForm<TCreateNewsForm>({
     resolver: zodResolver(createNewsFormSchema),
     defaultValues: {
       title: "",
-      summary: "",
       category: "",
       description: "",
       image: "",
-      location: "",
+      place: "",
       type: ENewsType.NORMAL,
       content: [
         {
@@ -34,7 +35,12 @@ export default function CreateNewsAdmin() {
     name: "content",
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: TCreateNewsForm) => {
+    createNews.mutate(data, {
+      onSuccess: () => {
+        form.reset();
+      },
+    });
     console.log("FORM DATA:", data);
   };
 
@@ -48,13 +54,6 @@ export default function CreateNewsAdmin() {
             name="title"
             placeholder="News Title"
             label="News Title"
-          />
-
-          <InputField
-            control={form.control}
-            name="summary"
-            placeholder="Short summary"
-            label="Summary"
           />
 
           <InputField
@@ -82,7 +81,7 @@ export default function CreateNewsAdmin() {
 
           <InputField
             control={form.control}
-            name="location"
+            name="place"
             placeholder="Country/City"
             label="Location"
           />

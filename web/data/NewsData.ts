@@ -5,7 +5,6 @@ export const NewsData: INews[] = [
     id: "1",
     title: "Olympics in 2021 unrealistic unless COVID-19 vaccine found",
     author: "Professor Devi Sridhar / SNS Web",
-    summary: "Olympics likely delayed until a vaccine is available.",
     description:
       "Olympics is not the only sporting tournament to be pushed back because of the dreaded coronavirus pandemic...",
     content: [
@@ -26,13 +25,12 @@ export const NewsData: INews[] = [
       "https://images.unsplash.com/photo-1763244737839-220b4cd0259e?q=80&w=1487&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     publishedAt: "2020-04-19T14:41:24Z",
     type: ENewsType.BREAKING,
-    location: "Tokyo, Japan",
+    place: "Tokyo, Japan",
   },
   {
     id: "2",
     title: "Tech Giants Announce Breakthrough in AI",
     author: "John Smith / TechDaily",
-    summary: "Major AI breakthrough announced by top tech companies.",
     description:
       "Tech companies collaborated on next-gen AI chips that promise faster performance and lower energy usage.",
     image:
@@ -53,13 +51,12 @@ export const NewsData: INews[] = [
     ],
     publishedAt: "2025-11-20T10:00:00Z",
     type: ENewsType.READ,
-    location: "San Francisco, USA",
+    place: "San Francisco, USA",
   },
   {
     id: "3",
     title: "Global Markets Rally After Positive Economic Forecast",
     author: "Jane Doe / FinanceWorld",
-    summary: "Stock markets rise following strong economic predictions.",
     description:
       "Economists anticipate a stable growth trend through the next quarter, boosting investor confidence.",
     image:
@@ -80,13 +77,12 @@ export const NewsData: INews[] = [
     ],
     publishedAt: "2025-11-21T08:30:00Z",
     type: ENewsType.NORMAL,
-    location: "London, UK",
+    place: "London, UK",
   },
   {
     id: "4",
     title: "New High-Speed Rail Line Opens to the Public",
     author: "Emily Carter / RailNews",
-    summary: "The ultrafast rail system significantly reduces travel time.",
     description:
       "The new rail line aims to revolutionize regional transportation and reduce carbon emissions.",
     image:
@@ -107,13 +103,12 @@ export const NewsData: INews[] = [
     ],
     publishedAt: "2025-11-19T12:00:00Z",
     type: ENewsType.NORMAL,
-    location: "Tokyo, Japan",
+    place: "Tokyo, Japan",
   },
   {
     id: "5",
     title: "Breakthrough in Cancer Treatment Shows Promise",
     author: "Dr. Alex Johnson / MedicalNews",
-    summary: "New therapy demonstrates encouraging clinical trial results.",
     image:
       "https://images.unsplash.com/photo-1763244737839-220b4cd0259e?q=80&w=1487&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     description:
@@ -134,13 +129,12 @@ export const NewsData: INews[] = [
     ],
     publishedAt: "2025-11-18T15:45:00Z",
     type: ENewsType.READ,
-    location: "Berlin, Germany",
+    place: "Berlin, Germany",
   },
   {
     id: "6",
     title: "Art Exhibition Showcases Young Talent",
     author: "Sophia Lee / ArtsDaily",
-    summary: "Emerging artists display their work in a major gallery.",
     image:
       "https://images.unsplash.com/photo-1763244737839-220b4cd0259e?q=80&w=1487&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     description:
@@ -161,6 +155,6 @@ export const NewsData: INews[] = [
     ],
     publishedAt: "2025-11-17T09:30:00Z",
     type: ENewsType.NORMAL,
-    location: "New York, USA",
+    place: "New York, USA",
   },
 ];

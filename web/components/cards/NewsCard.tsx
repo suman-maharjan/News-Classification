@@ -17,7 +17,7 @@ export const NewsCard = ({
   description,
   type = ENewsType.NORMAL,
   publishedAt,
-  location,
+  place,
 }: TNewsCardProps) => {
   const router = useRouter();
   return (
@@ -51,7 +51,7 @@ export const NewsCard = ({
         </p>
         <p className="text-xs text-gray-400 my-1">
           {publishedAt ? publishedAt + " | " : ""}
-          {location ?? ""}
+          {place ?? ""}
         </p>
       </div>
     </div>

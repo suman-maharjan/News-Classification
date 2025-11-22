@@ -5,7 +5,8 @@ import {
   CELERY_TASK_CLASSIFY_NAIVE_BAYES,
   CELERY_TASK_PROBABILITY,
 } from "../../constants/envConstants";
-import { NewsClassifySchemaType } from "./newsSchema";
+import { NewsClassifySchemaType, NewsCreateSchemaType } from "./newsSchema";
+import NewsModel from "./news.model";
 
 class NewsService {
   private axiosInstance: AxiosInstance;
@@ -16,6 +17,16 @@ class NewsService {
       timeout: parseInt(process.env.FLASK_TIMEOUT),
     });
   }
+
+  async create(payload: NewsCreateSchemaType) {
+    await NewsModel.create(payload);
+  }
+
+  async all() {
+    const result = await NewsModel.find();
+    return result;
+  }
+
   async classify(payload: NewsClassifySchemaType) {
     try {
       const { news, type } = payload;

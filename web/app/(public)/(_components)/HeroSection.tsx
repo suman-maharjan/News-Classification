@@ -15,7 +15,7 @@ const HeroSection = () => {
             image={news.image}
             type={news.type}
             publishedAt={news.publishedAt}
-            location={news.location}
+            place={news.place}
             description={news.description}
           />
         );
