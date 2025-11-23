@@ -1,6 +1,7 @@
 "use client";
 import { NewsCard } from "@/components/cards/NewsCard";
 import PageSection from "@/components/section/PageSection";
+import Spinner from "@/components/spinner/Spinner";
 import { useGetAllNews } from "@/services/newsService";
 import { INews } from "@/types/news.types";
 
@@ -8,18 +9,7 @@ const HeroSection = () => {
   const { data: newsData, isLoading } = useGetAllNews();
 
   if (isLoading) {
-    return (
-      <PageSection className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          {/* Animated Loading Spinner */}
-          <div className="relative w-16 h-16">
-            <div className="absolute top-0 left-0 w-full h-full border-4 border-blue-200 rounded-full" />
-            <div className="absolute top-0 left-0 w-full h-full border-4 border-blue-600 rounded-full border-t-transparent animate-spin" />
-          </div>
-          <p className="text-gray-600 font-medium">Loading latest news...</p>
-        </div>
-      </PageSection>
-    );
+    return <Spinner />;
   }
 
   return (
