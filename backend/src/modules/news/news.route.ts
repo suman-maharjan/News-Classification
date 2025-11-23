@@ -19,7 +19,7 @@ router.get("/", (req: Request, res: Response, next: NextFunction) => {
 
 router.post(
   "/create",
-  secureAPI([RoleEnum.USER]),
+  secureAPI([RoleEnum.ADMIN]),
   asyncHandler(newsController.createNews)
 );
 router.get("/all", asyncHandler(newsController.getAllNews));
@@ -27,19 +27,19 @@ router.get("/:id", asyncHandler(newsController.getById));
 
 router.post(
   "/edit/:id",
-  secureAPI([RoleEnum.USER]),
+  secureAPI([RoleEnum.ADMIN]),
   asyncHandler(newsController.editById)
 );
 
 router.post(
   "/delete/:id",
-  secureAPI([RoleEnum.USER]),
+  secureAPI([RoleEnum.ADMIN]),
   asyncHandler(newsController.deleteById)
 );
 
 router.post(
   "/classify",
-  secureAPI([RoleEnum.USER]),
+  secureAPI([RoleEnum.ADMIN]),
   asyncHandler(newsController.classifyNews)
 );
 

@@ -15,6 +15,7 @@ export interface IUser extends Document {
   created_at: Date;
   updated_at: Date;
   isEmailVerified: boolean;
+  interests: string[];
   accessToken?: string;
   refreshToken?: string;
 }
@@ -40,6 +41,7 @@ const userSchema: Schema<IUser> = new Schema({
     enum: Object.values(RoleEnum),
     default: [RoleEnum.USER],
   },
+  interests: { type: [String], require: [true, "Interest is required"] },
   isActive: { type: Boolean, default: true },
   created_at: { type: Date, default: Date.now() },
   updated_at: { type: Date, default: Date.now() },

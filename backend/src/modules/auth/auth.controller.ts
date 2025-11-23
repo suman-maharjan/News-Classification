@@ -36,7 +36,7 @@ class AuthController {
     });
   }
 
-  async login(req: Request, res: Response) {
+  async login(req: Request, res: Response, admin = false) {
     const validationResult = validateZod(userLoginSchema, req.body);
 
     const options = {
@@ -47,7 +47,8 @@ class AuthController {
     };
 
     const { result, accessToken, refreshToken } = await authService.login(
-      validationResult
+      validationResult,
+      admin
     );
     return res
       .status(200)
@@ -62,6 +63,15 @@ class AuthController {
   async verifyAbleEmail(req: Request, res: Response) {
     const validEmail = emailSchema.parse(req.body.email);
     const result = await authService.verifyAbleEmail(validEmail);
+
+    res.json({
+      data: result,
+      message: "success",
+    });
+  }
+  async checkEmailExists(req: Request, res: Response) {
+    const validEmail = emailSchema.parse(req.body.email);
+    const result = await authService.checkEmailExist(validEmail);
 
     res.json({
       data: result,

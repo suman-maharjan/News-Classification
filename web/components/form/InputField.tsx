@@ -14,12 +14,14 @@ const InputField = ({
   placeholder,
   label,
   className,
+  type = "text",
 }: {
   className?: string;
   control: Control<any>;
   name: string;
   placeholder: string;
   label: string;
+  type?: string;
 }) => {
   return (
     <div className={className}>
@@ -30,7 +32,7 @@ const InputField = ({
           <FormItem>
             <FormLabel>{label}</FormLabel>
             <FormControl>
-              <Input placeholder={placeholder} {...field} />
+              <Input placeholder={placeholder} type={type} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

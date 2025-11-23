@@ -17,6 +17,30 @@ export const useLogin = () => {
     },
   });
 };
+export const useAdminLogin = () => {
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const response = await api.post(`${URLS.AUTH}/login/admin`, data);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      // setToken(data.token);
+      // queryClient.invalidateQueries({ queryKey: key.me() });
+    },
+  });
+};
+
+export const useRegisterUser = () => {
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const response = await api.post(`${URLS.AUTH}/register`, data);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log({ data });
+    },
+  });
+};
 export const useUser = () => {
   return useQuery<IMeResponse>({
     queryKey: key.me(),
@@ -27,6 +51,13 @@ export const useUser = () => {
     staleTime: 5 * 60 * 1000,
     retry: false,
   });
+};
+
+export const checkEmail = async (email: string) => {
+  const response = await api.post(`${URLS.AUTH}/check-email`, {
+    email,
+  });
+  return response.data;
 };
 
 export const useLogout = () => {

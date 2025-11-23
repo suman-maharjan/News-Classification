@@ -13,7 +13,7 @@ import {
   verifyAccessToken,
 } from "../../utils/jwt";
 import { generateOTP } from "../../utils/otp";
-import UserModel, { IUser } from "../user/user.model";
+import UserModel, { IUser, RoleEnum } from "../user/user.model";
 import AuthModel from "./auth.model";
 import {
   forgotPasswordSchemaType,
@@ -33,7 +33,7 @@ class AuthService {
   }
 
   async create(payload: userRegisterSchemaType) {
-    const { name, email, password } = payload;
+    const { name, email, password, interests } = payload;
     const emailExist = await UserModel.findOne({
       email,
     });
@@ -47,24 +47,31 @@ class AuthService {
       +process.env.SALT_ROUNDS
     );
 
-    if (emailExist && !emailExist.isEmailVerified) {
-      // Update Name and Password, if email is not verified
-      emailExist.name = name;
-      emailExist.password = hashedPassword;
-      await emailExist.save();
-    }
+    // if (emailExist && !emailExist.isEmailVerified) {
+    //   // Update Name and Password, if email is not verified
+    //   emailExist.name = name;
+    //   emailExist.password = hashedPassword;
+    //   await emailExist.save();
+    // }
 
-    const sanitizedPayload = { email, password: hashedPassword, name };
+    const sanitizedPayload = {
+      email,
+      password: hashedPassword,
+      name,
+      interests,
+      isEmailVerified: true,
+    };
     await UserModel.create(sanitizedPayload);
 
-    const otp = generateOTP();
+    // const otp = generateOTP();
 
-    const expiryDate = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour expiration
+    // const expiryDate = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour expiration
 
-    await AuthModel.create({ email, otp, token_expiry: expiryDate });
+    // await AuthModel.create({ email, otp, token_expiry: expiryDate });
 
-    await mailer(payload.email, otp);
-    const result = "OTP sent to your email";
+    // await mailer(payload.email, otp);
+    // const result = "OTP sent to your email";
+    const result = "User Created";
     return result;
   }
 
@@ -123,7 +130,7 @@ class AuthService {
     return result;
   }
 
-  async login(payload: userLoginSchemaType) {
+  async login(payload: userLoginSchemaType, admin: boolean) {
     const { email, password } = payload;
 
     const user = await UserModel.findOne({ email }).select("+password");
@@ -134,6 +141,10 @@ class AuthService {
       throw new ApiError(401, "User is blocked. Please contact Admin");
     } else if (!user.isEmailVerified) {
       throw new ApiError(401, "Email not verified");
+    }
+
+    if (admin && !user.roles.includes(RoleEnum.ADMIN)) {
+      throw new ApiError(404, "User not found");
     }
 
     const isValid = await bcrypt.compare(password, user.password);
@@ -209,6 +220,16 @@ class AuthService {
     const user = await UserModel.findOne({ email });
     let result = false;
     if (user && !user.isEmailVerified) {
+      result = true;
+    }
+
+    return result;
+  }
+  async checkEmailExist(email: string) {
+    const user = await UserModel.findOne({ email });
+
+    let result = false;
+    if (user) {
       result = true;
     }
 

@@ -3,10 +3,23 @@ import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import LogoSVG from "@/public/svg/LogoSVG";
+import { useAuthStore } from "@/store/authStore";
+import { useLogout } from "@/services/authService";
 
 const PublicNavbar = () => {
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const logout = useLogout();
+
+  const handleLogout = () => {
+    logout.mutate(undefined, {
+      onSuccess: () => {
+        router.push("/");
+      },
+    });
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,19 +48,7 @@ const PublicNavbar = () => {
           >
             <div className="relative">
               <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-                  />
-                </svg>
+                <LogoSVG />
               </div>
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
             </div>
@@ -85,34 +86,49 @@ const PublicNavbar = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-3">
-            <Button
-              size="lg"
-              onClick={() => {
-                console.log("handle sign in");
-              }}
-              variant="ghost"
-              className="hidden sm:inline-flex text-gray-700 hover:text-blue-600 hover:bg-blue-50 font-medium transition-all"
-            >
-              Sign In
-            </Button>
-            <Button
-              size="lg"
-              onClick={() => {
-                console.log("handle register");
-              }}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-xl transition-all transform hover:scale-105"
-            >
-              <span className="hidden sm:inline">Get Started</span>
-              <span className="sm:hidden">Register</span>
-            </Button>
-          </div>
+          {!isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              <Button
+                size="lg"
+                onClick={() => {
+                  router.push("/login");
+                }}
+                variant="ghost"
+                className="hidden sm:inline-flex text-gray-700 hover:text-blue-600 hover:bg-blue-50 font-medium transition-all"
+              >
+                Sign In
+              </Button>
+              <Button
+                size="lg"
+                onClick={() => {
+                  router.push("/get-started");
+                }}
+                className="bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-xl transition-all transform hover:scale-105"
+              >
+                <span className="hidden sm:inline">Get Started</span>
+                <span className="sm:hidden">Register</span>
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <Button
+                size="lg"
+                onClick={() => {
+                  handleLogout();
+                }}
+                variant="ghost"
+                className="hidden sm:inline-flex text-gray-700 hover:text-blue-600 hover:bg-blue-50 font-medium transition-all"
+              >
+                Logout
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Mobile Progress Bar (optional) */}
       <div
-        className={`h-1 bg-gradient-to-r from-blue-600 to-indigo-600 transform origin-left transition-transform duration-300 ${
+        className={`h-1 bg-linear-to-r from-blue-600 to-indigo-600 transform origin-left transition-transform duration-300 ${
           scrolled ? "scale-x-100" : "scale-x-0"
         }`}
       />

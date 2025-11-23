@@ -16,8 +16,8 @@ export const userRegisterSchema = z.object({
   name: z
     .string()
     .min(3, "Username must be at least 3 characters")
-    .max(20, "Username must be at most 20 characters")
-    .regex(/^[a-zA-Z0-9_]*$/, "Username must not contain special characters"),
+    .max(20, "Username must be at most 20 characters"),
+  interests: z.array(z.string()).min(1, "Add at least one interest"),
 });
 
 export const regenerateCodeSchema = z.object({

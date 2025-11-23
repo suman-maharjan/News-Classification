@@ -15,8 +15,16 @@ router.get("/", (req, res, next) => {
 router.post("/register", asyncHandler(authController.register));
 router.post("/verify", asyncHandler(authController.verifyEmail));
 router.post("/regenerate", asyncHandler(authController.regenerate));
-router.post("/login", asyncHandler(authController.login));
+router.post(
+  "/login",
+  asyncHandler((req, res) => authController.login(req, res, false))
+);
+router.post(
+  "/login/admin",
+  asyncHandler((req, res) => authController.login(req, res, true))
+);
 router.post("/verifyable-email", asyncHandler(authController.verifyAbleEmail));
+router.post("/check-email", asyncHandler(authController.checkEmailExists));
 router.post(
   "/forgot-password-generator",
   asyncHandler(authController.forgotPasswordToken)
