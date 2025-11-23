@@ -14,8 +14,8 @@ export const getNewsResolver = (step: number) => {
       return z.object({
         name: z
           .string()
-          .min(3, "Title must be at least 3 characters")
-          .max(150, "Title cannot exceed 150 characters"),
+          .min(3, "Name must be at least 3 characters")
+          .max(150, "Name cannot exceed 150 characters"),
         email: z.email().refine(
           async (email) => {
             try {
@@ -35,8 +35,8 @@ export const getNewsResolver = (step: number) => {
         ),
         password: z
           .string()
-          .min(3, "Title must be at least 3 characters")
-          .max(150, "Title cannot exceed 150 characters"),
+          .min(3, "Password must be at least 3 characters")
+          .max(150, "Password cannot exceed 150 characters"),
       });
     case 2:
       return z.object({
@@ -49,9 +49,10 @@ export const getNewsResolver = (step: number) => {
 
 export const loginFormSchema = z.object({
   email: z.email(),
-  password: z.string().min(3, {
-    message: "Password must be at least 6 characters.",
-  }),
+  password: z
+    .string()
+    .min(3, "Password must be at least 3 characters")
+    .max(150, "Password cannot exceed 150 characters"),
 });
 
 export const loginInitialValues = {

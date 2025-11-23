@@ -3,18 +3,20 @@
 import { TCreateNewsForm } from "@/lib/form/newsForm";
 import { useCreateNews } from "@/services/newsService";
 import NewsForm from "../(_components)/NewsForm";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function CreateNewsAdmin() {
   const createNews = useCreateNews();
+  const router = useRouter();
 
   const onSubmit = (data: TCreateNewsForm) => {
-    console.log("clicking");
     createNews.mutate(data, {
       onSuccess: () => {
-        // form.reset();
+        toast.info("News Added");
+        router.refresh();
       },
     });
-    console.log("FORM DATA:", data);
   };
 
   return <NewsForm formTitle="Create News" onSubmit={onSubmit} />;

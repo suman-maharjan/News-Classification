@@ -1,43 +1,60 @@
 import { URLS } from "@/constants/envConstant";
 import { useAuthStore } from "@/store/authStore";
-import { IMeResponse, IUser } from "@/types/auth.types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  IMeResponse,
+  TLoginResponse,
+  TRegisterResponse,
+} from "@/types/auth.types";
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { api } from "./axiosInstance";
 import { key } from "./queryKeys";
 
 export const useLogin = () => {
+  const queryClient = new QueryClient();
   return useMutation({
     mutationFn: async (data: any) => {
       const response = await api.post(`${URLS.AUTH}/login`, data);
       return response.data;
     },
     onSuccess: (data) => {
-      // setToken(data.token);
-      // queryClient.invalidateQueries({ queryKey: key.me() });
+      queryClient.invalidateQueries({ queryKey: key.me() });
     },
   });
 };
 export const useAdminLogin = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: any) => {
-      const response = await api.post(`${URLS.AUTH}/login/admin`, data);
+      const response = await api.post<TLoginResponse>(
+        `${URLS.AUTH}/login/admin`,
+        data
+      );
       return response.data;
     },
     onSuccess: (data) => {
-      // setToken(data.token);
-      // queryClient.invalidateQueries({ queryKey: key.me() });
+      queryClient.invalidateQueries({ queryKey: key.me() });
     },
+    onError: (err) => {},
   });
 };
 
 export const useRegisterUser = () => {
+  const queryClient = new QueryClient();
   return useMutation({
     mutationFn: async (data: any) => {
-      const response = await api.post(`${URLS.AUTH}/register`, data);
+      const response = await api.post<TRegisterResponse>(
+        `${URLS.AUTH}/register`,
+        data
+      );
       return response.data;
     },
     onSuccess: (data) => {
-      console.log({ data });
+      queryClient.invalidateQueries({ queryKey: key.me() });
     },
   });
 };

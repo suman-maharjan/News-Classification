@@ -4,13 +4,7 @@ import InputField from "@/components/form/InputField";
 import SelectField from "@/components/form/SelectField";
 import TextareaField from "@/components/form/TextareaField";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { createNewsFormSchema, TCreateNewsForm } from "@/lib/form/newsForm";
 import { useAutoDetectNewsCategory } from "@/services/newsService";
@@ -93,7 +87,7 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
             <CardTitle className="text-3xl font-bold">{formTitle}</CardTitle>
           </div>
 
-          <CardContent className="px-8">
+          <CardContent className="px-8 py-4">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -260,10 +254,7 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
                 </section>
 
                 {/* Submit */}
-                <Button
-                  type="submit"
-                  className="w-full h-14 text-lg font-semibold bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.01]"
-                >
+                <Button type="submit" className="w-full">
                   Publish Article
                 </Button>
               </form>

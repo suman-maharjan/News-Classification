@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useFormContext } from "react-hook-form";
 import CreateAccountLayout from "./CreateAccountLayout";
+import { useRouter } from "next/navigation";
 
 const CreateAccountForm = ({ onSubmit }: { onSubmit: () => void }) => {
   const form = useFormContext();
+  const router = useRouter();
   return (
     <CreateAccountLayout
       title="Create Your Account"
@@ -50,6 +52,7 @@ const CreateAccountForm = ({ onSubmit }: { onSubmit: () => void }) => {
           <Button
             variant={"link"}
             className="text-blue-600 font-semibold hover:text-blue-700"
+            onClick={() => router.push("/login")}
           >
             Sign In
           </Button>
