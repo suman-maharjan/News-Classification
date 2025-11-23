@@ -77,3 +77,16 @@ export const useDeleteNewsById = () => {
     },
   });
 };
+
+export const useAutoDetectNewsCategory = () => {
+  return useMutation({
+    mutationFn: async (data: string) => {
+      const response = await api.post(`${URLS.NEWS}/classify`, {
+        news: data,
+        type: "SVM_Model",
+      });
+      console.log({ response });
+      return response.data;
+    },
+  });
+};

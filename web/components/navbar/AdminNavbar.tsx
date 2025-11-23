@@ -26,7 +26,7 @@ const AdminNavbar = () => {
           className="text-xl font-bold cursor-pointer w-full text-center"
           onClick={() => {
             if (isAuthenticated) {
-              router.push("/admin/dashboard");
+              router.push("/admin/news");
             } else {
               router.push("/admin");
             }

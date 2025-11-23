@@ -34,7 +34,7 @@ class NewsController {
     // validate request body
     const validationResult = validateZod(newsClassifySchema, req.body);
     // call service to classify news
-    const result = await newsService.classify(validationResult);
+    const result = await newsService.classifyUsingWorker(validationResult);
     res.status(200).json({ data: result, message: "success" });
   }
 }

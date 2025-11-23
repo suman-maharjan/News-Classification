@@ -9,7 +9,7 @@ const AdminPublicLayout = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (isFetched && user?.message === "success") {
-      router.push("/admin/dashboard/");
+      router.push("/admin/news/");
     }
   }, [user, router, isFetched]);
 

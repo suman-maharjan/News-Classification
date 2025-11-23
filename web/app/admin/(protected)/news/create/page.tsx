@@ -17,9 +17,5 @@ export default function CreateNewsAdmin() {
     console.log("FORM DATA:", data);
   };
 
-  return (
-    <div className="max-w-2xl mx-auto py-10 px-4">
-      <NewsForm formTitle="Create News" onSubmit={onSubmit} />
-    </div>
-  );
+  return <NewsForm formTitle="Create News" onSubmit={onSubmit} />;
 }

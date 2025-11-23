@@ -9,12 +9,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 
 export function AlertDialogComponent({
+  title = "Are you absolutely sure?",
+  description = `This action cannot be undone. This will permanently remove your data from servers.`,
   handleContinueClick,
   children,
 }: {
+  title?: string;
+  description?: string;
   children: React.ReactNode;
   handleContinueClick: () => void;
 }) {
@@ -23,11 +26,8 @@ export function AlertDialogComponent({
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>

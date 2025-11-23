@@ -1,4 +1,4 @@
-import { BookUser, Newspaper } from "lucide-react";
+import { BookUser, Newspaper, Settings2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -20,6 +20,11 @@ const items = [
     title: "User Management",
     url: "#",
     icon: BookUser,
+  },
+  {
+    title: "Settings",
+    url: "/admin/settings",
+    icon: Settings2,
   },
 ];
 
@@ -44,7 +49,7 @@ const AdminSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-      </SidebarContent>{" "}
+      </SidebarContent>
     </Sidebar>
   );
 };

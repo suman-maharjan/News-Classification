@@ -7,8 +7,9 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 
-const InputField = ({
+const TextareaField = ({
   control,
   name,
   placeholder,
@@ -30,7 +31,7 @@ const InputField = ({
           <FormItem>
             <FormLabel>{label}</FormLabel>
             <FormControl>
-              <Input placeholder={placeholder} {...field} />
+              <Textarea placeholder={placeholder} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -40,4 +41,4 @@ const InputField = ({
   );
 };
 
-export default InputField;
+export default TextareaField;

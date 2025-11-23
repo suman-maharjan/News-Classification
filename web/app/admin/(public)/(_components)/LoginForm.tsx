@@ -38,7 +38,7 @@ export function AdminLoginForm() {
   const onSubmit = async (values: z.infer<typeof loginFormSchema>) => {
     try {
       await login.mutateAsync(values);
-      router.push("/admin/dashboard");
+      router.push("/admin/news/");
     } catch (error) {
       console.log("error");
     }

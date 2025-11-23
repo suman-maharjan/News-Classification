@@ -29,16 +29,9 @@ export default function EditNewsAdmin() {
         },
       }
     );
-    console.log("FORM DATA:", data);
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4">
-      <NewsForm
-        formTitle="Create News"
-        onSubmit={onSubmit}
-        defaultValue={news}
-      />
-    </div>
+    <NewsForm formTitle="Edit News" onSubmit={onSubmit} defaultValue={news} />
   );
 }
