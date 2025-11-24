@@ -23,8 +23,8 @@ const AdminLoginPage = () => {
   return (
     <>
       <LoginForm
-        title="Welcome Admin"
-        description="Sign in to manage news portal"
+        title="Admin Login"
+        description=""
         handleSubmit={onSubmit}
         isLoading={login.isPending}
         admin={true}

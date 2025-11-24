@@ -91,7 +91,7 @@ export const NewsCard = ({
 
       {/* Content */}
       <div className="p-5">
-        <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
+        <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-gray-600 transition-colors duration-200">
           {title}
         </h3>
 
@@ -148,31 +148,8 @@ export const NewsCard = ({
               </>
             )}
           </div>
-
-          {/* Read More Arrow */}
-          <span className="text-blue-600 font-medium flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            Read
-            <svg
-              className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </span>
         </div>
       </div>
-
-      {/* Bottom Accent Line */}
-      <div
-        className={`h-1 bg-linear-to-r ${styleConfig.accent} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left`}
-      />
     </div>
   );
 };

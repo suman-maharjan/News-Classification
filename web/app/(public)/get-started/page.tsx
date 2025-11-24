@@ -1,13 +1,12 @@
 "use client";
 import { getNewsResolver, TCreateUserForm } from "@/lib/form/userForm";
+import { useRegisterUser } from "@/services/authService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import ChooseInterestForm from "./(_components)/ChooseInterestForm";
 import CreateAccountForm from "./(_components)/CreateAccountForm";
-import CreateAccountWelcomeForm from "./(_components)/CreateAccountWelcomeForm";
-import { useRegisterUser } from "@/services/authService";
+import { toast } from "sonner";
 
 const GetStartedPage = () => {
   const router = useRouter();
@@ -26,12 +25,25 @@ const GetStartedPage = () => {
   const mutation = useRegisterUser();
   const handleSubmit = () => {
     const formData = form.getValues();
-    mutation.mutate(formData, {
-      onSuccess: () => {
-        console.log("registration successfull");
-        router.push("/login");
-      },
-    });
+    const interests = [
+      "politics",
+      "technology",
+      "sports",
+      "business",
+      "entertainment",
+    ];
+    mutation.mutate(
+      { ...formData, interests },
+      {
+        onSuccess: () => {
+          console.log("registration successfull");
+          router.push("/login");
+        },
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      }
+    );
   };
 
   return (
@@ -40,27 +52,7 @@ const GetStartedPage = () => {
         <div className="max-w-lg mx-auto">
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
             {step === 1 && (
-              <CreateAccountForm
-                onSubmit={form.handleSubmit(() => {
-                  setStep(2);
-                })}
-              />
-            )}
-            {step === 2 && (
-              <ChooseInterestForm
-                onPrev={() => {
-                  setStep(1);
-                }}
-                onNext={() => {
-                  setStep(3);
-                }}
-              />
-            )}
-            {step === 3 && (
-              <CreateAccountWelcomeForm
-                onNext={() => handleSubmit()}
-                onPrev={() => setStep(2)}
-              />
+              <CreateAccountForm onSubmit={form.handleSubmit(handleSubmit)} />
             )}
           </div>
         </div>

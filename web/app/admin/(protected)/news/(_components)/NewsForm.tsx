@@ -64,41 +64,41 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
       toast.error(
         "Validation Failed. Please all all the required field values."
       );
+      return;
     }
-    return;
+
+    const { title, content, description, algorithmType } = form.getValues();
+
+    const textContent = content
+      .filter((c) => c.type === EContentType.TEXT)
+      .map((c) => c.data)
+      .join(" ");
+
+    const mergedData = `${title} ${textContent} ${description}`;
+
+    mutation.mutate(
+      { news: mergedData, type: algorithmType },
+      {
+        onSuccess: (response) => {
+          const result = response.data.prediction as string;
+          form.setValue(
+            "category",
+            result.charAt(0).toUpperCase() + result.slice(1),
+            { shouldValidate: true }
+          );
+        },
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      }
+    );
   };
 
-  const { title, content, description, algorithmType } = form.getValues();
-
-  const textContent = content
-    .filter((c) => c.type === EContentType.TEXT)
-    .map((c) => c.data)
-    .join(" ");
-
-  const mergedData = `${title} ${textContent} ${description}`;
-
-  mutation.mutate(
-    { news: mergedData, type: algorithmType },
-    {
-      onSuccess: (response) => {
-        const result = response.data.prediction as string;
-        form.setValue(
-          "category",
-          result.charAt(0).toUpperCase() + result.slice(1),
-          { shouldValidate: true }
-        );
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    }
-  );
-
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-gray-50 to-indigo-50 p-6">
       <div className="max-w-4xl mx-auto">
         <Card className="bg-white shadow-xl border-0 overflow-hidden py-0">
-          <div className="bg-linear-to-r from-blue-600 to-indigo-600 p-8 text-white">
+          <div className="bg-gray-500 p-8 text-white">
             <CardTitle className="text-3xl font-bold">{formTitle}</CardTitle>
           </div>
 
@@ -111,7 +111,7 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
                 {/* Basic Information */}
                 <section className="space-y-4">
                   <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                    <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+                    <span className="w-1.5 h-6 bg-gray-600 rounded-full"></span>
                     Basic Information
                   </h2>
 
@@ -171,7 +171,7 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
                 <section className="space-y-5">
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                      <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+                      <span className="w-1.5 h-6 bg-gray-600 rounded-full"></span>
                       Content Blocks
                     </h2>
                   </div>
@@ -180,7 +180,7 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
                     {fields.map((fieldItem, index) => (
                       <div
                         key={fieldItem.id}
-                        className="border-2 border-gray-200 rounded-xl p-6 bg-linear-to-br from-white to-gray-50 hover:border-blue-300 transition-all shadow-sm hover:shadow-md space-y-4"
+                        className="border-2 border-gray-200 rounded-xl p-6 bg-linear-to-br from-white to-gray-50 hover:border-gray-300 transition-all shadow-sm hover:shadow-md space-y-4"
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-semibold text-gray-500 bg-gray-200 px-3 py-1 rounded-full">
@@ -233,7 +233,7 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
                     onClick={() =>
                       append({ type: EContentType.TEXT, data: "" })
                     }
-                    className="bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all"
+                    className="bg-gray-600 hover:bg-gray-700 text-white shadow-md hover:shadow-lg transition-all"
                   >
                     + Add Block
                   </Button>
@@ -244,7 +244,7 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
                 {/* Category */}
                 <section className="space-y-4">
                   <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                    <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+                    <span className="w-1.5 h-6 bg-gray-600 rounded-full"></span>
                     Category
                   </h2>
                   <div className="flex gap-3 items-end">
@@ -260,7 +260,7 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
                       type="button"
                       variant="outline"
                       onClick={handleAutoDetectCategory}
-                      className="h-11 border-2 border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all"
+                      className="h-11 border-2 border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all"
                     >
                       ✨ Auto-Detect
                     </Button>

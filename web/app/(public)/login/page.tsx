@@ -24,8 +24,8 @@ const LoginPage = () => {
     <LoginForm
       handleSubmit={handleSubmit}
       isLoading={login.isPending}
-      title="Welcome Back"
-      description="Sign in to continue reading your personalized news feed"
+      title="Sign in"
+      description=""
     />
   );
 };

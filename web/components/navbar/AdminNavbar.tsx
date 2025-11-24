@@ -1,9 +1,8 @@
 "use client";
+import { useLogout } from "@/services/authService";
+import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
-import { useAuthStore } from "@/store/authStore";
-import { useLogout } from "@/services/authService";
-import { SidebarTrigger } from "../ui/sidebar";
 
 const AdminNavbar = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -20,7 +19,7 @@ const AdminNavbar = () => {
 
   return (
     <nav className="w-full p-4 border-b-2 bg-white sticky top-0">
-      <SidebarTrigger className="absolute z-11" />
+      {/* <SidebarTrigger className="absolute z-11" /> */}
       <div className="container mx-auto text-center flex justify-between items-center">
         <h1
           className="text-xl font-bold cursor-pointer w-full text-center"

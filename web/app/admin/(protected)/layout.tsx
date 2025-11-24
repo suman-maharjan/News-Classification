@@ -1,6 +1,5 @@
 "use client";
 import AdminNavbar from "@/components/navbar/AdminNavbar";
-import AdminSidebar from "@/components/sidebar/AdminSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useUser } from "@/services/authService";
 import { useAuthStore } from "@/store/authStore";
@@ -28,7 +27,7 @@ const AdminProtectedLayout = ({ children }: PropsWithChildren) => {
 
   return (
     <SidebarProvider>
-      <AdminSidebar />
+      {/* <AdminSidebar /> */}
       <main className="w-full relative">
         <AdminNavbar />
         {children}

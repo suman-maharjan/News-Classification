@@ -2,7 +2,14 @@ import { EContentType, INews, INewsContent } from "@/types/news.types";
 
 type NewsDetailProps = Pick<
   INews,
-  "title" | "author" | "image" | "content" | "place" | "publishedAt" | "source"
+  | "title"
+  | "author"
+  | "image"
+  | "content"
+  | "place"
+  | "publishedAt"
+  | "source"
+  | "description"
 >;
 
 const NewsDetail = ({
@@ -12,6 +19,7 @@ const NewsDetail = ({
   author,
   image,
   content,
+  description,
   source,
 }: NewsDetailProps) => {
   const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
@@ -20,9 +28,24 @@ const NewsDetail = ({
     month: "long",
     day: "numeric",
   });
+  const handleShare = async () => {
+    const url = window.location.href;
+
+    if (navigator.share) {
+      return navigator.share({
+        title: title,
+        text: description,
+        url,
+      });
+    }
+
+    // fallback: copy URL
+    await navigator.clipboard.writeText(url);
+    alert("Link copied to clipboard!");
+  };
 
   return (
-    <article className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
+    <article className="min-h-screen bg-linear-to-b from-gray-50 to-white py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Article Header */}
         <header className="mb-8">
@@ -34,7 +57,7 @@ const NewsDetail = ({
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 pb-6 border-b border-gray-200">
             <div className="flex items-center gap-2">
               <svg
-                className="w-5 h-5 text-blue-600"
+                className="w-5 h-5 text-gray-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -53,7 +76,7 @@ const NewsDetail = ({
 
             <div className="flex items-center gap-2">
               <svg
-                className="w-5 h-5 text-blue-600"
+                className="w-5 h-5 text-gray-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -73,7 +96,7 @@ const NewsDetail = ({
                 <span className="text-gray-300">•</span>
                 <div className="flex items-center gap-2">
                   <svg
-                    className="w-5 h-5 text-blue-600"
+                    className="w-5 h-5 text-gray-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -146,10 +169,10 @@ const NewsDetail = ({
         {/* Source Attribution */}
         {source && (
           <footer className="mt-12 pt-8 border-t border-gray-200">
-            <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
+            <div className="bg-gray-50 rounded-xl p-6 border border-gray-100">
               <div className="flex items-start gap-3">
                 <svg
-                  className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
+                  className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -169,7 +192,7 @@ const NewsDetail = ({
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1 group"
+                    className="text-gray-600 hover:text-gray-700 font-medium inline-flex items-center gap-1 group"
                   >
                     {source.name}
                     <svg
@@ -194,7 +217,10 @@ const NewsDetail = ({
 
         {/* Share Actions */}
         <div className="mt-8 flex items-center justify-center gap-4">
-          <button className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-gray-700 font-medium rounded-lg hover:border-blue-300 hover:text-blue-600 transition-all hover:shadow-md">
+          <button
+            onClick={handleShare}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-gray-700 font-medium rounded-lg hover:border-gray-300 hover:text-gray-600 transition-all hover:shadow-md"
+          >
             <svg
               className="w-5 h-5"
               fill="none"
