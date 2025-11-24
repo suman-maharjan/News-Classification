@@ -20,7 +20,7 @@ const InputField = ({
   control: Control<any>;
   name: string;
   placeholder: string;
-  label: string;
+  label?: string;
   type?: string;
 }) => {
   return (
@@ -30,7 +30,7 @@ const InputField = ({
         name={name}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{label}</FormLabel>
+            {label && <FormLabel>{label}</FormLabel>}
             <FormControl>
               <Input placeholder={placeholder} type={type} {...field} />
             </FormControl>

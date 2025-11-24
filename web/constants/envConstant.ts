@@ -6,4 +6,5 @@ export const URLS = {
   AUTH: API_VERSION + "/auth",
   NEWS: API_VERSION + "/news",
   CONVERSATION: API_VERSION + "/conversation",
+  subscriber: API_VERSION + "/subscriber",
 };

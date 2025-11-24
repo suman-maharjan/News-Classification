@@ -11,7 +11,7 @@ export default function Home() {
       <HeroSection />
       <FeaturedHeroSection />
       <CategoriesSection />
-      <TrendingSection />
+      {/* <TrendingSection /> */}
       <NewsletterSection />
     </main>
   );

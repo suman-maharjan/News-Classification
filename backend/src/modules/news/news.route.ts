@@ -3,10 +3,6 @@ import { asyncHandler } from "../../utils/asyncHandler";
 import secureAPI from "../../utils/secure";
 import { RoleEnum } from "../user/user.model";
 import { newsController } from "./news.controller";
-import { validateZod } from "../../utils/validationHandler";
-import { newsClassifySchema } from "./newsSchema";
-
-const Controller = newsController;
 
 const router = Router();
 
