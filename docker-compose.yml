@@ -1,17 +1,7 @@
 services:
-  react-frontend:
-    restart: always
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "4173:4173"
-    env_file:
-      - ./frontend/.env
-
   node-backend:
     restart: always
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
     command: node dist/index.js
@@ -33,7 +23,7 @@ services:
       - shared-networks
 
   celery-worker:
-    build: 
+    build:
       context: ./server1
       dockerfile: Dockerfile
     env_file:
@@ -44,4 +34,3 @@ services:
 networks:
   shared-networks:
     external: true
-
