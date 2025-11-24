@@ -31,4 +31,22 @@ const secureAPI = (roles: RoleEnum[]) => {
   );
 };
 
+export const secureAPISelf = () => {
+  return asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { access_token, refresh_token } = req.cookies;
+      const { user } = await getUsersFromTokens(access_token, refresh_token);
+      const { userId } = req.body;
+      if (!userId) {
+        throw new ApiError(403, "Forbidden");
+      }
+      const isAllowed = user.id == userId;
+      if (!isAllowed) {
+        throw new ApiError(403, "Forbidden");
+      }
+      next();
+    }
+  );
+};
+
 export default secureAPI;

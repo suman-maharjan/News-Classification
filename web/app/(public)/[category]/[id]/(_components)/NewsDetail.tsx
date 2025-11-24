@@ -1,4 +1,10 @@
+import { Form } from "@/components/ui/form";
+import { useAuthStore } from "@/store/authStore";
 import { EContentType, INews, INewsContent } from "@/types/news.types";
+import CommentForm from "./CommentForm";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+import DisplayComment from "./DisplayComment";
 
 type NewsDetailProps = Pick<
   INews,
@@ -22,6 +28,7 @@ const NewsDetail = ({
   description,
   source,
 }: NewsDetailProps) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
@@ -41,7 +48,7 @@ const NewsDetail = ({
 
     // fallback: copy URL
     await navigator.clipboard.writeText(url);
-    alert("Link copied to clipboard!");
+    toast.info("Link copied to clipboard!");
   };
 
   return (
@@ -214,6 +221,12 @@ const NewsDetail = ({
             </div>
           </footer>
         )}
+
+        <div></div>
+
+        <Separator />
+
+        <DisplayComment />
 
         {/* Share Actions */}
         <div className="mt-8 flex items-center justify-center gap-4">

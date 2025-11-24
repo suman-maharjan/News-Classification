@@ -13,6 +13,7 @@ const LoginPage = () => {
   const handleSubmit = async (values: TLoginFormSchema) => {
     try {
       const response = await login.mutateAsync(values);
+      console.log("setting user");
       setUser(response.data.user);
       router.push("/");
     } catch (error) {

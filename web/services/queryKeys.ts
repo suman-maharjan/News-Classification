@@ -9,4 +9,8 @@ export const key = {
   subscriber: {
     getAll: () => ["getAllSubscribers"],
   },
+
+  comment: {
+    getComment: (newsId: string) => [`comment${newsId}`],
+  },
 };

@@ -7,4 +7,5 @@ export const URLS = {
   NEWS: API_VERSION + "/news",
   CONVERSATION: API_VERSION + "/conversation",
   subscriber: API_VERSION + "/subscriber",
+  COMMENT: API_VERSION + "/comment",
 };
