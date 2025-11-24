@@ -25,6 +25,9 @@ const column = ({
   columnHelper.accessor("title", {
     header: "Title",
   }),
+  columnHelper.accessor("category", {
+    header: "Category",
+  }),
   columnHelper.accessor("publishedAt", {
     header: "Published At",
     cell: ({ getValue }) => new Date(getValue()).toLocaleDateString(),
@@ -54,9 +57,7 @@ const NewsTable = ({ data }: { data: INews[] }) => {
   const router = useRouter();
 
   const handleEdit = (item: string) => {
-    console.log("Edit:", item);
     router.push(`/admin/news/edit/${item}`);
-    // open modal or redirect to edit page
   };
 
   const handleDelete = (id: string) => {

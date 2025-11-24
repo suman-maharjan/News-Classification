@@ -6,12 +6,14 @@ import TextareaField from "@/components/form/TextareaField";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
+import algorithmTypeMap from "@/constants/algorithmType";
 import { createNewsFormSchema, TCreateNewsForm } from "@/lib/form/newsForm";
 import { useAutoDetectNewsCategory } from "@/services/newsService";
 import { EContentType, ENewsType } from "@/types/news.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Separator } from "@radix-ui/react-separator";
 import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 type NewsFormProps = {
   onSubmit: (values: TCreateNewsForm) => void;
@@ -21,7 +23,11 @@ type NewsFormProps = {
 
 const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
   const initialFormValue = defaultValue?.title
-    ? defaultValue
+    ? {
+        ...defaultValue,
+        algorithmType: Object.keys(algorithmTypeMap)[0],
+        category: defaultValue.category ?? "",
+      }
     : {
         author: "",
         title: "",
@@ -36,6 +42,7 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
             type: EContentType.TEXT,
           },
         ],
+        algorithmType: Object.keys(algorithmTypeMap)[0],
       };
 
   const form = useForm<TCreateNewsForm>({
@@ -53,31 +60,39 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
 
   const handleAutoDetectCategory = async () => {
     const isValid = await form.trigger(["title", "description", "content"]);
-
     if (!isValid) {
-      console.warn(
-        "Validation failed. Fix errors before auto-detecting category."
+      toast.error(
+        "Validation Failed. Please all all the required field values."
       );
-      return;
     }
-
-    const { title, content, description } = form.getValues();
-
-    const textContent = content
-      .filter((c) => c.type === EContentType.TEXT)
-      .map((c) => c.data)
-      .join(" ");
-
-    const mergedData = `${title} ${textContent} ${description}`;
-
-    mutation.mutate(mergedData, {
-      onSuccess: (response) => {
-        console.log({ response }, "This might need");
-        const result = response.data.prediction;
-        form.setValue("category", result, { shouldValidate: true });
-      },
-    });
+    return;
   };
+
+  const { title, content, description, algorithmType } = form.getValues();
+
+  const textContent = content
+    .filter((c) => c.type === EContentType.TEXT)
+    .map((c) => c.data)
+    .join(" ");
+
+  const mergedData = `${title} ${textContent} ${description}`;
+
+  mutation.mutate(
+    { news: mergedData, type: algorithmType },
+    {
+      onSuccess: (response) => {
+        const result = response.data.prediction as string;
+        form.setValue(
+          "category",
+          result.charAt(0).toUpperCase() + result.slice(1),
+          { shouldValidate: true }
+        );
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    }
+  );
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
@@ -232,7 +247,6 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
                     <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
                     Category
                   </h2>
-
                   <div className="flex gap-3 items-end">
                     <div className="flex-1">
                       <InputField
@@ -250,6 +264,19 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
                     >
                       ✨ Auto-Detect
                     </Button>
+                  </div>
+                  <div>
+                    <SelectField
+                      label="Choose Algorithm"
+                      options={Object.entries(algorithmTypeMap).map(
+                        ([key, value]) => ({
+                          label: value,
+                          value: key,
+                        })
+                      )}
+                      name="algorithmType"
+                      control={form.control}
+                    />
                   </div>
                 </section>
 

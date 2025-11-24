@@ -3,24 +3,33 @@ import { useState } from "react";
 import { NewsCard } from "@/components/cards/NewsCard";
 import { Button } from "@/components/ui/button";
 import { useGetAllNews } from "@/services/newsService";
-import { INews, ENewsType } from "@/types/news.types";
+import { INews, ENewsType, ENewsCategory } from "@/types/news.types";
 
 // ==================== LATEST PAGE ====================
 const LatestPage = () => {
   const { data: newsData, isLoading } = useGetAllNews();
-  const [filter, setFilter] = useState<"all" | ENewsType>("all");
-  const [sortBy, setSortBy] = useState<"newest" | "popular">("newest");
+  const [filter, setFilter] = useState<"all" | ENewsCategory>("all");
 
+  // const filters = [
+  //   { label: "All News", value: "all" },
+  //   { label: "Breaking", value: ENewsType.BREAKING },
+  //   { label: "Trending", value: ENewsType.TRENDING },
+  //   { label: "Alert", value: ENewsType.ALERT },
+  //   { label: "Read", value: ENewsType.READ },
+  //   { label: "Normal", value: ENewsType.NORMAL },
+  // ];
   const filters = [
     { label: "All News", value: "all" },
-    { label: "Breaking", value: ENewsType.BREAKING },
-    { label: "Trending", value: ENewsType.TRENDING },
-    { label: "Alert", value: ENewsType.ALERT },
+    { label: "Sport", value: ENewsCategory.SPORT },
+    { label: "Business", value: ENewsCategory.BUSINESS },
+    { label: "Technology", value: ENewsCategory.TECHNOLOGY },
+    { label: "Politics", value: ENewsCategory.POLITICS },
+    { label: "Entertainment", value: ENewsCategory.ENTERTAINMENT },
   ];
 
-  const filteredNews = newsData?.filter((news: INews) =>
-    filter === "all" ? true : news.type === filter
-  );
+  const filteredNews = newsData?.filter((news: INews) => {
+    return filter === "all" ? true : news.category === filter;
+  });
 
   if (isLoading) {
     return (
@@ -76,19 +85,6 @@ const LatestPage = () => {
                 {f.label}
               </button>
             ))}
-          </div>
-
-          {/* Sort Dropdown */}
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-600 font-medium">Sort by:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-4 py-2 rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:outline-none font-medium text-gray-700 cursor-pointer"
-            >
-              <option value="newest">Newest First</option>
-              <option value="popular">Most Popular</option>
-            </select>
           </div>
         </div>
 

@@ -40,6 +40,8 @@ export const createNewsFormSchema = z.object({
   type: z.enum(ENewsType),
 
   place: z.string().min(2, "Location must be at least 2 characters"),
+
+  algorithmType: z.string(),
 });
 
 export type TCreateNewsForm = z.infer<typeof createNewsFormSchema>;

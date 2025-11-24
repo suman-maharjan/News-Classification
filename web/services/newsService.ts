@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { api } from "./axiosInstance";
 import { key } from "./queryKeys";
+import { toast } from "sonner";
 
 export const useCreateNews = () => {
   return useMutation({
@@ -16,10 +17,10 @@ export const useCreateNews = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      console.log({ data });
+      toast.info("News Created");
     },
     onError: (error) => {
-      console.log({ error });
+      toast.error(error.message);
     },
   });
 };
@@ -52,13 +53,9 @@ export const useEditNewsById = () => {
       return response.data;
     },
     onSuccess: (response) => {
-      console.log({ response }, "I need this to revalidate the query by id");
-      console.log("Edit Successfully");
-      queryClient.invalidateQueries({
-        queryKey: [
-          ...key.news.getAll(),
-          ...key.news.getById(response.data._id),
-        ],
+      toast.info("Edited Successfully");
+      queryClient.refetchQueries({
+        queryKey: key.news.getAll(),
       });
     },
   });
@@ -72,7 +69,7 @@ export const useDeleteNewsById = () => {
       return response.data;
     },
     onSuccess: () => {
-      console.log("Delete Successfully");
+      toast.info("News Deleted");
       queryClient.invalidateQueries({ queryKey: key.news.getAll() });
     },
   });
@@ -80,12 +77,11 @@ export const useDeleteNewsById = () => {
 
 export const useAutoDetectNewsCategory = () => {
   return useMutation({
-    mutationFn: async (data: string) => {
+    mutationFn: async ({ news, type }: { news: string; type: string }) => {
       const response = await api.post(`${URLS.NEWS}/classify`, {
-        news: data,
-        type: "SVM_Model",
+        news,
+        type,
       });
-      console.log({ response });
       return response.data;
     },
   });

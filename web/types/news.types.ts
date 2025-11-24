@@ -18,6 +18,14 @@ export enum ENewsType {
   READ = "read",
 }
 
+export enum ENewsCategory {
+  SPORT = "Sport",
+  BUSINESS = "Business",
+  TECHNOLOGY = "Technology",
+  POLITICS = "Politics",
+  ENTERTAINMENT = "Entertainment",
+}
+
 export interface INews {
   _id: string;
   title: string;
@@ -32,4 +40,5 @@ export interface INews {
   publishedAt: string;
   type: ENewsType;
   place?: string;
+  category: ENewsCategory;
 }
