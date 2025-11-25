@@ -12,16 +12,6 @@ services:
     networks:
       - shared-networks
 
-  node-worker:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    command: node dist/workers/index.js
-    env_file:
-      - ./backend/.env
-    networks:
-      - shared-networks
-
   celery-worker:
     build:
       context: ./server1

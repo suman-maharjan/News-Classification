@@ -48,7 +48,7 @@ const newsSchema: Schema<NewsSchemaType> = new Schema({
   author: String,
   image: String,
   description: { type: String },
-  category: { tyep: String },
+  category: { type: String },
   content: { type: [newsContentSchema], required: true },
   type: {
     type: String,

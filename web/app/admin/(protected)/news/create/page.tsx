@@ -14,7 +14,7 @@ export default function CreateNewsAdmin() {
     createNews.mutate(data, {
       onSuccess: () => {
         toast.info("News Added");
-        router.refresh();
+        router.push("/admin/news");
       },
     });
   };
