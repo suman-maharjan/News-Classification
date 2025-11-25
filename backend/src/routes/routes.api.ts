@@ -1,6 +1,7 @@
 import Express, { Request, Response } from "express";
 import {
   authRouter,
+  commentRouter,
   conversationRouter,
   newsRouter,
   subscriberRouter,
@@ -20,6 +21,7 @@ router.use("/auth", authRouter);
 router.use("/news", newsRouter);
 router.use("/conversation", conversationRouter);
 router.use("/subscriber", subscriberRouter);
+router.use("/comment", commentRouter);
 
 router.all("*", (req: Request, res: Response, next: Express.NextFunction) => {
   throw new ApiError(404, "Routes not found");
