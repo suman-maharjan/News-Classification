@@ -1,4 +1,6 @@
+import { Separator } from "@/components/ui/separator";
 import { EContentType, INews, INewsContent } from "@/types/news.types";
+import DisplayComment from "./DisplayComment";
 
 type NewsDetailProps = Pick<
   INews,
@@ -191,6 +193,10 @@ const NewsDetail = ({
             </div>
           </footer>
         )}
+
+        <Separator />
+
+        <DisplayComment />
 
         {/* Share Actions */}
         <div className="mt-8 flex items-center justify-center gap-4">

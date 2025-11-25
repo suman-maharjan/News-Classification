@@ -10,4 +10,4 @@ export interface IUser {
 
 export type TLoginResponse = ApiResponse<{ user: IUser }> | ApiError;
 export type TRegisterResponse = ApiResponse<{ user: IUser }>;
-export type IMeResponse = ApiResponse<{ user: IUser }>;
+export type IMeResponse = ApiResponse<IUser>;
