@@ -2,17 +2,18 @@ import { useCommentByNewsId } from "@/services/commentService";
 import CommentForm from "./CommentForm";
 import { useParams } from "next/navigation";
 import CommentCard from "./CommentCard";
+import { useAuthStore } from "@/store/authStore";
 
 const DisplayComment = () => {
   const params = useParams();
   const newsId = params.id as string;
+  const isAuthenticated = useAuthStore((store) => store.isAuthenticated);
 
   const { data, isLoading, error } = useCommentByNewsId(newsId);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 py-8">
-      <CommentForm />
-
+      {isAuthenticated && <CommentForm />}
       <div className="space-y-4">
         <h3 className="text-xl font-bold text-gray-900">
           Comments {data && `(${data.length})`}
