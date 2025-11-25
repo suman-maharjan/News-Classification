@@ -1,10 +1,18 @@
 import { Separator } from "@/components/ui/separator";
 import { EContentType, INews, INewsContent } from "@/types/news.types";
 import DisplayComment from "./DisplayComment";
+import { toast } from "sonner";
 
 type NewsDetailProps = Pick<
   INews,
-  "title" | "author" | "image" | "content" | "place" | "publishedAt" | "source"
+  | "title"
+  | "author"
+  | "image"
+  | "content"
+  | "place"
+  | "publishedAt"
+  | "source"
+  | "description"
 >;
 
 const NewsDetail = ({
@@ -15,6 +23,7 @@ const NewsDetail = ({
   image,
   content,
   source,
+  description,
 }: NewsDetailProps) => {
   const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
     weekday: "long",
@@ -22,6 +31,26 @@ const NewsDetail = ({
     month: "long",
     day: "numeric",
   });
+
+  const handleShare = async () => {
+    const shareData = {
+      title,
+      text: description,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        console.log("Article shared!");
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.info("Link copied to clipboard!");
+      }
+    } catch (error) {
+      console.error("Error sharing:", error);
+    }
+  };
 
   return (
     <article className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
@@ -200,7 +229,10 @@ const NewsDetail = ({
 
         {/* Share Actions */}
         <div className="mt-8 flex items-center justify-center gap-4">
-          <button className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-gray-700 font-medium rounded-lg hover:border-blue-300 hover:text-blue-600 transition-all hover:shadow-md">
+          <button
+            onClick={() => handleShare()}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-gray-700 font-medium rounded-lg hover:border-blue-300 hover:text-blue-600 transition-all hover:shadow-md"
+          >
             <svg
               className="w-5 h-5"
               fill="none"
