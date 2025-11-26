@@ -64,36 +64,34 @@ const NewsForm = ({ onSubmit, formTitle, defaultValue }: NewsFormProps) => {
       toast.error(
         "Validation Failed. Please all all the required field values."
       );
+      return;
     }
-    return;
+    const { title, content, description, algorithmType } = form.getValues();
+
+    const textContent = content
+      .filter((c) => c.type === EContentType.TEXT)
+      .map((c) => c.data)
+      .join(" ");
+
+    const mergedData = `${title} ${textContent} ${description}`;
+
+    mutation.mutate(
+      { news: mergedData, type: algorithmType },
+      {
+        onSuccess: (response) => {
+          const result = response.data.prediction as string;
+          form.setValue(
+            "category",
+            result.charAt(0).toUpperCase() + result.slice(1),
+            { shouldValidate: true }
+          );
+        },
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      }
+    );
   };
-
-  const { title, content, description, algorithmType } = form.getValues();
-
-  const textContent = content
-    .filter((c) => c.type === EContentType.TEXT)
-    .map((c) => c.data)
-    .join(" ");
-
-  const mergedData = `${title} ${textContent} ${description}`;
-
-  mutation.mutate(
-    { news: mergedData, type: algorithmType },
-    {
-      onSuccess: (response) => {
-        const result = response.data.prediction as string;
-        form.setValue(
-          "category",
-          result.charAt(0).toUpperCase() + result.slice(1),
-          { shouldValidate: true }
-        );
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    }
-  );
-
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
       <div className="max-w-4xl mx-auto">

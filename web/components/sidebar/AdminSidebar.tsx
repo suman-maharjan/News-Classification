@@ -16,16 +16,6 @@ const items = [
     url: "/admin/news",
     icon: Newspaper,
   },
-  {
-    title: "User Management",
-    url: "#",
-    icon: BookUser,
-  },
-  {
-    title: "Settings",
-    url: "/admin/settings",
-    icon: Settings2,
-  },
 ];
 
 const AdminSidebar = () => {
