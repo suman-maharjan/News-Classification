@@ -1,14 +1,40 @@
 import { URLS } from "@/constants/envConstant";
 import { TCreateNewsForm } from "@/lib/form/newsForm";
+import { INews } from "@/types/news.types";
 import {
-  QueryClient,
+  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { api } from "./axiosInstance";
 import { key } from "./queryKeys";
-import { toast } from "sonner";
+
+type TPaginationResponse = {
+  success: boolean;
+  data: INews[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    nextPage: number | null;
+    prevPage: number | null;
+  };
+};
+
+interface NewsQueryParams {
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  search?: string;
+  category?: string;
+  // type?: ENewsType | undefined;
+  place?: string;
+}
 
 export const useCreateNews = () => {
   return useMutation({
@@ -25,16 +51,63 @@ export const useCreateNews = () => {
   });
 };
 
-export const useGetAllNews = () => {
+export const useGetAllNews = ({
+  page,
+  limit,
+  sortBy = "publishedAt",
+  filters,
+}: {
+  page?: number;
+  limit?: number;
+  sortBy?: "publishedAt";
+  filters?: Record<string, any>;
+}) => {
   return useQuery({
-    queryKey: key.news.getAll(),
+    queryKey: ["news", "getAll", page, limit, sortBy, filters],
     queryFn: async () => {
-      const response = await api.get(`${URLS.NEWS}/all`);
-      return response.data.data;
+      const response = await api.get<TPaginationResponse>(
+        `${URLS.NEWS}/all?page=${page}&limit=${limit}&sortBy=${sortBy}`,
+        {
+          params: filters,
+        }
+      );
+      return response.data;
     },
   });
 };
 
+export const useInfiniteNews = (filters: NewsQueryParams = {}) => {
+  return useInfiniteQuery<any>({
+    queryKey: ["news", "infinite", filters],
+    queryFn: async ({ pageParam = 1 }) => {
+      const params = new URLSearchParams({
+        page: String(pageParam),
+        limit: String(filters.limit || 20),
+      });
+
+      if (filters.sortBy) params.set("sortBy", filters.sortBy);
+      if (filters.sortOrder) params.set("sortOrder", filters.sortOrder);
+      if (filters.search) params.set("search", filters.search);
+      if (filters.category) params.set("category", filters.category);
+      // if (filters.type) params.set("type", filters.type);
+      if (filters.place) params.set("place", filters.place);
+
+      const response = await api.get<TPaginationResponse>(
+        `${URLS.NEWS}/all?${params.toString()}`
+      );
+      return response.data;
+    },
+    getNextPageParam: (response) => {
+      if (response.pagination.hasNextPage) {
+        return response.pagination.page + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+  });
+};
 export const useGetNewsById = (id: string) => {
   return useQuery({
     queryKey: key.news.getById(id),

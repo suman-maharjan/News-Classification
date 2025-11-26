@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { validateZod } from "../../utils/validationHandler";
-import newsService from "./news.service";
+import newsService, { PaginationParams } from "./news.service";
 import { newsClassifySchema, newsCreateSchema } from "./newsSchema";
 
 class NewsController {
@@ -11,8 +11,26 @@ class NewsController {
   }
 
   async getAllNews(req: Request, res: Response) {
-    const result = await newsService.all();
-    res.status(200).json({ data: result, message: "success" });
+    const {
+      page = "1",
+      limit = "20",
+      sortBy = "publishedAt",
+      sortOrder = "desc",
+      search,
+      ...filters
+    } = req.query;
+
+    const params: PaginationParams = {
+      page: Number(page),
+      limit: Number(limit),
+      sortBy: String(sortBy),
+      sortOrder: sortOrder as "desc" | "asc",
+      filters,
+      search: search ? String(search) : undefined,
+    };
+
+    const result = await newsService.all(params);
+    res.status(200).json(result);
   }
 
   async getById(req: Request, res: Response) {

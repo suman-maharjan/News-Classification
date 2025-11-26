@@ -6,11 +6,7 @@ import { useGetAllNews } from "@/services/newsService";
 import { useRouter } from "next/navigation";
 
 const AdminNewsPage = () => {
-  const { data, isLoading } = useGetAllNews();
   const router = useRouter();
-  if (isLoading) {
-    return <p>Loading..</p>;
-  }
 
   return (
     <PageSection>
@@ -20,7 +16,7 @@ const AdminNewsPage = () => {
           Add News
         </Button>
       </div>
-      <NewsTable data={data} />
+      <NewsTable />
     </PageSection>
   );
 };

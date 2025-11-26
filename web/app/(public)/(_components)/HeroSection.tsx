@@ -6,14 +6,16 @@ import { useGetAllNews } from "@/services/newsService";
 import { INews } from "@/types/news.types";
 
 const HeroSection = () => {
-  const { data: newsData, isLoading } = useGetAllNews();
+  const { data, isLoading } = useGetAllNews({ page: 1, limit: 5 });
+
+  const newsData = data?.data;
 
   if (isLoading) {
     return <Spinner />;
   }
 
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-white">
+    <div className="bg-linear-to-b from-gray-50 to-white">
       <PageSection className="py-12">
         {/* Section Header */}
         <div className="mb-10">
@@ -23,7 +25,7 @@ const HeroSection = () => {
           <p className="text-gray-600 text-lg">
             Stay informed with the most recent updates and stories
           </p>
-          <div className="mt-4 h-1 w-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full" />
+          <div className="mt-4 h-1 w-20 bg-linear-to-r from-blue-600 to-indigo-600 rounded-full" />
         </div>
 
         {/* News Grid */}

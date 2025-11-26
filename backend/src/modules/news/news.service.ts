@@ -9,6 +9,15 @@ import { NewsClassifySchemaType, NewsCreateSchemaType } from "./newsSchema";
 import NewsModel from "./news.model";
 import { ApiError } from "../../utils/ApiError";
 
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  filters?: Record<string, any>;
+  search?: string;
+}
+
 class NewsService {
   private axiosInstance: AxiosInstance;
 
@@ -23,9 +32,63 @@ class NewsService {
     await NewsModel.create(payload);
   }
 
-  async all() {
-    const result = await NewsModel.find();
-    return result;
+  async all(params: PaginationParams) {
+    const {
+      page = 1,
+      limit = 20,
+      sortBy = "publishedAt",
+      sortOrder = "desc",
+      filters = {},
+      search,
+    } = params;
+    const validPage = Math.max(1, Number(page));
+    const validLimit = Math.min(Number(limit), 100);
+    const skip = (validPage - 1) * validLimit;
+
+    const query = { ...filters };
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+        { author: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // const sortObject = {};
+
+    const sortObject = {
+      [sortBy]: sortOrder === "desc" ? -1 : 1,
+      _id: -1,
+    } as any;
+
+    try {
+      const [data, total] = await Promise.all([
+        await NewsModel.find(query)
+          .sort(sortObject)
+          .skip(skip)
+          .limit(validLimit)
+          .select("-__v")
+          .lean(),
+        NewsModel.countDocuments(query),
+      ]);
+      const totalPages = Math.ceil(total / validLimit);
+      return {
+        success: true,
+        data,
+        pagination: {
+          page: validPage,
+          limit: validLimit,
+          total,
+          totalPages,
+          hasNextPage: validPage < totalPages,
+          hasPrevPage: validPage > 1,
+          startIndex: skip + 1,
+          endIndex: Math.min(skip + validLimit, total),
+        },
+      };
+    } catch (error) {
+      throw new ApiError(400, "Error Fetching news", error);
+    }
   }
 
   async getById(id: string) {
