@@ -2,5 +2,7 @@ import { INews } from "@/types/news.types";
 
 export type TNewsCardProps = Pick<
   INews,
-  "id" | "title" | "description" | "image" | "type" | "publishedAt" | "place"
->;
+  "title" | "description" | "image" | "type" | "publishedAt" | "place"
+> & {
+  id: string;
+};

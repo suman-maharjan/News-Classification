@@ -22,6 +22,8 @@ type TPaginationResponse = {
     hasNextPage: boolean;
     hasPrevPage: boolean;
     nextPage: number | null;
+    startIndex: number;
+    endIndex: number;
     prevPage: number | null;
   };
 };
