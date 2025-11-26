@@ -76,13 +76,6 @@ const PublicNavbar = () => {
               Latest
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300" />
             </Link>
-            <Link
-              href="/categories"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors relative group"
-            >
-              Categories
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300" />
-            </Link>
           </div>
 
           {/* Action Buttons */}
