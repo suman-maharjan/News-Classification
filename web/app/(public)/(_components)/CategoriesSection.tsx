@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 // Categories Section
 export const CategoriesSection = () => {
   const categories = [
@@ -7,28 +9,34 @@ export const CategoriesSection = () => {
       name: "Politics",
       icon: "🏛️",
       color: "from-red-500 to-pink-500",
+      link: `/latest?category=politics`,
     },
     {
       name: "Technology",
       icon: "💻",
       color: "from-blue-500 to-cyan-500",
+      link: `/latest?category=technology`,
     },
     {
       name: "Sports",
       icon: "⚽",
       color: "from-green-500 to-emerald-500",
+      link: `/latest?category=sport`,
     },
     {
       name: "Business",
       icon: "💼",
       color: "from-purple-500 to-indigo-500",
+      link: `/latest?category=business`,
     },
     {
       name: "Entertainment",
       icon: "🎬",
       color: "from-yellow-500 to-orange-500",
+      link: `/latest?category=entertainment`,
     },
   ];
+  const router = useRouter();
 
   return (
     <section className="py-20 bg-white">
@@ -45,7 +53,10 @@ export const CategoriesSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {categories.map((category, index) => (
             <div key={index} className="group cursor-pointer">
-              <div className="relative overflow-hidden rounded-2xl bg-linear-to-br p-0.5 hover:scale-105 transition-transform duration-300">
+              <div
+                className="relative overflow-hidden rounded-2xl bg-linear-to-br p-0.5 hover:scale-105 transition-transform duration-300"
+                onClick={() => router.push(category.link)}
+              >
                 <div
                   className={`absolute inset-0 bg-linear-to-br ${category.color}`}
                 />

@@ -9,9 +9,7 @@ export default function Home() {
   return (
     <main>
       <HeroSection />
-      <FeaturedHeroSection />
       <CategoriesSection />
-      {/* <TrendingSection /> */}
       <NewsletterSection />
     </main>
   );

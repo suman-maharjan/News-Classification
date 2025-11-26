@@ -1,12 +1,22 @@
 "use client";
-import { useState } from "react";
 import { NewsCard } from "@/components/cards/NewsCard";
 import { Button } from "@/components/ui/button";
+import { capitalizeFirstLetter } from "@/lib/stringFunctions";
 import { useInfiniteNews } from "@/services/newsService";
-import { INews, ENewsCategory } from "@/types/news.types";
+import { ENewsCategory, INews } from "@/types/news.types";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 const LatestPage = () => {
-  const [filter, setFilter] = useState<"all" | ENewsCategory>("all");
+  const searchParams = useSearchParams();
+  const rawCategory = searchParams.get("category");
+  const searchParamCategory = rawCategory
+    ? (capitalizeFirstLetter(rawCategory) as ENewsCategory)
+    : undefined;
+
+  const [filter, setFilter] = useState<"all" | ENewsCategory>(
+    searchParamCategory || "all"
+  );
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteNews({
@@ -15,7 +25,6 @@ const LatestPage = () => {
     });
 
   const allNews = data?.pages.flatMap((page) => page.data) ?? [];
-  console.log({ allNews });
 
   const filters = [
     { label: "All News", value: "all" },
