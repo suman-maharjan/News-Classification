@@ -26,5 +26,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "../backend/src/sockets/socket.gateway.ts"]
+  // "include": ["src", "../backend/src/sockets/socket.gateway.ts"]
 }
