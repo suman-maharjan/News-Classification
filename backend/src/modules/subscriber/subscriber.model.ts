@@ -11,8 +11,7 @@ const subscriberSchema: Schema<SubscriberType> = new Schema({
   },
 });
 
-const SubscriberModel =
-  (mongoose.models.Subscriber as mongoose.Model<SubscriberType>) ||
-  mongoose.model("Subscriber", subscriberSchema);
+const SubscriberModel: mongoose.Model<SubscriberType> =
+  mongoose.models.Subscriber || mongoose.model("Subscriber", subscriberSchema);
 
 export default SubscriberModel;

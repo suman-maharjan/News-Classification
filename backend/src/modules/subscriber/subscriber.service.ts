@@ -1,4 +1,4 @@
-import SubscriberModel from "./subscriber.model";
+import SubscriberModel, { SubscriberType } from "./subscriber.model";
 import { TAddSubscriberSchema } from "./subscriberSchema";
 
 class SubscriberService {

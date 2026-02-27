@@ -40,7 +40,7 @@ const newsContentSchema = new Schema(
       required: true, // text or image URL
     },
   },
-  { _id: false } // optional: prevents creation of subdocument IDs
+  { _id: false }, // optional: prevents creation of subdocument IDs
 );
 
 const newsSchema: Schema<NewsSchemaType> = new Schema({
@@ -59,8 +59,7 @@ const newsSchema: Schema<NewsSchemaType> = new Schema({
   publishedAt: { type: Date, default: Date.now() },
 });
 
-const NewsModel =
-  (mongoose.models.News as mongoose.Model<NewsSchemaType>) ||
-  mongoose.model("News", newsSchema);
+const NewsModel: mongoose.Model<NewsSchemaType> =
+  mongoose.models.News || mongoose.model("News", newsSchema);
 
 export default NewsModel;

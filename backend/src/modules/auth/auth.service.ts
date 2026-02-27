@@ -44,7 +44,7 @@ class AuthService {
 
     const hashedPassword = await bcrypt.hash(
       password,
-      +process.env.SALT_ROUNDS
+      +process.env.SALT_ROUNDS,
     );
 
     // if (emailExist && !emailExist.isEmailVerified) {
@@ -98,7 +98,7 @@ class AuthService {
     await UserModel.findOneAndUpdate(
       { email: emailPayload },
       { isEmailVerified: true },
-      { new: true }
+      { new: true },
     );
 
     await AuthModel.deleteOne({ email: emailPayload });
@@ -123,7 +123,7 @@ class AuthService {
     await AuthModel.findOneAndUpdate(
       { email: emailPayload },
       { otp, token_expiry },
-      { new: true }
+      { new: true },
     );
     await mailer(emailPayload, otp);
     const result = "OTP sent to your email";
@@ -209,7 +209,7 @@ class AuthService {
     await UserModel.findOneAndUpdate(
       { email },
       { password: hashPassword },
-      { new: true }
+      { new: true },
     );
 
     await AuthModel.deleteOne({ email });
@@ -239,7 +239,7 @@ class AuthService {
   async generateAccessAndRefreshToken(user: IUser) {
     // JWT ACCESS TOKEN GENERATION
     const accessTokenPayload: accessTokenPayload = {
-      id: user?._id as string,
+      id: String(user?._id),
       email: user?.email,
       username: user?.name,
       roles: user?.roles,
@@ -247,7 +247,7 @@ class AuthService {
 
     // JWT REFRESH TOKEN GENERATION
     const refreshTokenPayload: refreshTokenPayload = {
-      id: user?._id as string,
+      id: String(user?._id),
     };
 
     const accessToken = generateAccessToken(accessTokenPayload);
@@ -263,7 +263,7 @@ class AuthService {
   async checkTokens(access_token: string, refresh_token: string) {
     const { accessToken, refreshToken } = await getUsersFromTokens(
       access_token,
-      refresh_token
+      refresh_token,
     );
 
     return { accessToken, refreshToken };

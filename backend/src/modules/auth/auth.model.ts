@@ -17,7 +17,6 @@ const authSchema: Schema<authSchemaType> = new Schema({
   updated_at: { type: Date, default: Date.now() },
 });
 
-const AuthModel =
-  (mongoose.models.Auth as mongoose.Model<authSchemaType>) ||
-  mongoose.model("Auth", authSchema);
+const AuthModel: mongoose.Model<authSchemaType> =
+  mongoose.models.Auth || mongoose.model("Auth", authSchema);
 export default AuthModel;
