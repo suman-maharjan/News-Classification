@@ -1,7 +1,6 @@
 import cookieParser from "cookie-parser";
 import express from "express";
 
-import cors from "cors";
 import { errorHandler } from "./middlewares/error.middleware";
 import { indexRouter } from "./routes/index";
 
@@ -10,18 +9,13 @@ import "reflect-metadata";
 
 import initMongoDatabase from "./config/mongoDb";
 import { initRedis } from "./config/redis";
-import { FRONTEND_URL, PORT } from "./constants/envConstants";
+import { PORT } from "./constants/envConstants";
+import corsMiddleware from "./middlewares/cors.middleware";
 import { initializeSocket } from "./sockets/socket.gateway";
 
 const app = express();
 
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-  }),
-);
-
+app.use(corsMiddleware());
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
