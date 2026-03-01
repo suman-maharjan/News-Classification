@@ -2,46 +2,57 @@ services:
   react-frontend:
     restart: always
     build:
-      context: ./frontend
+      context: ./frontend/news-classification/
       dockerfile: Dockerfile
     ports:
       - "4173:4173"
     env_file:
-      - ./frontend/.env
+      - ./frontend/news-classification/.env
 
-  node-backend:
+  news-portal:
     restart: always
-    build: 
-      context: ./backend
+    build:
+      context: ./frontend/news-portal
       dockerfile: Dockerfile
-    command: node dist/index.js
     ports:
       - "3000:3000"
     env_file:
-      - ./backend/.env
+      - ./frontend/news-portal/.env
+    depends_on:
+      - node-backend
+
+  node-backend:
+    restart: always
+    build:
+      context: ./backend/node-api
+      dockerfile: Dockerfile
+    command: node dist/index.js
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/node-api/.env
     networks:
       - shared-networks
 
   node-worker:
     build:
-      context: ./backend
+      context: ./backend/node-api
       dockerfile: Dockerfile
     command: node dist/workers/index.js
     env_file:
-      - ./backend/.env
+      - ./backend/node-api/.env
     networks:
       - shared-networks
 
   celery-worker:
-    build: 
-      context: ./server1
+    build:
+      context: ./backend/ml-service
       dockerfile: Dockerfile
     env_file:
-      - ./server1/.env
+      - ./backend/ml-service/.env
     networks:
       - shared-networks
 
 networks:
   shared-networks:
     external: true
-

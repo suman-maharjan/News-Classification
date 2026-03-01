@@ -1,20 +1,21 @@
-# News Classification Project
+# News Portal with ML Classification Project
 
-This project aims to classify news articles into various categories using a machine learning model. The model uses a Support Vector Machine (SVM) for classification, and the text data is processed using techniques such as TF-IDF for feature extraction.
+This project aims to classify news articles into various categories using a machine learning model. The model uses a Support Vector Machine (SVM) and Naive Bayes for classification, and the text data is processed using techniques such as TF-IDF for feature extraction.
 
 ## Features
 
 - **Text Preprocessing:** The news articles are preprocessed to remove stopwords, perform tokenization, and convert text into vector format using TF-IDF.
-- **Classification:** SVM is used to classify news articles into predefined categories such as business, technology, sports, politics, etc.
+- **Classification:** SVM & Naive Bayes is used to classify news articles into predefined categories such as business, technology, sports, politics, and entertainment.
 - **Real-time Classification:** Input news articles through a user interface and receive immediate classification results.
 
 ## Tech Stack
 
 - **Backend:**
-  - Python (Flask for deploying the model)
-  - Custom Model as SVM model
+  - Python (Celery for executing the ML model function)
+  - Custom Model as SVM model, Naive Bayes
 - **Frontend:**
-  - React.js
+  - React.js (News Classification)
+  - Next.js (News Portal)
 - **Database:**
   - MongoDB for storing classified news articles and conversations
 - **Authentication:**
@@ -27,84 +28,11 @@ This project aims to classify news articles into various categories using a mach
 ### Prerequistics
 
 - **Node.js** and npm
-- **Python** with **Flask**
+- **Python** with **Celery**
 - **MongoDB** installed or cloud-hosted
+- **Docker**
 
-### Project Setup v1
-
-1. Clone the repository
-
-   ```bash
-   git clone https://github.com/nvwns1/News-Classification.git
-   cd news-classification
-   ```
-
-#### Backend 1 Setup (Flask)
-
-1. Install required Python libraries:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. Start the Flask server
-
-   ```bash
-   cd server1
-   python app.py
-   ```
-
-#### Backend 2 Setup (Node Js)
-
-1. Navigate to the Backend folder:
-
-   ```bash
-   cd backend
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Setup env for Node Js Server:
-
-   - Update .env (.env.example included in the folder)
-
-4. Start Node Js Server:
-
-   ```bash
-   npm run start
-   ```
-
-#### Frontend Setup (React Js)
-
-1. Navigate to the Frontend folder:
-
-   ```bash
-   cd frontend
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Setup env for React Js:
-
-   - Update .env (.env.example included in the folder)
-
-4. Start React Js:
-
-   ```bash
-   npm run start
-   ```
-
-#### Version 2
-
-### Project Setup v2
+### Project Setup v3
 
 1. Clone the repository
 
@@ -113,27 +41,89 @@ This project aims to classify news articles into various categories using a mach
    cd news-classification
    ```
 
-#### Backend 1 Setup
+### Env Setup
 
-1. Install required Python libraries:
+1. ML Service (Backend)
+
+   ```bash
+   cd backend/ml-service
+   cp .env.example .env
+   ```
+
+2. Node Service (Backend)
+
+   ```bash
+   cd backend/node-api
+   cp .env.example .env
+   ```
+
+3. News - Portal (Frontend)
+
+   ```bash
+   cd frontend/news-portal
+   cp .env.example .env
+   ```
+
+4. News - Classification (Frontend)
+
+   ```bash
+   cd frontend/news-classification
+   cp .env.example .env
+   ```
+
+5. Redis
+
+   ```bash
+   cd redis
+   cp .env.example .env
+   ```
+
+### Docker Runner
+
+1. Run Redis (Required)
+
+   ```bash
+   cd redis
+   docker compose up -d
+   ```
+
+2. Run Services (Optional)
+
+   ```bash
+   docker compose up -d
+   ```
+
+### Manual Runner
+
+#### ML service (Celery)
+
+1. Create & activate virtual environment
+
+   ```bash
+      cd backend/ml-service 
+      python3 -m venv venv     # windows: python -m venv venv
+      source venv/bin/activate # windows: venv\Scripts\activate
+   ```
+
+2. Install & download required Python libraries:
 
    ```bash
    pip install -r requirements.txt
+   python -m nltk.downloader stopwords punkt wordnet
    ```
 
-2. Start the Python worker
+3. Run Celery Python
 
    ```bash
-   cd server1
-   celery -A celery_app worker --pool=solo -l info
+   celery -A celery_app.celery worker --pool=solo -l info
    ```
 
-#### Backend 2 Setup (Node Js)
+#### Node Backend
 
 1. Navigate to the Backend folder:
 
    ```bash
-   cd backend
+   cd backend/node-api
    ```
 
 2. Install dependencies:
@@ -142,31 +132,26 @@ This project aims to classify news articles into various categories using a mach
    npm install
    ```
 
-3. Setup env for Node Js Server:
-
-   - Update .env (.env.example included in the folder)
-
-4. Start Node Js Server:
-
-   ```bash
-   npm run build
-   ```
+3. Start Node Js Server:
 
    ```bash
    npm run start
    ```
 
-5. Start Node Js Worker:
+4. Start Node JS Worker:
+
    ```bash
    npm run worker
    ```
 
-#### Frontend Setup (React Js)
+#### Frontend Setup
+
+##### News Classification (Vite)
 
 1. Navigate to the Frontend folder:
 
    ```bash
-   cd frontend
+   cd frontend/news-classification
    ```
 
 2. Install dependencies:
@@ -175,13 +160,32 @@ This project aims to classify news articles into various categories using a mach
    npm install
    ```
 
-3. Setup env for React Js:
-
-   - Update .env (.env.example included in the folder)
-
-4. Start React Js:
+3. Start React Js:
 
    ```bash
+   npm run build
+   npm run start
+   ```
+
+
+##### News Portal (Next.js)
+
+1. Navigate to the Frontend folder:
+
+   ```bash
+   cd frontend/news-portal
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Start Next Js:
+
+   ```bash
+   npm run build
    npm run start
    ```
 
