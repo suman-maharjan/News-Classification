@@ -1,4 +1,4 @@
-import mongoose, { Schema, model, Document } from "mongoose";
+import mongoose, { Schema, model, Document, HydratedDocument } from "mongoose";
 import { validateEmail } from "./user.validation";
 
 export enum RoleEnum {
@@ -6,7 +6,7 @@ export enum RoleEnum {
   USER = "user",
 }
 
-export interface IUser extends Document {
+export interface IUser {
   name: string;
   email: string;
   password: string;
@@ -49,6 +49,8 @@ const userSchema: Schema<IUser> = new Schema({
   accessToken: { type: String },
   refreshToken: { type: String },
 });
+
+export type UserDocument = HydratedDocument<IUser>;
 
 const UserModel =
   (mongoose.models.User as mongoose.Model<IUser>) ||

@@ -5,9 +5,9 @@ import {
   CELERY_TASK_CLASSIFY_NAIVE_BAYES,
   CELERY_TASK_PROBABILITY,
 } from "../../constants/envConstants";
-import { NewsClassifySchemaType, NewsCreateSchemaType } from "./newsSchema";
-import NewsModel from "./news.model";
 import { ApiError } from "../../utils/ApiError";
+import { newsRepository } from "./news.type";
+import { NewsClassifySchemaType, NewsCreateSchemaType } from "./newsSchema";
 
 export interface PaginationParams {
   page?: number;
@@ -29,88 +29,45 @@ class NewsService {
   }
 
   async create(payload: NewsCreateSchemaType) {
-    await NewsModel.create(payload);
+    await newsRepository.create(payload);
   }
 
   async all(params: PaginationParams) {
-    const {
-      page = 1,
-      limit = 20,
-      sortBy = "publishedAt",
-      sortOrder = "desc",
-      filters = {},
-      search,
-    } = params;
-    const validPage = Math.max(1, Number(page));
-    const validLimit = Math.min(Number(limit), 100);
-    const skip = (validPage - 1) * validLimit;
+    const result = await newsRepository.findAll(params);
 
-    const query = { ...filters };
-    if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { author: { $regex: search, $options: "i" } },
-      ];
-    }
-
-    // const sortObject = {};
-
-    const sortObject = {
-      [sortBy]: sortOrder === "desc" ? -1 : 1,
-      _id: -1,
-    } as any;
-
-    try {
-      const [data, total] = await Promise.all([
-        await NewsModel.find(query)
-          .sort(sortObject)
-          .skip(skip)
-          .limit(validLimit)
-          .select("-__v")
-          .lean(),
-        NewsModel.countDocuments(query),
-      ]);
-      const totalPages = Math.ceil(total / validLimit);
-      return {
-        success: true,
-        data,
-        pagination: {
-          page: validPage,
-          limit: validLimit,
-          total,
-          totalPages,
-          hasNextPage: validPage < totalPages,
-          hasPrevPage: validPage > 1,
-          startIndex: skip + 1,
-          endIndex: Math.min(skip + validLimit, total),
-        },
-      };
-    } catch (error) {
-      throw new ApiError(400, "Error Fetching news", error);
-    }
+    const totalPages = Math.ceil(result.total / result.limit);
+    const skip = (result.page - 1) * result.limit;
+    return {
+      success: true,
+      data: result.data,
+      pagination: {
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages,
+        hasNextPage: result.page < totalPages,
+        hasPrevPage: result.page > 1,
+        startIndex: skip + 1,
+        endIndex: Math.min(skip + result.limit, result.total),
+      },
+    };
   }
 
   async getById(id: string) {
-    const result = await NewsModel.findOne({ _id: id });
-    return result;
+    const result = await newsRepository.getNewsById(id);
   }
 
   async editById(id: string, payload: NewsCreateSchemaType) {
-    const news = await NewsModel.findOne({ _id: id });
+    const news = await newsRepository.newsIdExists(id);
     if (!news) {
       throw new ApiError(404, "News not Found");
     }
-    const result = await NewsModel.findOneAndUpdate(
-      { _id: id },
-      { $set: payload },
-      { new: true }
-    );
+    const result = await newsRepository.update(id, payload);
     return result;
   }
 
   async deleteById(id: string) {
-    const result = await NewsModel.findOneAndDelete({ _id: id });
+    const result = await newsRepository.delete(id);
     return result;
   }
 

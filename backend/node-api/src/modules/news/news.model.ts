@@ -16,7 +16,7 @@ export enum ENewsType {
   ALERT = "alert",
   READ = "read",
 }
-export interface NewsSchemaType extends Document {
+export interface NewsSchemaType {
   title: string;
   author: string;
   image: string;
@@ -58,6 +58,8 @@ const newsSchema: Schema<NewsSchemaType> = new Schema({
   place: { type: String },
   publishedAt: { type: Date, default: Date.now() },
 });
+
+export type NewsDocument = mongoose.HydratedDocument<NewsSchemaType>;
 
 const NewsModel: mongoose.Model<NewsSchemaType> =
   mongoose.models.News || mongoose.model("News", newsSchema);

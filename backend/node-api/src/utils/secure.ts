@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { RoleEnum } from "../modules/user/user.model";
-import { getUsersFromTokens } from "./jwt";
 import { ApiError } from "./ApiError";
 import { asyncHandler } from "./asyncHandler";
+import authService from "../modules/auth/auth.service";
 
 const compareRoles = (user_perm: RoleEnum[], access_perm: RoleEnum[]) => {
   // Ensure user_perm is an array
@@ -21,13 +21,16 @@ const secureAPI = (roles: RoleEnum[]) => {
   return asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       const { access_token, refresh_token } = req.cookies;
-      const { user } = await getUsersFromTokens(access_token, refresh_token);
+      const { user } = await authService.getUsersFromTokens(
+        access_token,
+        refresh_token,
+      );
       const isAllowed = compareRoles(roles, user.roles);
       if (!isAllowed) {
         throw new ApiError(403, "Forbidden");
       }
       next();
-    }
+    },
   );
 };
 
@@ -35,7 +38,10 @@ export const secureAPISelf = () => {
   return asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
       const { access_token, refresh_token } = req.cookies;
-      const { user } = await getUsersFromTokens(access_token, refresh_token);
+      const { user } = await authService.getUsersFromTokens(
+        access_token,
+        refresh_token,
+      );
       const { userId } = req.body;
       if (!userId) {
         throw new ApiError(403, "Forbidden");
@@ -45,7 +51,7 @@ export const secureAPISelf = () => {
         throw new ApiError(403, "Forbidden");
       }
       next();
-    }
+    },
   );
 };
 
